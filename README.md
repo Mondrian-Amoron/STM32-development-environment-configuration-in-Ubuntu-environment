@@ -1,707 +1,342 @@
-​
-写在前面：
-        我是南昌航空大学洪鹰战队22级电控组成员，在学习和备赛的过程中使用过很多开发环境，从Keil到CubeIDE，再到VScode，最后还是觉得VScode使用起来比较方便。在24赛季的备赛过程中，我们接触并使用了湖南大学跃鹿战队的开源电控框架basic_framework，感受到了使用Ozone进行调试的方便性，由此产生了探索的小兴趣。
+# YueLu2022/2023 EC basic_framework-dev
 
-        在联盟赛结束后我开始探索Ubuntu系统下的STM32开发环境的搭建，并在一次次试错中总结出了一个较为方便的开发环境搭建过程，故写下此篇博客用以记录，方便后面重装系统后能够快速重建开发环境，也为从事相关开发工作的同学们提供一个思路。
+湖南大学RoboMaster跃鹿战队2022-2023电控通用嵌入式框架。
 
-在此感谢湖南大学跃鹿战队电控开源框架basic_framework提供的环境搭建思路，附上框架链接：
-basic_framework: Hey this is the basic frame work for robomaster standard infantry Robots! enjoy using it, have fun developing Robot with us
-https://gitee.com/hnuyuelurm/basic_framework
+<div align=center>
+	<img src=".assets/yuelu_badge.png"/>
+	<p>
+		<img src="https://img.shields.io/badge/version-beta-blue"/>
+		<img src="https://img.shields.io/badge/license-MIT-green"/>
+    	<img src="https://github.com/HNUYueLuRM/basic_framework/actions/workflows/c-cpp.yml/badge.svg"/>
+    </p>
+   	<p>
+		<img src="https://gitee.com/HNUYueLuRM/basic_framework/badge/star.svg"/>
+		<img src="https://gitee.com/HNUYueLuRM/basic_framework/badge/fork.svg"/>
+	</p>
+    <h5><p><font face="consolas">Best RoboMaster embedded EC open-source code ever?</p></h>
+</div>
 
- 一、Ubuntu系统的安装
-1、启动盘的制作和双系统的安装
-这里推荐一个b站的视频，这个UP主讲的非常细，Ubuntu的启动盘制作可以参考这个视频
 
-（建议：关于内存分布这块，建议至少120G，且直接挂载一个根节点，能提高内存空间利用率）
 
-Windows 和 Ubuntu 双系统的安装和卸载_哔哩哔哩_bilibili
-Windows 和 Ubuntu 双系统的安装和卸载共计16条视频，包括：双系统启动效果、下载Ubuntu系统镜像、下载安装镜像工具等，UP主更多精彩视频，请关注UP账号。
-https://www.bilibili.com/video/BV1554y1n7zv/?spm_id_from=333.1007.top_right_bar_window_custom_collection.content.click&vd_source=db1d1f91faddd9a92b98355deb2f94a6
-（建议：自备一个大容量高速U盘，每隔一段时间将自己重要的资料或工程文件都在U盘里备份一份，因为永远不知道Ubuntu会在什么时候突然崩溃）
+> ***也许不是最好的？但一定是最完整最详细最适合上手的电控开源！***
 
-2、拯救者BIOS启动
-因为我的电脑是拯救者的，所以当时启动安装时，为保险起见专门找了拯救者的BIOS启动相关注意事项，以供大家参考
+[TOC]
 
-联想拯救者Y7000P双系统Ubuntu安装记录_哔哩哔哩_bilibili
--, 视频播放量 11288、弹幕量 1、点赞数 98、投硬币枚数 34、收藏人数 131、转发人数 42, 视频作者 Astra-github, 作者简介 谁能赐我一篇SCI，相关视频：Windows11 安装 Ubuntu 避坑指南，手把手教你安装双系统 windows11+ubuntu 22.04(1)，Windows 和 Ubuntu 双系统的安装和卸载，这个双系统太美了！！，一步解决联想拯救者R9000p 5800h安装ubuntu后屏幕无法调节亮度的问题！！！，几分钟让你学会安装Windows双系统，无需U盘和PE，ros安装成功～联想拯救者r7000p win10和Ubuntu双系统，windows+ubuntu双系统详细安装教程，互不冲突，3分钟安装ubuntu20.04显卡驱动（大学生亲试一整个白天），联想Y7000安装ubuntu18.04系统
-https://www.bilibili.com/video/BV1j34y1y7iy/?spm_id_from=333.1007.top_right_bar_window_custom_collection.content.click&vd_source=db1d1f91faddd9a92b98355deb2f94a6
+***==别忘了仓库根目录下的`.Doc`文件夹中有关于配置环境和开发更详尽的说明！==***
 
-3、更改Ubuntu的时间
-双系统会导致Ubuntu比Windows的时间快8小时，而Windows的时间比Ubuntu慢8小时，所以需要解决系统时间同步的问题。还是第一次分享的那个视频，后面有一节讲到了时间同步的问题。
+- 若无法访问github，戳[gitee仓库](https://gitee.com/hnuyuelurm/basic_framework)
+- 若gitee内容被屏蔽，戳[github仓库](https://github.com/HNUYueLuRM/basic_framework)
 
-（建议：打开字幕观看，因为有些莫名出现的问题，会在弹幕里有解答）
+> 基于basic_framework打造的C++进阶重构版本[***powerful_framework***](https://gitee.com/hnuyuelurm/powerful_framework)现已发布！增加全新的消息交互机制和严格的跨任务数据读写保护，采用了现代构建系统CMake+Ninja以追求极致的编译速度，各种针对嵌入式的编译优化全开，DIY程度进一步提升，更有自定义CMSIS-DSP和Eigen等扩展库支持！快来加入试用/和我们一起开发吧😋
 
-系统时间同步问题_哔哩哔哩_bilibili
-系统时间同步问题是Windows 和 Ubuntu 双系统的安装和卸载的第9集视频，该合集共计16集，视频收藏或关注UP主，及时了解更多相关视频内容。
-https://www.bilibili.com/video/BV1554y1n7zv?p=9&vd_source=db1d1f91faddd9a92b98355deb2f94a6
 
-二、配置C/C++环境
-打开终端，以此输入以下命令来安装gcc、g++、gdb
 
-1、安装gcc
-sudo apt-get install gcc
-2、安装g++
-sudo apt-get install g++
-3、安装gdb（调试用）
-sudo apt-get install gdb
-4、运行以下三条命令来看是否安装成功
-gcc -v
+---
 
-g++ -v
 
 
-gdb -v
+## 功能介绍和展示
 
+### 起源
 
-5、可以使用vim或gedit来编写一段简单的代码运行一下（可跳过）
-        对于代码或一个工程，最好是使用专属的文件夹来进行分类管理，这样会显得很有条理，管理起来也方便。例如在此处，我在主目录下创建了/Project/CxC++/test，test即是我的工程文件名，在这里面我们写一个C++程序来进行简单的验证。（以vim为例）
+这是湖南大学RoboMaster跃鹿战队电控组2022-2023赛季的通用嵌入式控制框架，可用于**机器人主控**、自研模组（imu/测距等各种传感器）、超级电容控制器等。
 
-（1）使用vim创建hello.cpp
-vim hello.cpp
-（2）如果没有vim则先安装vim
-sudo apt-get install vim
-（3）成功创建hello.cpp后，进行代码编写：
-关于vim的操作，感兴趣的同学可以上网搜索相关资料进行学习，在这里我就不班门弄斧了，简单的操作一下：
+从目前的RoboMaster开源社区来看，大部分队伍都没有一套规则统一，符合较大规模软件开发原则的框架，有些学校连不同兵种代码都相去甚远，甚至连队伍用于传承的代码注释都寥寥无几，全靠师傅带徒弟言传身教。当然，不乏有广东工业大学DynamicX开源的rm_control这样规范且先进的系统，但基于Linux、ROS、C++的这套软件栈对于新人来说还是过于复杂（但我们很推荐熟悉基本工具的同学使用！）。
 
-1、使用vim创建hello.cpp后，可以看到如下的场景
+### 优势
 
+为此，basic_framework应运而生。该框架旨在打造上手简单、易于移植、高代码复用、层级分明、结构清晰的一套SDK，供队内使用&RM参赛队伍&嵌入式开发者交流学习。通过精心设计的bsp和module支持以及成熟的app示例，该框架可以在短时间内为不同类型和结构的机器人**轻松构建**电控程序，**可扩展性**和**可维护性**相较目前的大部分开源代码和本队的老代码提升巨大。
 
+同时，相较于传统的基于KEIL MDK开发的工作流，我们推出了基于arm-gnu工具链+VSCode/Clion+Ozone&Systemviewer/FreeMaster的**现代化开发工作流**和非**常完善配套教程**，你再也不用面对上个世纪的UI，忍受没有补全和高亮的代码了！在现代化开发工具支持下，将**极大提高电控开发效率和调试效率**。硬件模块测试和整车联调从未**如此简单方便**！
 
-2、按下“i”键，进入编辑模式（左下角也有提示“插入”）
+> 用软件开发的思想设计嵌入式系统是一种降维打击 
+>
+> <p align=right>—— 沃兹基·烁德</p>
 
+### 效果展示
 
+![](.assets/allrobot.jpg)
 
-3、进行简单的代码编写
+<center>搭载basic_framework的机器人阵容</center>
 
+实战展示：
 
+1. 400HP双云台哨兵30m/s弹速**对抗**2台200HP 15m/s弹速步兵，120w底盘功率
+2. 100HP步兵，120w功率，15m/s弹速**对射**，限制射频0.5发/s
 
-4、编辑完成后，先按一次“ESC”，此时左下角的“插入”会消失，然后同时按下“Shift”和“：”键，待下方出现“：”后，输入wq，然后按下回车。（wq表示保存并退出）
+![sentry_infantry12](.assets/sentry_infantry12.gif)
 
+<center>展示中的视觉识别与预测算法是基于rm_vision打造的</center>
 
+3. 工程机器人流程化抓取矿石/兑换矿石/救援’
 
-5、编写完成后，执行下面的命令对cpp文件进行编译
+   ![engineering](.assets/engineering.gif)
 
-g++ -o hello hello.cpp
+4. 平衡步兵机器人
 
-6、执行编译好的.o文件，验证运行效果
+   ![balance](.assets/balance.gif)
 
+这些机器人的程序均基于basic_framework打造，已在我们的仓库中提供：[HNUYueLuRM](https://gitee.com/hnuyuelurm)
 
+> 更多测试视频可以关注我们的bilibili账号：[湖南大学跃鹿战队](https://space.bilibili.com/522795884)，或在bilibili搜索跃鹿战队，观看我们的比赛视频。
 
-三、安装、配置VScode
-1、前往VScode的官网进行下载，注意选择下载.deb
-Visual Studio Code - Code Editing. Redefined
-Visual Studio Code is a code editor redefined and optimized for building and debugging modern web and cloud applications.  Visual Studio Code is free and available on your favorite platform - Linux, macOS, and Windows.
-https://code.visualstudio.com/
+### 可用功能
 
+你可以基于这些良好抽象的功能打造自己的模块或应用。
 
+#### bsp封装
 
+| 功能类别   | 模块                    |
+| ---------- | ----------------------- |
+| 通信类外设 | usart  spi  i2c can usb |
+| 日志       | log flash               |
+| 功能型     | gpio(exti) pwm adc      |
+| 辅助       | dwt                     |
 
-2、下载完成之后，在所属文件夹打开终端（一般默认是在“下载”里的）
+#### 模块封装
 
+| 功能类别 | 模块                                                         |
+| -------- | ------------------------------------------------------------ |
+| 电机     | DJI、HT海泰04、瓴控LK、步进电机、舵机                        |
+| 通信     | 多板通信(基于CAN)、seasky协议上位机通信、裁判系统数据/UI/多机、vofa协议、DT7-DR16遥控器 |
+| 功能模块 | 蜂鸣器、oled、bmi088、ist8310、超级电容、TFminiPlus、        |
+| 应用支持 | 常用算法库、守护线程、消息中心                               |
 
-3、执行如下命令，安装VScode，注意后面的.deb文件版本要对应自己所下载的版本，我这里以1.89为例（dpkg是Debian 系统中的软件包管理工具，感兴趣的可以自己去了解，这里就不多赘述了）
-sudo dpkg -i code_1.89.0-1714530869_amd64.deb
-
-
-4、打开VScode，安装必要的插件
-（1）简体中文插件，一般首次进入后都会在右下角提示你安装的，如果没有提示就自己去搜索安装（注：安装完后需要重启软件才会生效）
-
-
-
-(2)在左侧扩展商店中搜索“C/C++”，选择第一个进行安装
-
-
-
-5、 创建一个新工程，并使用VScode打开，创建第一个.cpp文件进行测试
-（1）我这里以创建一个test1文件夹为例（新建“test1”文件夹，右键选择“使用其它程序打开”，选择使用VScode打开）
-
-
-
-
-（2）创建一个main.cpp
-
-
-（3）编写测试代码
-#include<iostream>
-using namespace std;
-
-int main()
-{
-    cout << "Hello VScode ubder Ubuntu!!" << endl;
-    return 0;
-}
-
-
-（4）配置.vscode里的相关.json文件，可以选择右键新建名为“.vscode”的文件夹，然后手动创建以下三个.json文件
-
-
-launch.json:
-{
-    "version": "0.2.0",
-    "configurations": [
-    {
-        "name": "(gdb) Launch",
-        "type": "cppdbg",
-        "request": "launch",
-        "program": "${workspaceFolder}/${fileBasenameNoExtension}.out",
-        "args": [],
-        "stopAtEntry": false,
-        "cwd": "${workspaceFolder}",
-        "environment": [],
-        "externalConsole": true,
-        "MIMode": "gdb",
-        "preLaunchTask": "build",
-        "setupCommands": [
-            {
-            "description": "Enable pretty-printing for gdb",
-            "text": "-enable-pretty-printing",
-            "ignoreFailures": true
-            }
-        ]
-    }
-    ]
-}
-settings.json:
-{
-    "files.associations": {
-        "ostream": "cpp",
-        "iostream": "cpp",
-        "array": "cpp",
-        "atomic": "cpp",
-        "bit": "cpp",
-        "*.tcc": "cpp",
-        "cctype": "cpp",
-        "clocale": "cpp",
-        "cmath": "cpp",
-        "compare": "cpp",
-        "concepts": "cpp",
-        "cstdarg": "cpp",
-        "cstddef": "cpp",
-        "cstdint": "cpp",
-        "cstdio": "cpp",
-        "cstdlib": "cpp",
-        "cwchar": "cpp",
-        "cwctype": "cpp",
-        "deque": "cpp",
-        "string": "cpp",
-        "unordered_map": "cpp",
-        "vector": "cpp",
-        "exception": "cpp",
-        "algorithm": "cpp",
-        "functional": "cpp",
-        "iterator": "cpp",
-        "memory": "cpp",
-        "memory_resource": "cpp",
-        "numeric": "cpp",
-        "random": "cpp",
-        "string_view": "cpp",
-        "system_error": "cpp",
-        "tuple": "cpp",
-        "type_traits": "cpp",
-        "utility": "cpp",
-        "initializer_list": "cpp",
-        "iosfwd": "cpp",
-        "istream": "cpp",
-        "limits": "cpp",
-        "new": "cpp",
-        "numbers": "cpp",
-        "stdexcept": "cpp",
-        "streambuf": "cpp",
-        "typeinfo": "cpp"
-    }
-}
-tasks.json:
-{
-    "version": "2.0.0",
-    "tasks": [
-    {
-    "label": "build",
-    "type": "shell",
-    "command": "g++",
-    "args": ["-g", "${file}", "-std=c++11", "-o", "${fileBasenameNoExtension}.out"]
-    }
-    ]
-}
-（5）回到main.cpp，按下F5进行编译运行（实际上是调试，如果打了断点的话会停在断点）
+#### 应用封装
 
+作为命令发布主体的robot_cmd
 
-四、安装、配置arm-none-eabi-gcc交叉编译工具链
-关于交叉编译工具链的下载，有很多种方法，可以前往官网下载
+用于步兵、英雄、哨兵、无人机的gimbal
 
-Downloads | GNU Arm Embedded Toolchain Downloads – Arm Developer
-Download the GNU Embedded Toolchain for ARM, an open-source suite of tools for C, C++, and Assembly programming for 32-bit ARM Cortex-A, ARM Cortex-M and Cortex-R families
-https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads
+麦克纳姆轮/全向轮底盘的chassis
 
-（推荐）或者直接使用我上传在天翼云盘的资源（因为百度网盘没有会员的话下载会非常慢）访问码：pgn6
-arm-gnu-toolchain-13.2.Rel1-x86_64-arm-none-eabi编译工具链下载
-天翼云盘是中国电信推出的云存储服务，为用户提供跨平台的文件存储、备份、同步及分享服务，是国内领先的免费网盘，安全、可靠、稳定、快速。天翼云盘为用户守护数据资产。
-https://cloud.189.cn/web/share?code=nMv6Bn67b2Az%EF%BC%88%E8%AE%BF%E9%97%AE%E7%A0%81%EF%BC%9Apgn6%EF%BC%89
-再附上百度网盘的下载链接：（访问码m9vi）
+平衡步兵的底盘balance_chassis
 
-arm-gnu-toolchain-13.2.Rel1-x86_64-arm-none-eabi编译工具链下载
-http://xn--gzu811i//pan.baidu.com/s/17r_5awLRDtE-ehpPEQuJ2w?pwd=m9vi%20%E6%8F%90%E5%8F%96%E7%A0%81:%20m9vi%20%E5%A4%8D%E5%88%B6%E8%BF%99%E6%AE%B5%E5%86%85%E5%AE%B9%E5%90%8E%E6%89%93%E5%BC%80%E7%99%BE%E5%BA%A6%E7%BD%91%E7%9B%98%E6%89%8B%E6%9C%BAApp%EF%BC%8C%E6%93%8D%E4%BD%9C%E6%9B%B4%E6%96%B9%E4%BE%BF%E5%93%A6
-下载结束后，打开所在文件夹终端（建议将该压缩包转移到一个不常更改的文件夹里，可以新建），输入以下命令进行解压：
+装配了发射机构的机器人的shoot
 
-tar -xvf arm-gnu-toolchain-13.2.rel1-x86_64-arm-none-eabi.tar.xz
-解压后得到一个同名文件夹
 
 
-复制可执行文件“bin”的路径，操作如下：
+---
 
-（1）进入“arm-gnu-toolchain-13.2.Rel1-x86_64-arm-none-eabi”文件夹
 
-（2）进入“bin”文件夹
 
-（3）在空白处右键，选择“在终端打开”
+## 架构
 
-（4）输入以下指令查看路径
+总览。
 
-pwd
-如图白色部分所示就是bin文件的路径，选择后按住“Shift”+“Ctrl”+“c”进行复制
+### 软件栈
 
+<img src=".assets/image-20230725153133419.png" alt="image-20230725153133419" style="zoom: 67%;" />
 
+在CubeMX初始化生成的依赖文件基础之上新增了可选的CMSIS-DSP和Segger RTT。
 
-打开终端，输入下面的指令，打开profile文件（不加sudo的话只能以“只读”打开）
+### 设计思想
 
-sudo vim /etc/profile
-在打开的文件末尾输入以下内容（注：$PATH:后面的链接为我们刚复制的bin的链接，配置时需要根据实际情况进行修改）
+1. ***首先，总览框架的设计模式。***
 
-步骤：
+   框架在结构上分为三层：bsp/module/app。整体使用的设计模式是**结构层级模式**，即每个“类”包含需要使用的底层“类”，通过组装不同的基础模实现更强大的功能。而最顶层的app之间则通过**pub-sub消息机制**进行解耦，使得在编写代码时不会出现相互包含的情况。
 
-（1）输入“i”进入插入模式
+   我们希望通过bsp对硬件的抽象使得module的编写更为轻松，不需要考虑底层的硬件具体是如何运作的；再通过module的外接模块的抽象，使得app的编写可以通过完全硬件无关的方式考虑，达到*”只阅读module的说明文档就能迅速开发应用 ”*的程度。bsp和module的设计愿景，就是成为人们常说的***中间件**。*
 
-（2）将光标移动到末行后，回车另起一行
+   **pub-sub机制的体现**：以本仓库的app层为例，包含了chassis，gimbal，shoot，cmd四个应用，每个应用都对应了机器人上的不同模组。cmd应用负责从机器人控制信号来源（遥控器/上位机/环境传感器）处获取信息并解析成各个**执行单元的实际动作**（电机/舵机/气缸/阀门等的扭矩/速度/位置/角度/开度等），并将此信息**发布**出去。chassis、gimbal、shoot等包含了执行单元的应用则**订阅**这些消息，并通过自己包含的子模块，调用它们的接口实现动作。
 
-（3）输入前面的export PATH=$PATH:
+   **结构层级模式的体现**：以chassis应用为例，chassis中包含了4个底盘电机模块。当chassis收到cmd应用的信息，希望让底盘以1m/s的速度前进。chassis首先根据底盘的类型（舵轮/麦克纳姆轮/全向轮/平衡底盘）以及对应的动力学/运动学解算函数，计算得到每个电机的输目标输入值，此时chassis将输入通过电机模块（motor module）的接口将设定值告知电机。而每个电机模块又有各自的PID计算模块和自身电流&速度&角度传感器的信息，可以计算出最终需要的电流设定值。假设该电机使用CAN协议与电调通信，则电机通过自身包含的CANInstance（bsp_can提供）用于和实际硬件交互，电机模块将设定值电流值或其他指令按照通信协议组织在CAN报文中，通过CANInstance提供的接口，把最终控制数据发送给电调，实现控制闭环。从调用来看，三个层级的**包含关系为chassis∈motor∈bspcan**。
 
-（4）按住“Shift”+“Ctrl”+“v”进行粘贴
+2. ***有了上面的大体认知，我们分别介绍框架的三层结构。***
 
-（5）按下Esc，然后按下“Shift”+“：”，输入“wq”，保存修改并退出
+   - **bsp**即板级支持包，提供对开发板外设的软件抽象，让module层能使用和硬件无关的接口（由bsp提供）进行数据处理与交互。
 
-export PATH=$PATH:/home/yml/mondrian/arm-gnu-toolchain-13.2.Rel1-x86_64-arm-none-eabi/bin
+     bsp层和ST的HAL为强耦合，与硬件直接绑定。若要向其他的ST芯片移植，基本不需要修改bsp层；若是其他单片机则建议保留**接口设计**，对接口调用进行重现实现。每一种外设的头文件中都定义了一个**XXXInstance**（xxx为外设名），其中包含了使用该外设所需要的所有数据，如发送/接收的数据，长度，id（如果有），父指针（指向module实例的指针，用于回调）等。由于C没有`class`，因此所有bsp的接口都需要传入一个额外的参数：XXXInstance*，用于实现c++的`this`指针以区分具体是哪一个实例调用了接口。
 
+   - **module**即模块层，包括了需要开发板硬件外设支持的（一般用于通信）真实**硬件模组**如电机、舵机、imu、测距传感器，和通过软件实现的**算法**如PID、滤波器、状态观测器；还有用于兼容不同控制信息模块（遥控器/ps手柄/图传链路/上位机）的统一接口模块，以及为app层提供数据交互的message center。
 
-执行如下命令，然后重启电脑/虚拟机使环境变量生效
+     module层仍然是基于实例的，一个app会包含多个module的instance。当app便可以用硬件无关的接口使用module，如要求电机以一定速度运动、关闭气阀、给超级电容或上位机发送一些反馈数据等。在有了方便的bsp之后，只需要在你构建的module中包含必须的bsp，然后为app提供合理易用的接口即可。
 
-source profile
-重启完成后执行以下命令看是否配置成功
+   - **app**是框架层级中最高的部分。目前的框架设计里，会有多个app任务运行在freertos中，当然你也可以根据需要启动一些事件驱动的任务，所有的任务安排都放在`app/robot_task`中。当前的app层仅是一个机器人开发的示例，有了封装程度极高的module，你可以在app完成任何事情。
 
+     目前的app设计里，可以兼容多块开发板的情况，通过**条件编译**切换开发板的位置。如步兵机器人可以将主控MCU放在云台上，而超级电容控制板同时作为底盘板。使用CAN/SPI/UART将两者连接，便可以通过**`app/robot_def.h`**中的宏完成设置。可以根据需要，设置更多的开发板（双云台哨兵、工程机器人）。
 
+     这套框架可以轻松扩展到所有机器人上，在我们的仓库中，有步兵机器人、平衡步兵机器人、哨兵机器人、英雄机器人、工程机器人以及空中机器人的代码实例，皆按照本框架中的三层结构开发。若设计了新的机器人，只需要在robot_def.h中修改传感器的位置、底盘轮距轴距、拨弹盘容量、弹舱载弹量等参数便可以**立刻实现部署**。
 
-五、安装JLink驱动
-1、安装libreadline库
-我们烧录会用到JLinkExe的命令，而JLinkExe会用到libreadline库，所以要安装libreadline库，执行如下命令安装：
+3. ***知道了每个层级的结构之后，我们再谈谈如何进行每层的开发。***
 
-sudo apt-get install libreadline-dev
-2、进入SEGGER的官网，下载JLink驱动（选择Linux下的64-bit DEB Installer）
-SEGGER - The Embedded Experts - Downloads - J-Link / J-Trace
-Download the latest SEGGER trial versions, eval packages and user manuals!
-https://www.segger.com/downloads/jlink/
+   对于bsp和module中每个instance的设计，我们采用了**面向对象**的C风格代码，整个框架也统一了变量和函数命名方式，调用层级和数据流十分清晰（下一个章节也有插图阐述）。
 
+   为了避免出现”底层代码包含上层头文件“的情况，我们让bsp层instance在注册时要求module提供数据发送/接收的回调函数指针，从而在发生对应中断或事件时完成对module函数的”反向调用“。事实上，你也可以进一步将这套思想放入app的设计中，当某个事件发生时触发app的任务，而不是将app的任务定时运行（这可以提高运行效率，降低cpu占用）。
 
+   bsp和module的instance在初始化时接口皆为**`XXXInstance* XXXRegister(XXX_Init_Config_s* conf)`**，传入该实例所需的config参数，返回一个实例指针（看作this指针），之后要调用模块的功能，传入该指针即可。我们还提供了守护线程，以供module选用，当异常情况发生时在LOG中发送warning、触发蜂鸣器或LED进行声光报警以及错误/离线回调函数，保证系统的鲁棒性和安全性。
 
-点击Download
+   而对于app的开发，由于底层接口已经设计的较为完善，不同的机器人可以直接**`fork`** basic_framework的代码，开发app层。当bsp和module有功能更新时，只需要通过git的cherry-pick-commit功能将更新拉取到自己的仓库，**获得动态的热更新而无需手动合并分支！**
 
 
 
-左下角勾选同意，然后“Download software”
+---
 
 
 
-速度应该会特别慢，这里可以选择我上传到云盘的资源（v792o版本）：
+## 执行顺序与数据流
 
-天翼云盘（访问码b4oi）：
+### 初始化
 
-JLink驱动
-天翼云盘是中国电信推出的云存储服务，为用户提供跨平台的文件存储、备份、同步及分享服务，是国内领先的免费网盘，安全、可靠、稳定、快速。天翼云盘为用户守护数据资产。
-https://cloud.189.cn/web/share?code=FzyMRvYFz2ye%EF%BC%88%E8%AE%BF%E9%97%AE%E7%A0%81%EF%BC%9Ab4oi%EF%BC%89
-百度网盘（访问码k365）：
+![image-20230725153635454](.assets/image-20230725153635454.png)
 
-JLink驱动
-https://pan.baidu.com/s/1DZm-yv6eYUxakmD4R5_kBA?pwd=k365
+### 任务结构
 
-3、安装JLink驱动
-下载好后，打开.deb文件所在的文件夹，打开终端，执行以下命令进行安装：
+app、module和bsp都有相应的rtos任务。其中bsp为创建任务提供了封装工具bsp_tools，旨在将复杂的回调函数转移到任务中而不是在中断内执行，以保证系统响应的实时性和数据完整性。有一些module和app根据功能需要会创建定时任务或事件驱动的任务，这些任务都在初始化时注册，并在特定的时刻被唤醒或周期执行。
 
-sudo dpkg -i JLink_Linux_V792o_x86_64.deb
-因为我之前已经安装过了，所以这里显示“覆盖”
+<img src=".assets/image-20230725152433502.png" alt="image-20230725152433502" style="zoom:50%;" />
 
+### 数据流
 
+![](.assets/dataflow.svg)
 
-4、查看JLink版本
-执行如下命令来查看Jlink版本，验证是否安装成功
+<center>建议浏览器打开SVG查看<center>
 
-jlink --version
+​    
 
+---
 
-5、进入SEGGER查看相关可执行文件
-输入以下命令，然后执行“ls”查看相关的可执行文件（一般默认安装位置都是在/opt下的）
 
-cd /opt/SEGGER/JLink
 
+## 开发工具
 
-六、J-Link Commander交互模式初体验
-1、直接执行JLinkExe命令
-主要是为了验证一下是否安装成功，执行以下命令，进入J-Link Commander交互模式
+介绍完整的工作流。
 
-JLinkExe
-此时如果没有链接Jlink的话会出现这个界面：
+### 工具链
 
+强烈推荐使用arm-gnu工具链进行编译（arm-none-eabi-xxx）。
 
+官方下载地址：[Arm GNU Toolchain Downloads – Arm Developer](https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads)
 
-我们点击No，然后会进入Commander交互模式，在这种模式下，我们可以执行各种 J-Link Commander 提供的命令来连接、配置调试器，下载程序或文件到目标设备等操作，感兴趣的同学可自行学习。
+我们更推荐使用Msys2进行库和开发工具管理，关于如何使用Msys2请参考：[如何使用本框架](##如何使用本框架)
 
-执行“q”指令退出该模式。
+> 仍然支持使用arm-cc工具链（即keil默认的工具链）进行开发，在cubemx初始化时生成MDK项目即可，然后再手动添加basic_framework的所有头文件和源文件。但非常不建议这样做，arm-cc仅支持单线程编译且编译优化选项远不如arm-gnu多，自定义程度同样不比。~~若你一定要这样做，则可以在VSCode中安装keil assistant插件。~~
 
+### IDE?
 
+使用**VSCode**作为“IDE”，也支持Clion/Visual Studio等现代化IDE（需要自行配置）。需要的插件支持均已经在[VSCode+Ozone使用方法.md](.Doc/VSCode+Ozone使用方法.md)中给出。通过VSCode强大的插件系统、language server以及代码补全高亮助力效率倍增。编译则使用集成的task进行，还可以将开发环境终端加入VSCode进一步提升体验。基本的调试如变量&寄存器查看均已在插件中提供支持，`launch.json`可以进行高自由度的自定义。
 
-2、初次尝试使用JLinkExe来与设备建立连接
-连接A板（XH2.54转MX1.25的转接线需要自己焊接，注意查看手册，对上线序）
+`Git`集成与gitlens/gitgraph/githistory额外插件补充让版本管理和协作从未如此简单，`live share`把你的伙伴们聚在一起集思广益，一同对抗困难的bug。更多好用的插件、特性和开发技巧请参考"**如何使用本框架**"章节。
 
+> **不论如何，请不要使用KEIL作为你的代码编辑器。**
 
+### 调试和性能分析
 
-当然，如果我们接入Jlink设备后，再执行这个命令会提示你执行“connect”来与设备进行链接，或者输入“?”来查看更多的指令帮助。
+- 基础的调试可以在VSCode中完成。cortex-debug插件的最新版本已经支持多个gdb-server（jlink/stlink/openocd/pyocd）的live watch（动态变量监视）和变量示波器（可视化）。若不是有特别的需求，*请勿使用串口调试器*。
 
+- 有高速变量查看和数据记录、多路数据可视化的需求（如进行pid参数整定、查找难以定位的bug）时，使用**Segger Ozone**。
+- FreeMaster也可以作为调试的备选项。
+- 基本的、日常性能分析可以通过`bsp_dwt`完成。若要分析关于任务运行和每个函数执行的详细信息和时间，推荐使用**Segger Systemviewer**。
 
 
-我们输入“connect”后，会返回我们连接的开发板芯片的信息，并让我们确认。
 
-我们输入芯片型号来设置Device（这里以STM32F427IIH6为例）
+---
 
 
 
-选择连接接口为SWD（或JTAG，根据实际需求来看）
+## 如何使用本框架
 
+仓库中有各种各样的说明文档和使用帮助。
 
+### 编译烧录
 
-选择传输速度，默认4000kHz，我们可以自行修改，比如我这里设置2000kHz
+本项目是基于RoboMaster开发板C型的示例，MCU为STM32F407IG，使用了板载的imu bmi-088，驱动标准的步兵机器人：2自由度GM6020云台、m2006电机拨盘+2*m3508电机摩擦轮的发射机构和MG90舵机弹舱盖，以及带有超级电容控制器的4轮麦克纳姆底盘。
 
+首先在`app/robot_def.h`中根据注释修改开发板和机器人配置，再在各个app中修改初始化配置（如电机id，上位机通信波特率/使用串口或VCP，imu速率，超级电容id等）。
 
+接着根据[VSCode+Ozone使用方法.md](.Doc/VSCode+Ozone使用方法.md)配置好编译下载环境之后（***再次建议使用Msys2+mingw64/ucrt64/clang64的方式配置环境！***），在VSCode中打开项目，点击上方tab页的终端（terminal）->运行构建任务（run build task)，便启动编译，若没有问题，最终会在终端中输出如下信息：
 
-按下回车后，等待几毫秒便会提示连接成功了（会打印检测到的芯片以及寄存器信息等，例如我们可以找到熟悉的“Cortex-M4”）
+![image-20230725154910307](.assets/image-20230725154910307.png)
 
+工具链会预测ram，ccram以及flash的使用情况，并报告最终二进制文件的大小和存放位置。
 
+随后，通过调试器将开发板连接至你的电脑，点击上方tab页的终端（terminal）->运行任务（run task)，选择download_dap or download_jlink（或你自己编写的stlink/ulink/...），便会开始下载，终端或jFlash中会提示擦除、下载、验证的进度。
 
-假设这里我们已经编译得到了一个test.bin或test.hex文件，那么到这一步后，我们就可以使用下面两条命令来实现烧录.bin文件或.hex文件了（这里不做演示，只做说明）
+想要调试，在左侧tab页选择合适的调试选项，按F5或图形界面的绿色小三角形按钮，开始调试。当然，调试器的设置也请参考配置文档，主要是将可执行文件路劲加入环境变量的PATH。
 
-loadbin ./test.bin,0x08000000
-loadfile ./test.hex
-然后执行“q”退出Commander模式。
+**更详细的开发流程和本仓库工作流的最佳实践，请参照`.Doc/VSCode+Ozone使用方法.md`**，里面介绍了开发所需的前置知识、环境配置，以及工具链原理、使用方法等。
 
-七、安装CubeMX
-1、安装Java环境
-打开终端，输入下面的指令安装Java运行环境
+要对本仓库进行开发，务必先阅读`.Doc/架构介绍与开发指南.md`，内含本仓库组织结构的**文件树**。若你希望使用其他工具链或IDE，里面也有相关说明。
 
-sudo apt install default-jre
-安装完成后，输入下面的指令验证是否安装成功
+### 基本文档
 
-java --version
+根目录下的README.md即本说明文档，帮助开发者速览本项目。
 
+`.Doc`目录下有**8**个markdown文档，分别为：
 
-2、安装CubeMX
-前往官网下载CubeMX软件包（点击获取软件）
+- [Bug_Report](.Doc/Bug_Report.md) ：提供了一些提交issues的模板范例，若在使用中出现问题请按照模板提供信息。
+- [TODO](.Doc/TODO.md) ：框架后续开发计划和维护说明
+- **[VSCode+Ozone使用方法](.Doc/VSCode+Ozone使用方法.md)** ：**重要**，上手必看。介绍了当前开发工作流和传统KEIL开发的不同，先讲解一些与工具链有关的基础知识，然后说明了如何配置开发环境，安装必要的软件和一些”操作“。还涉及了VSCode编辑调试和Ozone示波器&trace功能的使用指南。
+- [合理地进行PID参数整定](.Doc/合理地进行PID参数整定.md) ：介绍了如何为PID控制器进行参数整定，包括简单的经验准则和基于模型的前馈控制、扰动消除等方法。
+- [如何定位bug](.Doc/如何定位bug.md) ：当嵌入式开发出现bug时，以更高效地方法进行错误定位和复现。简单的调试器使用技巧。
+- [必须做&禁止做](.Doc/必须做&禁止做.md) ：字如其名
+- **[架构介绍与开发指南](.Doc/架构介绍与开发指南.md)** ： **重要**，开发必看。若你希望为bsp或module增添新的模块，组装新的app，请参照此文档的编码和命名规范进行。阅读该文档有助于理解并写出和框架代码风格一致的程序。内含该项目的**文件树**，以框架的工作目录。
+- [让VSCode成为更称手的IDE](.Doc/让VSCode成为更称手的IDE.md) ：安装好用的插件，对编辑器进行个性化配置，提升开发效率
 
-STM32CubeMX软件下载
-https://www.st.com/zh/development-tools/stm32cubemx.html#overview
+### 阅读代码
 
+框架中的三层结构都有详尽的注释帮助阅读和二次开发，三个抽象层都有各自总览的说明文档，而每个bsp/module/app都配有对应的个性化说明文档，提供了接口说明和改进或进一步开发的建议。
 
-选择第一个下载（Linux版本）
+建议以自上而下的方式阅读代码，app-》module-》bsp，为此我们还提供了框架的说明视频，分别讲解每个抽象层和总体的设计思路，介绍了bsp的依赖HAL，还有一些杂碎的开发相关知识：[basic_framework教程](https://space.bilibili.com/522795884/channel/collectiondetail)
 
+### 运行单个bsp/module测试
 
+**每个bsp和module的文件夹中都有各自的说明文档**，测试用例和使用方法都在文档中给出，非常方便。
 
-之后会弹出一个许可协议，我们选择同意后，会弹出选择下载身份的界面，可以右下角选择访客下载，也可以注册一个ST账号后再登录下载，这里建议注册一个账号后再下载
+想要进行硬件查错、连线检查或测试，如测试开发板功能（外设）是否完好，电机电调能否正常使用，或给新人提供教学，只要：
 
-（注：无论是选择访客下载还是注册后下载，软件的下载链接都会发送到你填写的邮箱里，所以请确保你的邮箱是在电脑上打开的）
+1. 将main.c中的`RoboInit()`函数删除，然后包含`bsp_init.h`头文件，在原`RoboInit()`的位置添加一个`BSPInit()`
+2. 包含用于测试的bsp或module头文件，根据说明文档的用例初始化对应的支持包或模块即可。
+3. 同时可以将实时系统的初始化注释或删除，在`main.c`的`while(1)`主循环中进行测试，也可以使用`bsp_tim.h`提供的定时任务。
+4. 编译，下载，运行，调试。
 
+我们为机械和视觉的同学能方便测试硬件模块的好坏，设计了一套通过串口和遥控器控制的**硬件功能测试程序**，使得其他技术组成员可以操作这个”黑箱“，在没有电控组成员的时候也不会卡住其他队员的进度。
 
+### VSCode集成工具
 
-将下载好的包解压后，进入，双击运行“SetupSTM32CubeMX-6.11.1”（以实际下载的版本为主）
+我们在`.vscode`下提供了编写好的一些任务，包括编译，烧录，启动RTT终端（LOG），启动Ozone调试等。有些功能需要配置vscode的插件设置或将一些可执行文件加入环境变量，这些步骤已经在[VSCode+Ozone使用方法.md](.Doc/VSCode+Ozone使用方法.md)中给出；`launch.json`里包含了最常见的四种调试任务：使用jlink-server/openocd，启动或附加调试。
 
+### for pro-user
 
+Makefile提供了脚本化的Makefile.upgrade，使用后者可以获取更好的开发体验。
 
-然后根据向导一步步进行安装，注意选择一个能容得下的盘
+可以自行添加需要的编译优化，进行更高级别的定制。 
 
+ST官方现在将HAL放入github维护。想要获取最新的支持，可以自行下载，加入本项目编译。
 
+若希望纯开源使用，可以自定义openocd调试和烧录选项，参考根目录的openocd_dap.cfg和openocd_jlink.cfg。
 
-安装完成后，打开刚刚选择的安装位置（例如我这里是/home/yml/STM32CubMX），双击“STM32CubeMX”启动程序
+若希望自己编译特定版本的cmsis-dsp或cmsis-os，请前往官方的github仓库下载，将构建规则加入makefile。
 
+我们还增加了CMakeLists.txt以融入更现代化的构建系统，若你希望使用cmake，相信你有能力配置相关的开发环境。可以参考我们的[***powerful_framework***](https://gitee.com/hnuyuelurm/powerful_framework).
 
+如果实时系统任务需要的栈空间不够，请在CubeMX初始化配置中增大任务栈。一些freertos支持的高级功能请自行在配置页开启宏定义后重新生成。
 
-登录之后，点击右边栏的"INSTALL/REMOVE"或“Help”->“Manage embedded sofeware packages”
+...
 
 
 
-选择自己需要的芯片型号的HAL库包，选好之后点击“INSTALL”，想移除某软件包也可以在这个界面选择，然后点“REMOVE”
+---
 
 
 
-（关于工程的创建过程，可以自行搜索学习，这里就不赘述了，只需注意一点：Project Maneger那里的Toolchain/IDE要选择Makefile）
+## 后续计划
 
+- `.Doc/TODO.md`中列举了一些可能的功能增强和优化。
+- 将所有配置移动到一处，方便修改（统一放入`app/robot_def.h`中？）
+- 为三个层级都增加入门级培训教程，可以单独运行各个模块以方便上手。
+- 优化pub-sub消息机制的性能，同时将app的任务尽可能修改为**状态机+事件驱动**的回调机制。
+- 使用Qt或命令行为机器人配置（主要是robot_def和各个任务中的module初始化配置）编写UI界面，实现无代码机器人部署。
+- 为框架编写ROSdriver，通过usb连接到上位机（NUC），合并视觉/算法和电控的工作流。
 
 
-八、编写JLink烧录脚本并修改Makefile
-1、打开工程
-使用VScode打开一个新建好的工程
 
+---
 
 
-2、编写代码
-打开main.c，随便写点什么，比如这里来个经典点灯
 
+## 致谢
 
+本框架设计参考了哈尔滨工业大学（深圳）南工骁鹰🦅战队的EC_framework以及RoboMaster官方的RoboRTS-firmware🤖。姿态解算改进自哈尔滨工程大学创梦之翼🛩️的四元数EKF姿态解算。裁判系统数据解析移植了深圳大学RoboPilot2021年电控英雄开源代码。
 
-3、编译
-在底部的终端栏里执行以下指令进行编译（"-j16"这里的16对应电脑核心数，我的是16核的，所以是-j16，根据电脑实际硬件配置进行修改，例如CPU是20核的就改为-j20）
-
-make -j16
-
-
-执行后可以看到编译好的.elf、.hex、.bin文件
-
-
-
-4、编写JLinkScript脚本
-在工程主目录下创建一个.JLinkScript脚本文件，并编写以下内容
-
-speed 2000
-device STM32F103C8
-r
-loadfile ./build/Jlink_test.hex
-q
-解释：
-speed 2000： 设置J-Link与目标设备之间的通信速度为2000 kHz（这个速率可自行修改）。
-device STM32F103C8： 指定目标通信设备的型号为STM32F103C8，如果是其他芯片需要修改为对应的型号。
-r： 通过DEMCR.VC_CORERESET来在复位后暂停核心的执行。在ARM Cortex-M系列微控制器中，DEMCR是一个调试与监控寄存器，而VC_CORERESET是其中的一个位（bit）。将这个位设置为1会导致在复位后暂停核心的执行。
-loadfile ./build/Jlink_test.hex： 加载指定的hex文件（位于"./build/Jlink_test.hex"路径下）到目标设备的Flash存储器中。（注：这里的Jlink_test.hex是上一步“编译”后得到的，工程名称不一样，所得到的.hex文件名也不一样，需要根据实际情况进行修改）。
-q： 退出J-Link调试工具，一次烧录结束。
-
-
-
-修改（只是举例，可跳过不看）：
-如果想要修改生成的.elf、.hex、.bin文件名，可以打开Makefile文件，在Target这里进行修改（例如，把Jlink_test修改为test1后，再次编译就会生成test1.elf、test1.hex、test1.bin）
-
-
-
-
-
-注：修改名称后，记得将STM32.JLinkScript里的.hex文件名也修改了。
-
-5、修改Makeflie
-打开Makefile后，滑动至最底下，添加下面这条命令
-
-Flash:
-	JLinkExe -if SWD -CommanderScript STM32.JLinkScript
-解释：调用JLinkExe（J-Link调试工具），选择SWD接口（当然你也可以设置为JTAG）与目标设备进行通信，然后执行名为"STM32.JLinkScript"的J-Link脚本文件。
-
-
-
-到这一步后，你就可以使用“make”指令来进行编译，然后插上开发板，使用“make Flash”指令来进行烧录了。
-
-make Flash
-部分烧录日志的截图：
-
-
-
-
-
-6、创建烧录task
-配置.vscode里的相关.json文件，可以选择右键新建名为“.vscode”的文件夹，然后手动创建“tasks.json”文件，添加下面的内容：
-
-{
-    "version": "2.0.0",
-    "tasks": [
-        {
-            "label": "jlink_Flash", 
-            "type": "shell",
-            "command":"make Flash",
-            "group": {
-                "kind": "build",
-                "isDefault": false,
-            }
-        }
-    ]
-}
-
-
-保存之后，就可以点击“终端->运行任务->jlink_Flash”来进行烧录操作了
-
-
-
-
-当然，也可以配置的更加方便一点，比如使用快捷键“F5”实现一键烧录下载，可以自行去尝试。
-
-九、安装Ozone
-        Ozone是一款功能强大的调试和系统分析工具，也是SEGGER开发的，支持多种微处理器架构和调试接口，并与SEGGER的J-Link调试器兼容。
-
-1、下载Ozone的软件包
-官网：Ozone – The Performance Analyzer
-The SEGGER Ozone J-Link Debugger & Performance Analyzer is an “All-In-One” software solution for debugging and performance analysis.
-https://www.segger.com/products/development-tools/ozone-j-link-debugger/
-进去官网后点击“Downloads”
-
-
-
-进去之后等一等，网页加载完成后会下滑到“ Ozone - The J-Link Debugger”这一栏，在“Linux”那一栏选择下载“64-bit DEB Installer”
-
-
-
-同意SEGGER的软件安装协议（忘记的可以回看第五节里安装JLink驱动那块的流程），然后就开始下载了
-
-
-
-老样子，官网下载比较慢，我在云盘也上传了相关软件包（V326版本），需要的可以下载
-
-天翼云盘（提取码：tv8u）：
-
-Ozone_Linux_V326
-天翼云盘是中国电信推出的云存储服务，为用户提供跨平台的文件存储、备份、同步及分享服务，是国内领先的免费网盘，安全、可靠、稳定、快速。天翼云盘为用户守护数据资产。
-https://cloud.189.cn/web/share?code=aINf6rmaUnye%EF%BC%88%E8%AE%BF%E9%97%AE%E7%A0%81%EF%BC%9Atv8u%EF%BC%89
-百度网盘（提取码：np6y）：
-
-Ozone_Linux_V326
-https://pan.baidu.com/s/1Lq2iSv_zSqz_0Q9vOcYNRA?pwd=np6y
-
-2、安装Ozone
-打开包含软件包的文件夹
-
-
-
-从这里打开终端，执行以下命令进行安装（注：这里的软件包版本要修改为自己实际下载的）
-
-sudo dpkg -i Ozone_Linux_V326_x86_64.deb
-
-
-十、Ozone的配置及初次体验
-1、基础调试配置
-打开终端，执行下面的命令，打开Ozone
-
-ozone
-
-
-在弹出的小框中，配置Device为自己开发板的芯片型号（首次打开应该是不会显示的，需要手动搜索，我这里显示C8是因为之前配置过）
-
-
-
-
-
-选择好芯片型号后，Register Set会自动设置好，我们需要设置的是Peripherals，选择对应芯片的.svd文件
-
-
-
-（插曲）.svd文件的寻找
-这个文件可以在ST的官网下载到，流程如下：
-
-进入官网，在搜索栏里搜索想要寻找的芯片型号
-
-ST意法半导体官网
-https://www.st.com/content/st_com/zh.html
-
-
-点击搜索出来的芯片，进去后点击“CAD资源”这一栏
-
-
-
-在全部资源里可以找到SVD（System View Description）文件包
-
-
-
-下载解压后就可以得到这一系列的各种型号的.svd文件了
-
-
-
-选择好.svd文件后，点击右下角的“Next”，在这个界面，我们需要选择“Target Interface”为“SWD”,点击识别到的JLink设备，然后点“Next”。
-
-
-
-在这一步需要选择.elf文件，这是由Makefile生成的（第八节的第3小节里提到过）。这个文件通常在我们的工程文件的build目录下。
-
-
-
-点击“Open”进行选择，选择好后我们点击“Next”进行下一步配置。
-
-
-
-这一步我们保持默认就好，点击“Finish”
-
-
-
-下面这个界面就是配置完成后的界面了，我们可以点击左上角的绿色按钮开始启动调试
-
-
-
-2、常用调试配置
-Ozone中提供了非常多的控件，在这里介绍两个调参常用的，其它控件的功能大家可以自行探索
-
-（1）Watched Data
-单击左上角的“View”，在“General”一栏找到“Watched Data”，选择“New Watched Data Window”，就会生成一个下图所示的小窗口，我们可以在这个窗口里查看变量的值。
-
-
-
-例如：我们定义一个静态全局变量Test_Data，然后把它添加进来，看看它的值
-
-
-
-注：watch里的变量不会实时更新，只有在暂停或遇到断点的时候才会更新，如果想让它自动刷新的话，可以右键变量名->将“Refresh Rate”设置为“5Hz”（一秒刷新5次），或者添加到Graph里实时更新（刷新率更高）
-
-（2）Break&Tracepoints
-单击左上角的“View”，在“General”一栏找到“Break&Tracepoints”，单击后就会生成一个下图所示的小窗口，我们可以在这个窗口里查看和管理设置的断点。
-
-
-
-（3）Timeline
-单击左上角的“View”，在“Advanced”一栏找到“Timeline”，单击后就会生成一个下图所示的小窗口，我们可以在这个窗口里查看变量随时间的变化过程，并且可以自行设置采样频率（PID调参神器）。
-
-
-
-我们可以简单写一个小例子看看效果：
-
-    HAL_Delay(1000);
-    Test_Data = Test_Data + 20;
-    HAL_Delay(1000);
-    Test_Data = Test_Data - 20;
-将Watchd Data窗口里的“Test_Data”右键，选择“Graph”后，就能在“Timeline”窗口看见它的变化了，我们将时间滚动设置的慢一点（比如设置为1秒钟），就能看到“Test_Data”的可视化变化情况了。
-
-
-
-（4）Data Sampling
-单击左上角的“View”，在“Advanced”一栏找到“Data Sampling”，单击后就会生成一个下图所示的小窗口。这也是一个类似于“Watched Data”的变量监视窗口，它的优点在于可以自行设置更高的采样频率，例如这里设置了采样频率为1kHz。
-
-
-
-3、调试文件的保存
-        完成一次调试后，可以将这次调试的文件保存起来，下次再打开的时候，就可以紧接着上次调试的工程继续调试了（就不用每次都繁琐的添加变量设置采样时间了）
-
-点击左上角的“File”，然后点击“Save Project as...”，此时会弹出一个会话框，让你选择调试工程保存的位置以及名称。（建议单独创建一个文件夹用来保存调试文件，文件夹命名最好加上芯片名称用以区分，找起来也方便找）
-
-
-
-当你没有保存的时候，点击右上角的红色“X”退出时也会提示你让你进行保存的。
-
-
-
-4、调试文件的加载
-再次启动Ozone时，会弹出小对话框让你选择，我们点击“Open Existing Project”后就会弹出一个对话框，选择上次保存的“.jdebug”文件打开，就能恢复上次调试时的场景。
-
-
-
-
-
-
-
-当我们选择“Create New Project”后，就会弹出熟悉的配置界面了，当我们想要调试其它工程或其它芯片的时候可以选择这个。
-
-
-
-5、关于代码修改与调试
-        在这个环境下，我们是使用VScode来编写代码，使用Ozone来进行调试，当我们在调试过程中发现了问题，想要修改代码的时候，可以直接暂停Ozone中正在调试的进程，然后打开VScode进行修改。在修改完执行make指令进行编译后，Ozone会检测到代码发生了改变并重新加载.elf文件。
-
-如下图，在VScode中做了修改后，Ozone会检测到变化，并提示你加载新的修改，点击“Yes”即可将新修改的内容加载进来。
-
-
-
-结束语：
-        本想着是作为一次配置流程的记录，以方便日后如果系统出了问题，需要重装时，我能快速的重新搭建起来开发环境。但是在慢慢记录的过程中，我想到或许发表了后会有其他小伙伴也来看，所以重头又详细的补充了一些，最后发现洋洋洒洒的写了1万2千多字。这样配置可能不是最优的，会有人觉得又臭又长，网上有更多更好的配置流程，我只是摸索着把自己总结出来的东西进行了一个记录，并且尽量详细的说明每一个步骤。不仅是给自己看吧，也希望能够帮到有需要的人。
-
-最后，再次感谢湖南大学跃鹿战队的电控开源框架basic_framework提供的开发环境搭建思路！
-
-​
+感谢2022-2023赛季跃鹿战队电控组参与新框架测试和开发的队员们，包括设计出机器人平台的机械组队员，还有一起联调的视觉组队员，以及负责拍摄、记录、宣传的运营组成员。
