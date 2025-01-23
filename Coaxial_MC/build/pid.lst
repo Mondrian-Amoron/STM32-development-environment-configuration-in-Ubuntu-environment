@@ -1,0 +1,311 @@
+ARM GAS  /tmp/ccV3EBxf.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"pid.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.file 1 "Module/pid/pid.c"
+  20              		.section	.text.pidInit,"ax",%progbits
+  21              		.align	1
+  22              		.global	pidInit
+  23              		.syntax unified
+  24              		.thumb
+  25              		.thumb_func
+  27              	pidInit:
+  28              	.LVL0:
+  29              	.LFB0:
+   1:Module/pid/pid.c **** #include "pid.h"
+   2:Module/pid/pid.c **** 
+   3:Module/pid/pid.c **** void pidInit(MotorPID *pid,float kp,float ki,float kd,float i_max,float out_max)
+   4:Module/pid/pid.c **** {
+  30              		.loc 1 4 1 view -0
+  31              		.cfi_startproc
+  32              		@ args = 0, pretend = 0, frame = 0
+  33              		@ frame_needed = 0, uses_anonymous_args = 0
+  34              		@ link register save eliminated.
+   5:Module/pid/pid.c ****   pid->kp      = kp;
+  35              		.loc 1 5 3 view .LVU1
+  36              		.loc 1 5 16 is_stmt 0 view .LVU2
+  37 0000 80ED000A 		vstr.32	s0, [r0]
+   6:Module/pid/pid.c ****   pid->ki      = ki;
+  38              		.loc 1 6 3 is_stmt 1 view .LVU3
+  39              		.loc 1 6 16 is_stmt 0 view .LVU4
+  40 0004 C0ED010A 		vstr.32	s1, [r0, #4]
+   7:Module/pid/pid.c ****   pid->kd      = kd;
+  41              		.loc 1 7 3 is_stmt 1 view .LVU5
+  42              		.loc 1 7 16 is_stmt 0 view .LVU6
+  43 0008 80ED021A 		vstr.32	s2, [r0, #8]
+   8:Module/pid/pid.c ****   pid->i_max   = i_max;
+  44              		.loc 1 8 3 is_stmt 1 view .LVU7
+  45              		.loc 1 8 16 is_stmt 0 view .LVU8
+  46 000c C0ED031A 		vstr.32	s3, [r0, #12]
+   9:Module/pid/pid.c ****   pid->out_max = out_max;
+  47              		.loc 1 9 3 is_stmt 1 view .LVU9
+  48              		.loc 1 9 16 is_stmt 0 view .LVU10
+  49 0010 80ED042A 		vstr.32	s4, [r0, #16]
+ARM GAS  /tmp/ccV3EBxf.s 			page 2
+
+
+  10:Module/pid/pid.c **** }
+  50              		.loc 1 10 1 view .LVU11
+  51 0014 7047     		bx	lr
+  52              		.cfi_endproc
+  53              	.LFE0:
+  55              		.section	.text.LIMIT_MIN_MAX,"ax",%progbits
+  56              		.align	1
+  57              		.global	LIMIT_MIN_MAX
+  58              		.syntax unified
+  59              		.thumb
+  60              		.thumb_func
+  62              	LIMIT_MIN_MAX:
+  63              	.LVL1:
+  64              	.LFB2:
+  11:Module/pid/pid.c **** 
+  12:Module/pid/pid.c **** 
+  13:Module/pid/pid.c **** float pidCalculate(MotorPID *pid, float target, float actual)
+  14:Module/pid/pid.c **** {
+  15:Module/pid/pid.c ****   pid->target = target;
+  16:Module/pid/pid.c ****   pid->actual = actual;
+  17:Module/pid/pid.c ****   pid->err[1] = pid->err[0];
+  18:Module/pid/pid.c ****   pid->err[0] = pid->target - pid->actual;
+  19:Module/pid/pid.c **** 
+  20:Module/pid/pid.c ****   pid->p_out  = pid->kp * pid->err[0];
+  21:Module/pid/pid.c ****   pid->i_out += pid->ki * pid->err[0];
+  22:Module/pid/pid.c ****   pid->d_out  = pid->kd * (pid->err[0] - pid->err[1]);
+  23:Module/pid/pid.c ****   pid->i_out=LIMIT_MIN_MAX(pid->i_out, -pid->i_max, pid->i_max);
+  24:Module/pid/pid.c **** 
+  25:Module/pid/pid.c ****   pid->output = pid->p_out + pid->i_out + pid->d_out;
+  26:Module/pid/pid.c ****   pid->output=LIMIT_MIN_MAX(pid->output, -pid->out_max, pid->out_max);
+  27:Module/pid/pid.c ****   return pid->output;
+  28:Module/pid/pid.c **** }
+  29:Module/pid/pid.c **** 
+  30:Module/pid/pid.c **** float LIMIT_MIN_MAX(float in,float min,float max)
+  31:Module/pid/pid.c **** {
+  65              		.loc 1 31 1 is_stmt 1 view -0
+  66              		.cfi_startproc
+  67              		@ args = 0, pretend = 0, frame = 0
+  68              		@ frame_needed = 0, uses_anonymous_args = 0
+  69              		@ link register save eliminated.
+  70              		.loc 1 31 1 is_stmt 0 view .LVU13
+  71 0000 F0EE407A 		vmov.f32	s15, s0
+  72 0004 B0EE600A 		vmov.f32	s0, s1
+  73              	.LVL2:
+  32:Module/pid/pid.c **** 	if(in<=min)
+  74              		.loc 1 32 2 is_stmt 1 view .LVU14
+  75              		.loc 1 32 4 is_stmt 0 view .LVU15
+  76 0008 F4EEE07A 		vcmpe.f32	s15, s1
+  77 000c F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+  78 0010 09D9     		bls	.L3
+  33:Module/pid/pid.c **** 	{
+  34:Module/pid/pid.c **** 		in=min;
+  35:Module/pid/pid.c **** 	}
+  36:Module/pid/pid.c **** 	else if(in>=max)
+  79              		.loc 1 36 7 is_stmt 1 view .LVU16
+  80              		.loc 1 36 9 is_stmt 0 view .LVU17
+  81 0012 F4EEC17A 		vcmpe.f32	s15, s2
+ARM GAS  /tmp/ccV3EBxf.s 			page 3
+
+
+  82 0016 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+  83 001a 02DA     		bge	.L4
+  84 001c B0EE670A 		vmov.f32	s0, s15
+  85 0020 7047     		bx	lr
+  86              	.LVL3:
+  87              	.L4:
+  37:Module/pid/pid.c **** 	{
+  38:Module/pid/pid.c **** 		in=max;
+  88              		.loc 1 38 5 view .LVU18
+  89 0022 B0EE410A 		vmov.f32	s0, s2
+  90              	.LVL4:
+  91              	.L3:
+  39:Module/pid/pid.c **** 	}
+  40:Module/pid/pid.c **** 	return in;
+  92              		.loc 1 40 2 is_stmt 1 view .LVU19
+  41:Module/pid/pid.c **** }...
+  93              		.loc 1 41 1 is_stmt 0 view .LVU20
+  94 0026 7047     		bx	lr
+  95              		.cfi_endproc
+  96              	.LFE2:
+  98              		.section	.text.pidCalculate,"ax",%progbits
+  99              		.align	1
+ 100              		.global	pidCalculate
+ 101              		.syntax unified
+ 102              		.thumb
+ 103              		.thumb_func
+ 105              	pidCalculate:
+ 106              	.LVL5:
+ 107              	.LFB1:
+  14:Module/pid/pid.c **** {
+ 108              		.loc 1 14 1 is_stmt 1 view -0
+ 109              		.cfi_startproc
+ 110              		@ args = 0, pretend = 0, frame = 0
+ 111              		@ frame_needed = 0, uses_anonymous_args = 0
+  14:Module/pid/pid.c **** {
+ 112              		.loc 1 14 1 is_stmt 0 view .LVU22
+ 113 0000 10B5     		push	{r4, lr}
+ 114              	.LCFI0:
+ 115              		.cfi_def_cfa_offset 8
+ 116              		.cfi_offset 4, -8
+ 117              		.cfi_offset 14, -4
+ 118 0002 2DED028B 		vpush.64	{d8}
+ 119              	.LCFI1:
+ 120              		.cfi_def_cfa_offset 16
+ 121              		.cfi_offset 80, -16
+ 122              		.cfi_offset 81, -12
+ 123 0006 0446     		mov	r4, r0
+  15:Module/pid/pid.c ****   pid->target = target;
+ 124              		.loc 1 15 3 is_stmt 1 view .LVU23
+  15:Module/pid/pid.c ****   pid->target = target;
+ 125              		.loc 1 15 15 is_stmt 0 view .LVU24
+ 126 0008 80ED050A 		vstr.32	s0, [r0, #20]
+  16:Module/pid/pid.c ****   pid->actual = actual;
+ 127              		.loc 1 16 3 is_stmt 1 view .LVU25
+  16:Module/pid/pid.c ****   pid->actual = actual;
+ 128              		.loc 1 16 15 is_stmt 0 view .LVU26
+ 129 000c C0ED060A 		vstr.32	s1, [r0, #24]
+ARM GAS  /tmp/ccV3EBxf.s 			page 4
+
+
+  17:Module/pid/pid.c ****   pid->err[1] = pid->err[0];
+ 130              		.loc 1 17 3 is_stmt 1 view .LVU27
+  17:Module/pid/pid.c ****   pid->err[1] = pid->err[0];
+ 131              		.loc 1 17 25 is_stmt 0 view .LVU28
+ 132 0010 90ED077A 		vldr.32	s14, [r0, #28]
+  17:Module/pid/pid.c ****   pid->err[1] = pid->err[0];
+ 133              		.loc 1 17 15 view .LVU29
+ 134 0014 80ED087A 		vstr.32	s14, [r0, #32]
+  18:Module/pid/pid.c ****   pid->err[0] = pid->target - pid->actual;
+ 135              		.loc 1 18 3 is_stmt 1 view .LVU30
+  18:Module/pid/pid.c ****   pid->err[0] = pid->target - pid->actual;
+ 136              		.loc 1 18 29 is_stmt 0 view .LVU31
+ 137 0018 70EE600A 		vsub.f32	s1, s0, s1
+ 138              	.LVL6:
+  18:Module/pid/pid.c ****   pid->err[0] = pid->target - pid->actual;
+ 139              		.loc 1 18 15 view .LVU32
+ 140 001c C0ED070A 		vstr.32	s1, [r0, #28]
+  20:Module/pid/pid.c ****   pid->p_out  = pid->kp * pid->err[0];
+ 141              		.loc 1 20 3 is_stmt 1 view .LVU33
+  20:Module/pid/pid.c ****   pid->p_out  = pid->kp * pid->err[0];
+ 142              		.loc 1 20 20 is_stmt 0 view .LVU34
+ 143 0020 D0ED008A 		vldr.32	s17, [r0]
+  20:Module/pid/pid.c ****   pid->p_out  = pid->kp * pid->err[0];
+ 144              		.loc 1 20 25 view .LVU35
+ 145 0024 60EEA88A 		vmul.f32	s17, s1, s17
+  20:Module/pid/pid.c ****   pid->p_out  = pid->kp * pid->err[0];
+ 146              		.loc 1 20 15 view .LVU36
+ 147 0028 C0ED098A 		vstr.32	s17, [r0, #36]
+  21:Module/pid/pid.c ****   pid->i_out += pid->ki * pid->err[0];
+ 148              		.loc 1 21 3 is_stmt 1 view .LVU37
+  21:Module/pid/pid.c ****   pid->i_out += pid->ki * pid->err[0];
+ 149              		.loc 1 21 6 is_stmt 0 view .LVU38
+ 150 002c 90ED0A0A 		vldr.32	s0, [r0, #40]
+ 151              	.LVL7:
+  21:Module/pid/pid.c ****   pid->i_out += pid->ki * pid->err[0];
+ 152              		.loc 1 21 20 view .LVU39
+ 153 0030 D0ED017A 		vldr.32	s15, [r0, #4]
+  21:Module/pid/pid.c ****   pid->i_out += pid->ki * pid->err[0];
+ 154              		.loc 1 21 25 view .LVU40
+ 155 0034 60EEA77A 		vmul.f32	s15, s1, s15
+  21:Module/pid/pid.c ****   pid->i_out += pid->ki * pid->err[0];
+ 156              		.loc 1 21 14 view .LVU41
+ 157 0038 30EE270A 		vadd.f32	s0, s0, s15
+ 158 003c 80ED0A0A 		vstr.32	s0, [r0, #40]
+  22:Module/pid/pid.c ****   pid->d_out  = pid->kd * (pid->err[0] - pid->err[1]);
+ 159              		.loc 1 22 3 is_stmt 1 view .LVU42
+  22:Module/pid/pid.c ****   pid->d_out  = pid->kd * (pid->err[0] - pid->err[1]);
+ 160              		.loc 1 22 20 is_stmt 0 view .LVU43
+ 161 0040 90ED028A 		vldr.32	s16, [r0, #8]
+  22:Module/pid/pid.c ****   pid->d_out  = pid->kd * (pid->err[0] - pid->err[1]);
+ 162              		.loc 1 22 40 view .LVU44
+ 163 0044 70EEC70A 		vsub.f32	s1, s1, s14
+  22:Module/pid/pid.c ****   pid->d_out  = pid->kd * (pid->err[0] - pid->err[1]);
+ 164              		.loc 1 22 25 view .LVU45
+ 165 0048 28EE208A 		vmul.f32	s16, s16, s1
+  22:Module/pid/pid.c ****   pid->d_out  = pid->kd * (pid->err[0] - pid->err[1]);
+ 166              		.loc 1 22 15 view .LVU46
+ARM GAS  /tmp/ccV3EBxf.s 			page 5
+
+
+ 167 004c 80ED0B8A 		vstr.32	s16, [r0, #44]
+  23:Module/pid/pid.c ****   pid->i_out=LIMIT_MIN_MAX(pid->i_out, -pid->i_max, pid->i_max);
+ 168              		.loc 1 23 3 is_stmt 1 view .LVU47
+  23:Module/pid/pid.c ****   pid->i_out=LIMIT_MIN_MAX(pid->i_out, -pid->i_max, pid->i_max);
+ 169              		.loc 1 23 44 is_stmt 0 view .LVU48
+ 170 0050 90ED031A 		vldr.32	s2, [r0, #12]
+  23:Module/pid/pid.c ****   pid->i_out=LIMIT_MIN_MAX(pid->i_out, -pid->i_max, pid->i_max);
+ 171              		.loc 1 23 14 view .LVU49
+ 172 0054 F1EE410A 		vneg.f32	s1, s2
+ 173 0058 FFF7FEFF 		bl	LIMIT_MIN_MAX
+ 174              	.LVL8:
+  23:Module/pid/pid.c ****   pid->i_out=LIMIT_MIN_MAX(pid->i_out, -pid->i_max, pid->i_max);
+ 175              		.loc 1 23 13 discriminator 1 view .LVU50
+ 176 005c 84ED0A0A 		vstr.32	s0, [r4, #40]
+  25:Module/pid/pid.c ****   pid->output = pid->p_out + pid->i_out + pid->d_out;
+ 177              		.loc 1 25 3 is_stmt 1 view .LVU51
+  25:Module/pid/pid.c ****   pid->output = pid->p_out + pid->i_out + pid->d_out;
+ 178              		.loc 1 25 28 is_stmt 0 view .LVU52
+ 179 0060 78EE808A 		vadd.f32	s17, s17, s0
+  25:Module/pid/pid.c ****   pid->output = pid->p_out + pid->i_out + pid->d_out;
+ 180              		.loc 1 25 41 view .LVU53
+ 181 0064 38EE280A 		vadd.f32	s0, s16, s17
+  25:Module/pid/pid.c ****   pid->output = pid->p_out + pid->i_out + pid->d_out;
+ 182              		.loc 1 25 15 view .LVU54
+ 183 0068 84ED0C0A 		vstr.32	s0, [r4, #48]
+  26:Module/pid/pid.c ****   pid->output=LIMIT_MIN_MAX(pid->output, -pid->out_max, pid->out_max);
+ 184              		.loc 1 26 3 is_stmt 1 view .LVU55
+  26:Module/pid/pid.c ****   pid->output=LIMIT_MIN_MAX(pid->output, -pid->out_max, pid->out_max);
+ 185              		.loc 1 26 46 is_stmt 0 view .LVU56
+ 186 006c 94ED041A 		vldr.32	s2, [r4, #16]
+  26:Module/pid/pid.c ****   pid->output=LIMIT_MIN_MAX(pid->output, -pid->out_max, pid->out_max);
+ 187              		.loc 1 26 15 view .LVU57
+ 188 0070 F1EE410A 		vneg.f32	s1, s2
+ 189 0074 FFF7FEFF 		bl	LIMIT_MIN_MAX
+ 190              	.LVL9:
+  26:Module/pid/pid.c ****   pid->output=LIMIT_MIN_MAX(pid->output, -pid->out_max, pid->out_max);
+ 191              		.loc 1 26 14 discriminator 1 view .LVU58
+ 192 0078 84ED0C0A 		vstr.32	s0, [r4, #48]
+  27:Module/pid/pid.c ****   return pid->output;
+ 193              		.loc 1 27 3 is_stmt 1 view .LVU59
+  28:Module/pid/pid.c **** }
+ 194              		.loc 1 28 1 is_stmt 0 view .LVU60
+ 195 007c BDEC028B 		vldm	sp!, {d8}
+ 196              	.LCFI2:
+ 197              		.cfi_restore 80
+ 198              		.cfi_restore 81
+ 199              		.cfi_def_cfa_offset 8
+ 200 0080 10BD     		pop	{r4, pc}
+  28:Module/pid/pid.c **** }
+ 201              		.loc 1 28 1 view .LVU61
+ 202              		.cfi_endproc
+ 203              	.LFE1:
+ 205              		.text
+ 206              	.Letext0:
+ 207              		.file 2 "Module/pid/pid.h"
+ARM GAS  /tmp/ccV3EBxf.s 			page 6
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 pid.c
+     /tmp/ccV3EBxf.s:21     .text.pidInit:00000000 $t
+     /tmp/ccV3EBxf.s:27     .text.pidInit:00000000 pidInit
+     /tmp/ccV3EBxf.s:56     .text.LIMIT_MIN_MAX:00000000 $t
+     /tmp/ccV3EBxf.s:62     .text.LIMIT_MIN_MAX:00000000 LIMIT_MIN_MAX
+     /tmp/ccV3EBxf.s:99     .text.pidCalculate:00000000 $t
+     /tmp/ccV3EBxf.s:105    .text.pidCalculate:00000000 pidCalculate
+
+NO UNDEFINED SYMBOLS

@@ -1,0 +1,856 @@
+ARM GAS  /tmp/ccSX94Pg.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"motor.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.file 1 "Module/motor/motor.c"
+  20              		.section	.text.MotorStop,"ax",%progbits
+  21              		.align	1
+  22              		.global	MotorStop
+  23              		.syntax unified
+  24              		.thumb
+  25              		.thumb_func
+  27              	MotorStop:
+  28              	.LVL0:
+  29              	.LFB133:
+   1:Module/motor/motor.c **** #include "motor.h"
+   2:Module/motor/motor.c **** #include "robot_def.h"
+   3:Module/motor/motor.c **** 
+   4:Module/motor/motor.c **** motoInformation leftMotor;
+   5:Module/motor/motor.c **** motoInformation leftMidMotor;
+   6:Module/motor/motor.c **** motoInformation rightMidMotor;
+   7:Module/motor/motor.c **** motoInformation rightMotor;
+   8:Module/motor/motor.c **** 
+   9:Module/motor/motor.c **** /**
+  10:Module/motor/motor.c ****  *@brief 底盘电机初始化，启用各个接口以及设置默认状态为停止
+  11:Module/motor/motor.c ****  *@param None 
+  12:Module/motor/motor.c ****  *@retval None 
+  13:Module/motor/motor.c ****  */
+  14:Module/motor/motor.c **** void MotorInit(void)
+  15:Module/motor/motor.c **** {
+  16:Module/motor/motor.c ****     /**
+  17:Module/motor/motor.c ****      * 电机启停控制，初始化时，将四个电机都设置为停止状态
+  18:Module/motor/motor.c ****      * 更新电机结构体的启动状态为停止
+  19:Module/motor/motor.c ****      */
+  20:Module/motor/motor.c ****     MotorStop(MOTOR_LEFT);
+  21:Module/motor/motor.c ****     MotorStop(MOTOR_LEFT_MID);
+  22:Module/motor/motor.c ****     MotorStop(MOTOR_RIGHT);
+  23:Module/motor/motor.c ****     MotorStop(MOTOR_LEFT);
+  24:Module/motor/motor.c **** 
+  25:Module/motor/motor.c ****     leftMotor.state = MOTOR_STOP;
+  26:Module/motor/motor.c ****     leftMidMotor.state = MOTOR_STOP;
+  27:Module/motor/motor.c ****     rightMidMotor.state = MOTOR_STOP;
+  28:Module/motor/motor.c ****     rightMotor.state = MOTOR_STOP;
+  29:Module/motor/motor.c **** 
+ARM GAS  /tmp/ccSX94Pg.s 			page 2
+
+
+  30:Module/motor/motor.c ****     /**
+  31:Module/motor/motor.c ****      *按照从左往右的顺序来数（从开关方向看去）
+  32:Module/motor/motor.c ****      *不用保证四个电机的方向一致，通过电机速度的正负来判断方向
+  33:Module/motor/motor.c ****      */
+  34:Module/motor/motor.c ****     HAL_GPIO_WritePin(GPIOC, GPIO_PIN_7, GPIO_PIN_SET);// CW_CCW4 电机4方向控制位
+  35:Module/motor/motor.c ****     HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, GPIO_PIN_SET);// CW_CCW1 电机1方向控制位 
+  36:Module/motor/motor.c ****     HAL_GPIO_WritePin(GPIOA, GPIO_PIN_3, GPIO_PIN_SET);// CW_CCW2 电机2方向控制位
+  37:Module/motor/motor.c ****     HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, GPIO_PIN_SET);// CW_CCW3 电机3方向控制位
+  38:Module/motor/motor.c **** 
+  39:Module/motor/motor.c ****     /**
+  40:Module/motor/motor.c ****      * 电机PID参数初始化
+  41:Module/motor/motor.c ****      * 速度环
+  42:Module/motor/motor.c ****      * 角度环（直立环）
+  43:Module/motor/motor.c ****      */
+  44:Module/motor/motor.c ****     pidInit(&leftMotor.speedPID, 2, 0.001, 1, 500, 4999);
+  45:Module/motor/motor.c ****     pidInit(&leftMotor.anglePID, 0.5, 0, 0, 1000, 9999);
+  46:Module/motor/motor.c **** 
+  47:Module/motor/motor.c ****     pidInit(&leftMidMotor.speedPID, 0.5, 0, 0, 1000, 0);
+  48:Module/motor/motor.c ****     pidInit(&leftMidMotor.anglePID, 0.5, 0, 0, 1000, 0);
+  49:Module/motor/motor.c **** 
+  50:Module/motor/motor.c ****     pidInit(&rightMidMotor.anglePID, 0.5, 0, 0, 1000, 0);
+  51:Module/motor/motor.c ****     pidInit(&rightMidMotor.speedPID, 0.5, 0, 0, 1000, 0);
+  52:Module/motor/motor.c **** 
+  53:Module/motor/motor.c ****     pidInit(&rightMotor.speedPID, 0.5, 0, 0, 1000, 0);
+  54:Module/motor/motor.c ****     pidInit(&rightMotor.anglePID, 0.5, 0, 0, 1000, 0);
+  55:Module/motor/motor.c ****     
+  56:Module/motor/motor.c ****     /**
+  57:Module/motor/motor.c ****      *电机启动
+  58:Module/motor/motor.c ****      *开启PWM的通道，并在默认情况下无输出
+  59:Module/motor/motor.c ****      */
+  60:Module/motor/motor.c ****     HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_4);// 电机1
+  61:Module/motor/motor.c ****     HAL_TIM_PWM_Start(&htim15, TIM_CHANNEL_1);// 电机2
+  62:Module/motor/motor.c ****     HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);// 电机3
+  63:Module/motor/motor.c ****     HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_4);// 电机4
+  64:Module/motor/motor.c **** }
+  65:Module/motor/motor.c **** 
+  66:Module/motor/motor.c **** /**
+  67:Module/motor/motor.c ****  *@brief 控制电机停止，在正反转切换时，务必先停止电机
+  68:Module/motor/motor.c ****  *@param motor 指定需要控制的目标电机，取值范围为 MOTOR_LEFT_MID、MOTOR_RIGHT_MID
+  69:Module/motor/motor.c ****  *@retval None 
+  70:Module/motor/motor.c ****  */
+  71:Module/motor/motor.c **** void MotorStop(uint8_t motor)
+  72:Module/motor/motor.c **** {
+  30              		.loc 1 72 1 view -0
+  31              		.cfi_startproc
+  32              		@ args = 0, pretend = 0, frame = 0
+  33              		@ frame_needed = 0, uses_anonymous_args = 0
+  34              		.loc 1 72 1 is_stmt 0 view .LVU1
+  35 0000 08B5     		push	{r3, lr}
+  36              	.LCFI0:
+  37              		.cfi_def_cfa_offset 8
+  38              		.cfi_offset 3, -8
+  39              		.cfi_offset 14, -4
+  73:Module/motor/motor.c ****     switch(motor)
+  40              		.loc 1 73 5 is_stmt 1 view .LVU2
+  41 0002 0138     		subs	r0, r0, #1
+  42              	.LVL1:
+ARM GAS  /tmp/ccSX94Pg.s 			page 3
+
+
+  43              		.loc 1 73 5 is_stmt 0 view .LVU3
+  44 0004 0328     		cmp	r0, #3
+  45 0006 1AD8     		bhi	.L1
+  46 0008 DFE800F0 		tbb	[pc, r0]
+  47              	.L4:
+  48 000c 02       		.byte	(.L7-.L4)/2
+  49 000d 08       		.byte	(.L6-.L4)/2
+  50 000e 0D       		.byte	(.L5-.L4)/2
+  51 000f 13       		.byte	(.L3-.L4)/2
+  52              		.p2align 1
+  53              	.L7:
+  74:Module/motor/motor.c ****     {
+  75:Module/motor/motor.c ****         case MOTOR_LEFT_MID:
+  76:Module/motor/motor.c ****             HAL_GPIO_WritePin(GPIOC, GPIO_PIN_9, GPIO_PIN_RESET);// BRK1 电机1启动控制位
+  54              		.loc 1 76 13 is_stmt 1 view .LVU4
+  55 0010 0022     		movs	r2, #0
+  56 0012 4FF40071 		mov	r1, #512
+  57 0016 0A48     		ldr	r0, .L13
+  58              	.LVL2:
+  59              		.loc 1 76 13 is_stmt 0 view .LVU5
+  60 0018 FFF7FEFF 		bl	HAL_GPIO_WritePin
+  61              	.LVL3:
+  62              	.L6:
+  77:Module/motor/motor.c ****         case MOTOR_RIGHT_MID:
+  78:Module/motor/motor.c ****             HAL_GPIO_WritePin(GPIOC, GPIO_PIN_3, GPIO_PIN_RESET);// BRK2 电机2启动控制位
+  63              		.loc 1 78 13 is_stmt 1 view .LVU6
+  64 001c 0022     		movs	r2, #0
+  65 001e 0821     		movs	r1, #8
+  66 0020 0748     		ldr	r0, .L13
+  67 0022 FFF7FEFF 		bl	HAL_GPIO_WritePin
+  68              	.LVL4:
+  69              	.L5:
+  79:Module/motor/motor.c ****         case MOTOR_RIGHT:
+  80:Module/motor/motor.c ****             HAL_GPIO_WritePin(GPIOB, GPIO_PIN_13, GPIO_PIN_RESET);// BRK3 电机3启动控制位
+  70              		.loc 1 80 13 view .LVU7
+  71 0026 0022     		movs	r2, #0
+  72 0028 4FF40051 		mov	r1, #8192
+  73 002c 0548     		ldr	r0, .L13+4
+  74 002e FFF7FEFF 		bl	HAL_GPIO_WritePin
+  75              	.LVL5:
+  76              	.L3:
+  81:Module/motor/motor.c ****         case MOTOR_LEFT:
+  82:Module/motor/motor.c ****             HAL_GPIO_WritePin(GPIOB, GPIO_PIN_15, GPIO_PIN_RESET);// BRK4 电机4启动控制位
+  77              		.loc 1 82 13 view .LVU8
+  78 0032 0022     		movs	r2, #0
+  79 0034 4FF40041 		mov	r1, #32768
+  80 0038 0248     		ldr	r0, .L13+4
+  81 003a FFF7FEFF 		bl	HAL_GPIO_WritePin
+  82              	.LVL6:
+  83              	.L1:
+  83:Module/motor/motor.c ****     }
+  84:Module/motor/motor.c **** }
+  84              		.loc 1 84 1 is_stmt 0 view .LVU9
+  85 003e 08BD     		pop	{r3, pc}
+  86              	.L14:
+  87              		.align	2
+  88              	.L13:
+ARM GAS  /tmp/ccSX94Pg.s 			page 4
+
+
+  89 0040 00080048 		.word	1207961600
+  90 0044 00040048 		.word	1207960576
+  91              		.cfi_endproc
+  92              	.LFE133:
+  94              		.section	.text.MotorInit,"ax",%progbits
+  95              		.align	1
+  96              		.global	MotorInit
+  97              		.syntax unified
+  98              		.thumb
+  99              		.thumb_func
+ 101              	MotorInit:
+ 102              	.LFB132:
+  15:Module/motor/motor.c ****     /**
+ 103              		.loc 1 15 1 is_stmt 1 view -0
+ 104              		.cfi_startproc
+ 105              		@ args = 0, pretend = 0, frame = 0
+ 106              		@ frame_needed = 0, uses_anonymous_args = 0
+ 107 0000 2DE9F041 		push	{r4, r5, r6, r7, r8, lr}
+ 108              	.LCFI1:
+ 109              		.cfi_def_cfa_offset 24
+ 110              		.cfi_offset 4, -24
+ 111              		.cfi_offset 5, -20
+ 112              		.cfi_offset 6, -16
+ 113              		.cfi_offset 7, -12
+ 114              		.cfi_offset 8, -8
+ 115              		.cfi_offset 14, -4
+ 116 0004 2DED028B 		vpush.64	{d8}
+ 117              	.LCFI2:
+ 118              		.cfi_def_cfa_offset 32
+ 119              		.cfi_offset 80, -32
+ 120              		.cfi_offset 81, -28
+  20:Module/motor/motor.c ****     MotorStop(MOTOR_LEFT_MID);
+ 121              		.loc 1 20 5 view .LVU11
+ 122 0008 0420     		movs	r0, #4
+ 123 000a FFF7FEFF 		bl	MotorStop
+ 124              	.LVL7:
+  21:Module/motor/motor.c ****     MotorStop(MOTOR_RIGHT);
+ 125              		.loc 1 21 5 view .LVU12
+ 126 000e 0120     		movs	r0, #1
+ 127 0010 FFF7FEFF 		bl	MotorStop
+ 128              	.LVL8:
+  22:Module/motor/motor.c ****     MotorStop(MOTOR_LEFT);
+ 129              		.loc 1 22 5 view .LVU13
+ 130 0014 0320     		movs	r0, #3
+ 131 0016 FFF7FEFF 		bl	MotorStop
+ 132              	.LVL9:
+  23:Module/motor/motor.c **** 
+ 133              		.loc 1 23 5 view .LVU14
+ 134 001a 0420     		movs	r0, #4
+ 135 001c FFF7FEFF 		bl	MotorStop
+ 136              	.LVL10:
+  25:Module/motor/motor.c ****     leftMidMotor.state = MOTOR_STOP;
+ 137              		.loc 1 25 5 view .LVU15
+  25:Module/motor/motor.c ****     leftMidMotor.state = MOTOR_STOP;
+ 138              		.loc 1 25 21 is_stmt 0 view .LVU16
+ 139 0020 DFF89081 		ldr	r8, .L17+60
+ 140 0024 0024     		movs	r4, #0
+ARM GAS  /tmp/ccSX94Pg.s 			page 5
+
+
+ 141 0026 88F81440 		strb	r4, [r8, #20]
+  26:Module/motor/motor.c ****     rightMidMotor.state = MOTOR_STOP;
+ 142              		.loc 1 26 5 is_stmt 1 view .LVU17
+  26:Module/motor/motor.c ****     rightMidMotor.state = MOTOR_STOP;
+ 143              		.loc 1 26 24 is_stmt 0 view .LVU18
+ 144 002a 534F     		ldr	r7, .L17
+ 145 002c 3C75     		strb	r4, [r7, #20]
+  27:Module/motor/motor.c ****     rightMotor.state = MOTOR_STOP;
+ 146              		.loc 1 27 5 is_stmt 1 view .LVU19
+  27:Module/motor/motor.c ****     rightMotor.state = MOTOR_STOP;
+ 147              		.loc 1 27 25 is_stmt 0 view .LVU20
+ 148 002e 534E     		ldr	r6, .L17+4
+ 149 0030 3475     		strb	r4, [r6, #20]
+  28:Module/motor/motor.c **** 
+ 150              		.loc 1 28 5 is_stmt 1 view .LVU21
+  28:Module/motor/motor.c **** 
+ 151              		.loc 1 28 22 is_stmt 0 view .LVU22
+ 152 0032 534D     		ldr	r5, .L17+8
+ 153 0034 2C75     		strb	r4, [r5, #20]
+  34:Module/motor/motor.c ****     HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, GPIO_PIN_SET);// CW_CCW1 电机1方向控制位 
+ 154              		.loc 1 34 5 is_stmt 1 view .LVU23
+ 155 0036 0122     		movs	r2, #1
+ 156 0038 8021     		movs	r1, #128
+ 157 003a 5248     		ldr	r0, .L17+12
+ 158 003c FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 159              	.LVL11:
+  35:Module/motor/motor.c ****     HAL_GPIO_WritePin(GPIOA, GPIO_PIN_3, GPIO_PIN_SET);// CW_CCW2 电机2方向控制位
+ 160              		.loc 1 35 5 view .LVU24
+ 161 0040 0122     		movs	r2, #1
+ 162 0042 4FF40071 		mov	r1, #512
+ 163 0046 4FF09040 		mov	r0, #1207959552
+ 164 004a FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 165              	.LVL12:
+  36:Module/motor/motor.c ****     HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, GPIO_PIN_SET);// CW_CCW3 电机3方向控制位
+ 166              		.loc 1 36 5 view .LVU25
+ 167 004e 0122     		movs	r2, #1
+ 168 0050 0821     		movs	r1, #8
+ 169 0052 4FF09040 		mov	r0, #1207959552
+ 170 0056 FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 171              	.LVL13:
+  37:Module/motor/motor.c **** 
+ 172              		.loc 1 37 5 view .LVU26
+ 173 005a 0122     		movs	r2, #1
+ 174 005c 4FF48041 		mov	r1, #16384
+ 175 0060 4948     		ldr	r0, .L17+16
+ 176 0062 FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 177              	.LVL14:
+  44:Module/motor/motor.c ****     pidInit(&leftMotor.anglePID, 0.5, 0, 0, 1000, 9999);
+ 178              		.loc 1 44 5 view .LVU27
+ 179 0066 9FED492A 		vldr.32	s4, .L17+20
+ 180 006a DFED491A 		vldr.32	s3, .L17+24
+ 181 006e B7EE001A 		vmov.f32	s2, #1.0e+0
+ 182 0072 DFED480A 		vldr.32	s1, .L17+28
+ 183 0076 B0EE000A 		vmov.f32	s0, #2.0e+0
+ 184 007a 08F11800 		add	r0, r8, #24
+ 185 007e FFF7FEFF 		bl	pidInit
+ 186              	.LVL15:
+ARM GAS  /tmp/ccSX94Pg.s 			page 6
+
+
+  45:Module/motor/motor.c **** 
+ 187              		.loc 1 45 5 view .LVU28
+ 188 0082 DFED458A 		vldr.32	s17, .L17+32
+ 189 0086 9FED458A 		vldr.32	s16, .L17+36
+ 190 008a 9FED452A 		vldr.32	s4, .L17+40
+ 191 008e F0EE681A 		vmov.f32	s3, s17
+ 192 0092 B0EE481A 		vmov.f32	s2, s16
+ 193 0096 F0EE480A 		vmov.f32	s1, s16
+ 194 009a B6EE000A 		vmov.f32	s0, #5.0e-1
+ 195 009e 08F15000 		add	r0, r8, #80
+ 196 00a2 FFF7FEFF 		bl	pidInit
+ 197              	.LVL16:
+  47:Module/motor/motor.c ****     pidInit(&leftMidMotor.anglePID, 0.5, 0, 0, 1000, 0);
+ 198              		.loc 1 47 5 view .LVU29
+ 199 00a6 B0EE482A 		vmov.f32	s4, s16
+ 200 00aa F0EE681A 		vmov.f32	s3, s17
+ 201 00ae B0EE481A 		vmov.f32	s2, s16
+ 202 00b2 F0EE480A 		vmov.f32	s1, s16
+ 203 00b6 B6EE000A 		vmov.f32	s0, #5.0e-1
+ 204 00ba 07F11800 		add	r0, r7, #24
+ 205 00be FFF7FEFF 		bl	pidInit
+ 206              	.LVL17:
+  48:Module/motor/motor.c **** 
+ 207              		.loc 1 48 5 view .LVU30
+ 208 00c2 B0EE482A 		vmov.f32	s4, s16
+ 209 00c6 F0EE681A 		vmov.f32	s3, s17
+ 210 00ca B0EE481A 		vmov.f32	s2, s16
+ 211 00ce F0EE480A 		vmov.f32	s1, s16
+ 212 00d2 B6EE000A 		vmov.f32	s0, #5.0e-1
+ 213 00d6 07F15000 		add	r0, r7, #80
+ 214 00da FFF7FEFF 		bl	pidInit
+ 215              	.LVL18:
+  50:Module/motor/motor.c ****     pidInit(&rightMidMotor.speedPID, 0.5, 0, 0, 1000, 0);
+ 216              		.loc 1 50 5 view .LVU31
+ 217 00de B0EE482A 		vmov.f32	s4, s16
+ 218 00e2 F0EE681A 		vmov.f32	s3, s17
+ 219 00e6 B0EE481A 		vmov.f32	s2, s16
+ 220 00ea F0EE480A 		vmov.f32	s1, s16
+ 221 00ee B6EE000A 		vmov.f32	s0, #5.0e-1
+ 222 00f2 06F15000 		add	r0, r6, #80
+ 223 00f6 FFF7FEFF 		bl	pidInit
+ 224              	.LVL19:
+  51:Module/motor/motor.c **** 
+ 225              		.loc 1 51 5 view .LVU32
+ 226 00fa B0EE482A 		vmov.f32	s4, s16
+ 227 00fe F0EE681A 		vmov.f32	s3, s17
+ 228 0102 B0EE481A 		vmov.f32	s2, s16
+ 229 0106 F0EE480A 		vmov.f32	s1, s16
+ 230 010a B6EE000A 		vmov.f32	s0, #5.0e-1
+ 231 010e 06F11800 		add	r0, r6, #24
+ 232 0112 FFF7FEFF 		bl	pidInit
+ 233              	.LVL20:
+  53:Module/motor/motor.c ****     pidInit(&rightMotor.anglePID, 0.5, 0, 0, 1000, 0);
+ 234              		.loc 1 53 5 view .LVU33
+ 235 0116 B0EE482A 		vmov.f32	s4, s16
+ 236 011a F0EE681A 		vmov.f32	s3, s17
+ 237 011e B0EE481A 		vmov.f32	s2, s16
+ARM GAS  /tmp/ccSX94Pg.s 			page 7
+
+
+ 238 0122 F0EE480A 		vmov.f32	s1, s16
+ 239 0126 B6EE000A 		vmov.f32	s0, #5.0e-1
+ 240 012a 05F11800 		add	r0, r5, #24
+ 241 012e FFF7FEFF 		bl	pidInit
+ 242              	.LVL21:
+  54:Module/motor/motor.c ****     
+ 243              		.loc 1 54 5 view .LVU34
+ 244 0132 B0EE482A 		vmov.f32	s4, s16
+ 245 0136 F0EE681A 		vmov.f32	s3, s17
+ 246 013a B0EE481A 		vmov.f32	s2, s16
+ 247 013e F0EE480A 		vmov.f32	s1, s16
+ 248 0142 B6EE000A 		vmov.f32	s0, #5.0e-1
+ 249 0146 05F15000 		add	r0, r5, #80
+ 250 014a FFF7FEFF 		bl	pidInit
+ 251              	.LVL22:
+  60:Module/motor/motor.c ****     HAL_TIM_PWM_Start(&htim15, TIM_CHANNEL_1);// 电机2
+ 252              		.loc 1 60 5 view .LVU35
+ 253 014e 0C21     		movs	r1, #12
+ 254 0150 1448     		ldr	r0, .L17+44
+ 255 0152 FFF7FEFF 		bl	HAL_TIM_PWM_Start
+ 256              	.LVL23:
+  61:Module/motor/motor.c ****     HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);// 电机3
+ 257              		.loc 1 61 5 view .LVU36
+ 258 0156 2146     		mov	r1, r4
+ 259 0158 1348     		ldr	r0, .L17+48
+ 260 015a FFF7FEFF 		bl	HAL_TIM_PWM_Start
+ 261              	.LVL24:
+  62:Module/motor/motor.c ****     HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_4);// 电机4
+ 262              		.loc 1 62 5 view .LVU37
+ 263 015e 0821     		movs	r1, #8
+ 264 0160 1248     		ldr	r0, .L17+52
+ 265 0162 FFF7FEFF 		bl	HAL_TIM_PWM_Start
+ 266              	.LVL25:
+  63:Module/motor/motor.c **** }
+ 267              		.loc 1 63 5 view .LVU38
+ 268 0166 0C21     		movs	r1, #12
+ 269 0168 1148     		ldr	r0, .L17+56
+ 270 016a FFF7FEFF 		bl	HAL_TIM_PWM_Start
+ 271              	.LVL26:
+  64:Module/motor/motor.c **** 
+ 272              		.loc 1 64 1 is_stmt 0 view .LVU39
+ 273 016e BDEC028B 		vldm	sp!, {d8}
+ 274              	.LCFI3:
+ 275              		.cfi_restore 80
+ 276              		.cfi_restore 81
+ 277              		.cfi_def_cfa_offset 24
+ 278 0172 BDE8F081 		pop	{r4, r5, r6, r7, r8, pc}
+ 279              	.L18:
+ 280 0176 00BF     		.align	2
+ 281              	.L17:
+ 282 0178 00000000 		.word	leftMidMotor
+ 283 017c 00000000 		.word	rightMidMotor
+ 284 0180 00000000 		.word	rightMotor
+ 285 0184 00080048 		.word	1207961600
+ 286 0188 00040048 		.word	1207960576
+ 287 018c 00389C45 		.word	1167865856
+ 288 0190 0000FA43 		.word	1140457472
+ARM GAS  /tmp/ccSX94Pg.s 			page 8
+
+
+ 289 0194 6F12833A 		.word	981668463
+ 290 0198 00007A44 		.word	1148846080
+ 291 019c 00000000 		.word	0
+ 292 01a0 003C1C46 		.word	1176255488
+ 293 01a4 00000000 		.word	htim2
+ 294 01a8 00000000 		.word	htim15
+ 295 01ac 00000000 		.word	htim3
+ 296 01b0 00000000 		.word	htim4
+ 297 01b4 00000000 		.word	leftMotor
+ 298              		.cfi_endproc
+ 299              	.LFE132:
+ 301              		.section	.text.MotorRun,"ax",%progbits
+ 302              		.align	1
+ 303              		.global	MotorRun
+ 304              		.syntax unified
+ 305              		.thumb
+ 306              		.thumb_func
+ 308              	MotorRun:
+ 309              	.LVL27:
+ 310              	.LFB134:
+  85:Module/motor/motor.c **** 
+  86:Module/motor/motor.c **** /**
+  87:Module/motor/motor.c ****  *@brief 控制电机启动
+  88:Module/motor/motor.c ****  *@param motor 指定需要控制的目标电机，取值范围为 MOTOR_LEFT_MID、MOTOR_RIGHT_MID
+  89:Module/motor/motor.c ****  *@retval None 
+  90:Module/motor/motor.c ****  */
+  91:Module/motor/motor.c **** void MotorRun(uint8_t motor)
+  92:Module/motor/motor.c **** {
+ 311              		.loc 1 92 1 is_stmt 1 view -0
+ 312              		.cfi_startproc
+ 313              		@ args = 0, pretend = 0, frame = 0
+ 314              		@ frame_needed = 0, uses_anonymous_args = 0
+ 315              		.loc 1 92 1 is_stmt 0 view .LVU41
+ 316 0000 08B5     		push	{r3, lr}
+ 317              	.LCFI4:
+ 318              		.cfi_def_cfa_offset 8
+ 319              		.cfi_offset 3, -8
+ 320              		.cfi_offset 14, -4
+  93:Module/motor/motor.c ****     switch(motor)
+ 321              		.loc 1 93 5 is_stmt 1 view .LVU42
+ 322 0002 0138     		subs	r0, r0, #1
+ 323              	.LVL28:
+ 324              		.loc 1 93 5 is_stmt 0 view .LVU43
+ 325 0004 0328     		cmp	r0, #3
+ 326 0006 1AD8     		bhi	.L19
+ 327 0008 DFE800F0 		tbb	[pc, r0]
+ 328              	.L22:
+ 329 000c 02       		.byte	(.L25-.L22)/2
+ 330 000d 08       		.byte	(.L24-.L22)/2
+ 331 000e 0D       		.byte	(.L23-.L22)/2
+ 332 000f 13       		.byte	(.L21-.L22)/2
+ 333              		.p2align 1
+ 334              	.L25:
+  94:Module/motor/motor.c ****     {
+  95:Module/motor/motor.c ****         case MOTOR_LEFT_MID:
+  96:Module/motor/motor.c ****             HAL_GPIO_WritePin(GPIOC, GPIO_PIN_9, GPIO_PIN_SET);
+ 335              		.loc 1 96 13 is_stmt 1 view .LVU44
+ARM GAS  /tmp/ccSX94Pg.s 			page 9
+
+
+ 336 0010 0122     		movs	r2, #1
+ 337 0012 4FF40071 		mov	r1, #512
+ 338 0016 0A48     		ldr	r0, .L31
+ 339              	.LVL29:
+ 340              		.loc 1 96 13 is_stmt 0 view .LVU45
+ 341 0018 FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 342              	.LVL30:
+ 343              	.L24:
+  97:Module/motor/motor.c ****         case MOTOR_RIGHT_MID:
+  98:Module/motor/motor.c ****             HAL_GPIO_WritePin(GPIOC, GPIO_PIN_3, GPIO_PIN_SET);
+ 344              		.loc 1 98 13 is_stmt 1 view .LVU46
+ 345 001c 0122     		movs	r2, #1
+ 346 001e 0821     		movs	r1, #8
+ 347 0020 0748     		ldr	r0, .L31
+ 348 0022 FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 349              	.LVL31:
+ 350              	.L23:
+  99:Module/motor/motor.c ****         case MOTOR_RIGHT:
+ 100:Module/motor/motor.c ****             HAL_GPIO_WritePin(GPIOB, GPIO_PIN_13, GPIO_PIN_SET);
+ 351              		.loc 1 100 13 view .LVU47
+ 352 0026 0122     		movs	r2, #1
+ 353 0028 4FF40051 		mov	r1, #8192
+ 354 002c 0548     		ldr	r0, .L31+4
+ 355 002e FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 356              	.LVL32:
+ 357              	.L21:
+ 101:Module/motor/motor.c ****         case MOTOR_LEFT:
+ 102:Module/motor/motor.c ****             HAL_GPIO_WritePin(GPIOB, GPIO_PIN_15, GPIO_PIN_SET);
+ 358              		.loc 1 102 13 view .LVU48
+ 359 0032 0122     		movs	r2, #1
+ 360 0034 4FF40041 		mov	r1, #32768
+ 361 0038 0248     		ldr	r0, .L31+4
+ 362 003a FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 363              	.LVL33:
+ 364              	.L19:
+ 103:Module/motor/motor.c ****     }
+ 104:Module/motor/motor.c **** }
+ 365              		.loc 1 104 1 is_stmt 0 view .LVU49
+ 366 003e 08BD     		pop	{r3, pc}
+ 367              	.L32:
+ 368              		.align	2
+ 369              	.L31:
+ 370 0040 00080048 		.word	1207961600
+ 371 0044 00040048 		.word	1207960576
+ 372              		.cfi_endproc
+ 373              	.LFE134:
+ 375              		.section	.text.MotorControlCwCCw,"ax",%progbits
+ 376              		.align	1
+ 377              		.global	MotorControlCwCCw
+ 378              		.syntax unified
+ 379              		.thumb
+ 380              		.thumb_func
+ 382              	MotorControlCwCCw:
+ 383              	.LVL34:
+ 384              	.LFB135:
+ 105:Module/motor/motor.c **** 
+ 106:Module/motor/motor.c **** /**
+ARM GAS  /tmp/ccSX94Pg.s 			page 10
+
+
+ 107:Module/motor/motor.c ****  *@brief 控制电机正反转
+ 108:Module/motor/motor.c ****  *@param motor 指定需要控制的目标电机，取值范围为 MOTOR_LEFT_MID、MOTOR_RIGHT_MID
+ 109:Module/motor/motor.c ****  *@param cwccw 指定电机转动方向，取值范围为 MOTOR_CW（顺时针）或 MOTOR_CCW（�
+ 110:Module/motor/motor.c ****  *@retval None 
+ 111:Module/motor/motor.c ****  */
+ 112:Module/motor/motor.c **** void MotorControlCwCCw(uint8_t motor,uint8_t cwccw)
+ 113:Module/motor/motor.c **** {
+ 385              		.loc 1 113 1 is_stmt 1 view -0
+ 386              		.cfi_startproc
+ 387              		@ args = 0, pretend = 0, frame = 0
+ 388              		@ frame_needed = 0, uses_anonymous_args = 0
+ 389              		.loc 1 113 1 is_stmt 0 view .LVU51
+ 390 0000 08B5     		push	{r3, lr}
+ 391              	.LCFI5:
+ 392              		.cfi_def_cfa_offset 8
+ 393              		.cfi_offset 3, -8
+ 394              		.cfi_offset 14, -4
+ 114:Module/motor/motor.c ****     switch(motor)
+ 395              		.loc 1 114 5 is_stmt 1 view .LVU52
+ 396 0002 0138     		subs	r0, r0, #1
+ 397              	.LVL35:
+ 398              		.loc 1 114 5 is_stmt 0 view .LVU53
+ 399 0004 0328     		cmp	r0, #3
+ 400 0006 0CD8     		bhi	.L33
+ 401 0008 DFE800F0 		tbb	[pc, r0]
+ 402              	.L36:
+ 403 000c 02       		.byte	(.L39-.L36)/2
+ 404 000d 14       		.byte	(.L38-.L36)/2
+ 405 000e 24       		.byte	(.L37-.L36)/2
+ 406 000f 34       		.byte	(.L35-.L36)/2
+ 407              		.p2align 1
+ 408              	.L39:
+ 115:Module/motor/motor.c ****     {
+ 116:Module/motor/motor.c ****         case MOTOR_LEFT_MID:
+ 117:Module/motor/motor.c ****             {
+ 118:Module/motor/motor.c ****                 if(cwccw == MOTOR_CW)
+ 409              		.loc 1 118 17 is_stmt 1 view .LVU54
+ 410              		.loc 1 118 19 is_stmt 0 view .LVU55
+ 411 0010 0129     		cmp	r1, #1
+ 412 0012 07D0     		beq	.L46
+ 119:Module/motor/motor.c ****                 {
+ 120:Module/motor/motor.c ****                     HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, GPIO_PIN_SET);
+ 121:Module/motor/motor.c ****                 }
+ 122:Module/motor/motor.c ****                 else
+ 123:Module/motor/motor.c ****                 {
+ 124:Module/motor/motor.c ****                     HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, GPIO_PIN_RESET);
+ 413              		.loc 1 124 21 is_stmt 1 view .LVU56
+ 414 0014 0022     		movs	r2, #0
+ 415 0016 4FF40071 		mov	r1, #512
+ 416              	.LVL36:
+ 417              		.loc 1 124 21 is_stmt 0 view .LVU57
+ 418 001a 4FF09040 		mov	r0, #1207959552
+ 419              	.LVL37:
+ 420              		.loc 1 124 21 view .LVU58
+ 421 001e FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 422              	.LVL38:
+ 423              	.L33:
+ARM GAS  /tmp/ccSX94Pg.s 			page 11
+
+
+ 125:Module/motor/motor.c ****                 }
+ 126:Module/motor/motor.c ****             }break;
+ 127:Module/motor/motor.c ****         case MOTOR_RIGHT_MID:
+ 128:Module/motor/motor.c ****             {
+ 129:Module/motor/motor.c ****                 if(cwccw == MOTOR_CW)
+ 130:Module/motor/motor.c ****                 {
+ 131:Module/motor/motor.c ****                     HAL_GPIO_WritePin(GPIOA, GPIO_PIN_3, GPIO_PIN_SET);
+ 132:Module/motor/motor.c ****                 }
+ 133:Module/motor/motor.c ****                 else
+ 134:Module/motor/motor.c ****                 {
+ 135:Module/motor/motor.c ****                     HAL_GPIO_WritePin(GPIOA, GPIO_PIN_3, GPIO_PIN_RESET);
+ 136:Module/motor/motor.c ****                 }
+ 137:Module/motor/motor.c ****             }break;
+ 138:Module/motor/motor.c ****         case MOTOR_RIGHT:
+ 139:Module/motor/motor.c ****             {
+ 140:Module/motor/motor.c ****                 if(cwccw == MOTOR_CW)
+ 141:Module/motor/motor.c ****                 {
+ 142:Module/motor/motor.c ****                     HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, GPIO_PIN_SET);
+ 143:Module/motor/motor.c ****                 }
+ 144:Module/motor/motor.c ****                 else
+ 145:Module/motor/motor.c ****                 {
+ 146:Module/motor/motor.c ****                     HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, GPIO_PIN_RESET);
+ 147:Module/motor/motor.c ****                 }
+ 148:Module/motor/motor.c ****             }break;
+ 149:Module/motor/motor.c ****         case MOTOR_LEFT:
+ 150:Module/motor/motor.c ****             {
+ 151:Module/motor/motor.c ****                 if(cwccw == MOTOR_CW)
+ 152:Module/motor/motor.c ****                 {
+ 153:Module/motor/motor.c ****                     HAL_GPIO_WritePin(GPIOC, GPIO_PIN_7, GPIO_PIN_SET);
+ 154:Module/motor/motor.c ****                 }
+ 155:Module/motor/motor.c ****                 else
+ 156:Module/motor/motor.c ****                 {
+ 157:Module/motor/motor.c ****                     HAL_GPIO_WritePin(GPIOC, GPIO_PIN_7, GPIO_PIN_RESET);
+ 158:Module/motor/motor.c ****                 }
+ 159:Module/motor/motor.c ****             }break;
+ 160:Module/motor/motor.c ****     }
+ 161:Module/motor/motor.c **** }...
+ 424              		.loc 1 161 1 view .LVU59
+ 425 0022 08BD     		pop	{r3, pc}
+ 426              	.LVL39:
+ 427              	.L46:
+ 120:Module/motor/motor.c ****                     HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, GPIO_PIN_SET);
+ 428              		.loc 1 120 21 is_stmt 1 view .LVU60
+ 429 0024 0122     		movs	r2, #1
+ 430 0026 4FF40071 		mov	r1, #512
+ 431              	.LVL40:
+ 120:Module/motor/motor.c ****                     HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, GPIO_PIN_SET);
+ 432              		.loc 1 120 21 is_stmt 0 view .LVU61
+ 433 002a 4FF09040 		mov	r0, #1207959552
+ 434 002e FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 435              	.LVL41:
+ 436 0032 F6E7     		b	.L33
+ 437              	.LVL42:
+ 438              	.L38:
+ 129:Module/motor/motor.c ****                 if(cwccw == MOTOR_CW)
+ 439              		.loc 1 129 17 is_stmt 1 view .LVU62
+ 129:Module/motor/motor.c ****                 if(cwccw == MOTOR_CW)
+ARM GAS  /tmp/ccSX94Pg.s 			page 12
+
+
+ 440              		.loc 1 129 19 is_stmt 0 view .LVU63
+ 441 0034 0129     		cmp	r1, #1
+ 442 0036 06D0     		beq	.L47
+ 135:Module/motor/motor.c ****                     HAL_GPIO_WritePin(GPIOA, GPIO_PIN_3, GPIO_PIN_RESET);
+ 443              		.loc 1 135 21 is_stmt 1 view .LVU64
+ 444 0038 0022     		movs	r2, #0
+ 445 003a 0821     		movs	r1, #8
+ 446              	.LVL43:
+ 135:Module/motor/motor.c ****                     HAL_GPIO_WritePin(GPIOA, GPIO_PIN_3, GPIO_PIN_RESET);
+ 447              		.loc 1 135 21 is_stmt 0 view .LVU65
+ 448 003c 4FF09040 		mov	r0, #1207959552
+ 449 0040 FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 450              	.LVL44:
+ 451 0044 EDE7     		b	.L33
+ 452              	.LVL45:
+ 453              	.L47:
+ 131:Module/motor/motor.c ****                     HAL_GPIO_WritePin(GPIOA, GPIO_PIN_3, GPIO_PIN_SET);
+ 454              		.loc 1 131 21 is_stmt 1 view .LVU66
+ 455 0046 0122     		movs	r2, #1
+ 456 0048 0821     		movs	r1, #8
+ 457              	.LVL46:
+ 131:Module/motor/motor.c ****                     HAL_GPIO_WritePin(GPIOA, GPIO_PIN_3, GPIO_PIN_SET);
+ 458              		.loc 1 131 21 is_stmt 0 view .LVU67
+ 459 004a 4FF09040 		mov	r0, #1207959552
+ 460 004e FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 461              	.LVL47:
+ 462 0052 E6E7     		b	.L33
+ 463              	.LVL48:
+ 464              	.L37:
+ 140:Module/motor/motor.c ****                 if(cwccw == MOTOR_CW)
+ 465              		.loc 1 140 17 is_stmt 1 view .LVU68
+ 140:Module/motor/motor.c ****                 if(cwccw == MOTOR_CW)
+ 466              		.loc 1 140 19 is_stmt 0 view .LVU69
+ 467 0054 0129     		cmp	r1, #1
+ 468 0056 06D0     		beq	.L48
+ 146:Module/motor/motor.c ****                     HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, GPIO_PIN_RESET);
+ 469              		.loc 1 146 21 is_stmt 1 view .LVU70
+ 470 0058 0022     		movs	r2, #0
+ 471 005a 4FF48041 		mov	r1, #16384
+ 472              	.LVL49:
+ 146:Module/motor/motor.c ****                     HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, GPIO_PIN_RESET);
+ 473              		.loc 1 146 21 is_stmt 0 view .LVU71
+ 474 005e 0C48     		ldr	r0, .L50
+ 475 0060 FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 476              	.LVL50:
+ 477 0064 DDE7     		b	.L33
+ 478              	.LVL51:
+ 479              	.L48:
+ 142:Module/motor/motor.c ****                     HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, GPIO_PIN_SET);
+ 480              		.loc 1 142 21 is_stmt 1 view .LVU72
+ 481 0066 0122     		movs	r2, #1
+ 482 0068 4FF48041 		mov	r1, #16384
+ 483              	.LVL52:
+ 142:Module/motor/motor.c ****                     HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, GPIO_PIN_SET);
+ 484              		.loc 1 142 21 is_stmt 0 view .LVU73
+ 485 006c 0848     		ldr	r0, .L50
+ 486 006e FFF7FEFF 		bl	HAL_GPIO_WritePin
+ARM GAS  /tmp/ccSX94Pg.s 			page 13
+
+
+ 487              	.LVL53:
+ 488 0072 D6E7     		b	.L33
+ 489              	.LVL54:
+ 490              	.L35:
+ 151:Module/motor/motor.c ****                 if(cwccw == MOTOR_CW)
+ 491              		.loc 1 151 17 is_stmt 1 view .LVU74
+ 151:Module/motor/motor.c ****                 if(cwccw == MOTOR_CW)
+ 492              		.loc 1 151 19 is_stmt 0 view .LVU75
+ 493 0074 0129     		cmp	r1, #1
+ 494 0076 05D0     		beq	.L49
+ 157:Module/motor/motor.c ****                     HAL_GPIO_WritePin(GPIOC, GPIO_PIN_7, GPIO_PIN_RESET);
+ 495              		.loc 1 157 21 is_stmt 1 view .LVU76
+ 496 0078 0022     		movs	r2, #0
+ 497 007a 8021     		movs	r1, #128
+ 498              	.LVL55:
+ 157:Module/motor/motor.c ****                     HAL_GPIO_WritePin(GPIOC, GPIO_PIN_7, GPIO_PIN_RESET);
+ 499              		.loc 1 157 21 is_stmt 0 view .LVU77
+ 500 007c 0548     		ldr	r0, .L50+4
+ 501 007e FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 502              	.LVL56:
+ 503              		.loc 1 161 1 view .LVU78
+ 504 0082 CEE7     		b	.L33
+ 505              	.LVL57:
+ 506              	.L49:
+ 153:Module/motor/motor.c ****                     HAL_GPIO_WritePin(GPIOC, GPIO_PIN_7, GPIO_PIN_SET);
+ 507              		.loc 1 153 21 is_stmt 1 view .LVU79
+ 508 0084 0122     		movs	r2, #1
+ 509 0086 8021     		movs	r1, #128
+ 510              	.LVL58:
+ 153:Module/motor/motor.c ****                     HAL_GPIO_WritePin(GPIOC, GPIO_PIN_7, GPIO_PIN_SET);
+ 511              		.loc 1 153 21 is_stmt 0 view .LVU80
+ 512 0088 0248     		ldr	r0, .L50+4
+ 513 008a FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 514              	.LVL59:
+ 515 008e C8E7     		b	.L33
+ 516              	.L51:
+ 517              		.align	2
+ 518              	.L50:
+ 519 0090 00040048 		.word	1207960576
+ 520 0094 00080048 		.word	1207961600
+ 521              		.cfi_endproc
+ 522              	.LFE135:
+ 524              		.global	rightMotor
+ 525              		.section	.bss.rightMotor,"aw",%nobits
+ 526              		.align	2
+ 529              	rightMotor:
+ 530 0000 00000000 		.space	136
+ 530      00000000 
+ 530      00000000 
+ 530      00000000 
+ 530      00000000 
+ 531              		.global	rightMidMotor
+ 532              		.section	.bss.rightMidMotor,"aw",%nobits
+ 533              		.align	2
+ 536              	rightMidMotor:
+ 537 0000 00000000 		.space	136
+ 537      00000000 
+ARM GAS  /tmp/ccSX94Pg.s 			page 14
+
+
+ 537      00000000 
+ 537      00000000 
+ 537      00000000 
+ 538              		.global	leftMidMotor
+ 539              		.section	.bss.leftMidMotor,"aw",%nobits
+ 540              		.align	2
+ 543              	leftMidMotor:
+ 544 0000 00000000 		.space	136
+ 544      00000000 
+ 544      00000000 
+ 544      00000000 
+ 544      00000000 
+ 545              		.global	leftMotor
+ 546              		.section	.bss.leftMotor,"aw",%nobits
+ 547              		.align	2
+ 550              	leftMotor:
+ 551 0000 00000000 		.space	136
+ 551      00000000 
+ 551      00000000 
+ 551      00000000 
+ 551      00000000 
+ 552              		.text
+ 553              	.Letext0:
+ 554              		.file 2 "/home/yml/mondrian/arm-gnu-toolchain-13.2.Rel1-x86_64-arm-none-eabi/arm-none-eabi/include
+ 555              		.file 3 "/home/yml/mondrian/arm-gnu-toolchain-13.2.Rel1-x86_64-arm-none-eabi/arm-none-eabi/include
+ 556              		.file 4 "Drivers/CMSIS/Device/ST/STM32G4xx/Include/stm32g474xx.h"
+ 557              		.file 5 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_def.h"
+ 558              		.file 6 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_gpio.h"
+ 559              		.file 7 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_dma.h"
+ 560              		.file 8 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_tim.h"
+ 561              		.file 9 "Core/Inc/tim.h"
+ 562              		.file 10 "Module/pid/pid.h"
+ 563              		.file 11 "Module/motor/motor.h"
+ARM GAS  /tmp/ccSX94Pg.s 			page 15
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 motor.c
+     /tmp/ccSX94Pg.s:21     .text.MotorStop:00000000 $t
+     /tmp/ccSX94Pg.s:27     .text.MotorStop:00000000 MotorStop
+     /tmp/ccSX94Pg.s:48     .text.MotorStop:0000000c $d
+     /tmp/ccSX94Pg.s:52     .text.MotorStop:00000010 $t
+     /tmp/ccSX94Pg.s:89     .text.MotorStop:00000040 $d
+     /tmp/ccSX94Pg.s:95     .text.MotorInit:00000000 $t
+     /tmp/ccSX94Pg.s:101    .text.MotorInit:00000000 MotorInit
+     /tmp/ccSX94Pg.s:282    .text.MotorInit:00000178 $d
+     /tmp/ccSX94Pg.s:543    .bss.leftMidMotor:00000000 leftMidMotor
+     /tmp/ccSX94Pg.s:536    .bss.rightMidMotor:00000000 rightMidMotor
+     /tmp/ccSX94Pg.s:529    .bss.rightMotor:00000000 rightMotor
+     /tmp/ccSX94Pg.s:550    .bss.leftMotor:00000000 leftMotor
+     /tmp/ccSX94Pg.s:302    .text.MotorRun:00000000 $t
+     /tmp/ccSX94Pg.s:308    .text.MotorRun:00000000 MotorRun
+     /tmp/ccSX94Pg.s:329    .text.MotorRun:0000000c $d
+     /tmp/ccSX94Pg.s:333    .text.MotorRun:00000010 $t
+     /tmp/ccSX94Pg.s:370    .text.MotorRun:00000040 $d
+     /tmp/ccSX94Pg.s:376    .text.MotorControlCwCCw:00000000 $t
+     /tmp/ccSX94Pg.s:382    .text.MotorControlCwCCw:00000000 MotorControlCwCCw
+     /tmp/ccSX94Pg.s:403    .text.MotorControlCwCCw:0000000c $d
+     /tmp/ccSX94Pg.s:407    .text.MotorControlCwCCw:00000010 $t
+     /tmp/ccSX94Pg.s:519    .text.MotorControlCwCCw:00000090 $d
+     /tmp/ccSX94Pg.s:526    .bss.rightMotor:00000000 $d
+     /tmp/ccSX94Pg.s:533    .bss.rightMidMotor:00000000 $d
+     /tmp/ccSX94Pg.s:540    .bss.leftMidMotor:00000000 $d
+     /tmp/ccSX94Pg.s:547    .bss.leftMotor:00000000 $d
+
+UNDEFINED SYMBOLS
+HAL_GPIO_WritePin
+pidInit
+HAL_TIM_PWM_Start
+htim2
+htim15
+htim3
+htim4

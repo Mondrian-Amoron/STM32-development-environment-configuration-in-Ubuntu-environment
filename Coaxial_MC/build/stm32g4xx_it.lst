@@ -1,0 +1,814 @@
+ARM GAS  /tmp/ccj70Pn5.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"stm32g4xx_it.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.file 1 "Core/Src/stm32g4xx_it.c"
+  20              		.section	.text.NMI_Handler,"ax",%progbits
+  21              		.align	1
+  22              		.global	NMI_Handler
+  23              		.syntax unified
+  24              		.thumb
+  25              		.thumb_func
+  27              	NMI_Handler:
+  28              	.LFB132:
+   1:Core/Src/stm32g4xx_it.c **** /* USER CODE BEGIN Header */
+   2:Core/Src/stm32g4xx_it.c **** /**
+   3:Core/Src/stm32g4xx_it.c ****   ******************************************************************************
+   4:Core/Src/stm32g4xx_it.c ****   * @file    stm32g4xx_it.c
+   5:Core/Src/stm32g4xx_it.c ****   * @brief   Interrupt Service Routines.
+   6:Core/Src/stm32g4xx_it.c ****   ******************************************************************************
+   7:Core/Src/stm32g4xx_it.c ****   * @attention
+   8:Core/Src/stm32g4xx_it.c ****   *
+   9:Core/Src/stm32g4xx_it.c ****   * Copyright (c) 2024 STMicroelectronics.
+  10:Core/Src/stm32g4xx_it.c ****   * All rights reserved.
+  11:Core/Src/stm32g4xx_it.c ****   *
+  12:Core/Src/stm32g4xx_it.c ****   * This software is licensed under terms that can be found in the LICENSE file
+  13:Core/Src/stm32g4xx_it.c ****   * in the root directory of this software component.
+  14:Core/Src/stm32g4xx_it.c ****   * If no LICENSE file comes with this software, it is provided AS-IS.
+  15:Core/Src/stm32g4xx_it.c ****   *
+  16:Core/Src/stm32g4xx_it.c ****   ******************************************************************************
+  17:Core/Src/stm32g4xx_it.c ****   */
+  18:Core/Src/stm32g4xx_it.c **** /* USER CODE END Header */
+  19:Core/Src/stm32g4xx_it.c **** 
+  20:Core/Src/stm32g4xx_it.c **** /* Includes ------------------------------------------------------------------*/
+  21:Core/Src/stm32g4xx_it.c **** #include "main.h"
+  22:Core/Src/stm32g4xx_it.c **** #include "stm32g4xx_it.h"
+  23:Core/Src/stm32g4xx_it.c **** /* Private includes ----------------------------------------------------------*/
+  24:Core/Src/stm32g4xx_it.c **** /* USER CODE BEGIN Includes */
+  25:Core/Src/stm32g4xx_it.c **** /* USER CODE END Includes */
+  26:Core/Src/stm32g4xx_it.c **** 
+  27:Core/Src/stm32g4xx_it.c **** /* Private typedef -----------------------------------------------------------*/
+  28:Core/Src/stm32g4xx_it.c **** /* USER CODE BEGIN TD */
+  29:Core/Src/stm32g4xx_it.c **** 
+  30:Core/Src/stm32g4xx_it.c **** /* USER CODE END TD */
+ARM GAS  /tmp/ccj70Pn5.s 			page 2
+
+
+  31:Core/Src/stm32g4xx_it.c **** 
+  32:Core/Src/stm32g4xx_it.c **** /* Private define ------------------------------------------------------------*/
+  33:Core/Src/stm32g4xx_it.c **** /* USER CODE BEGIN PD */
+  34:Core/Src/stm32g4xx_it.c **** 
+  35:Core/Src/stm32g4xx_it.c **** /* USER CODE END PD */
+  36:Core/Src/stm32g4xx_it.c **** 
+  37:Core/Src/stm32g4xx_it.c **** /* Private macro -------------------------------------------------------------*/
+  38:Core/Src/stm32g4xx_it.c **** /* USER CODE BEGIN PM */
+  39:Core/Src/stm32g4xx_it.c **** 
+  40:Core/Src/stm32g4xx_it.c **** /* USER CODE END PM */
+  41:Core/Src/stm32g4xx_it.c **** 
+  42:Core/Src/stm32g4xx_it.c **** /* Private variables ---------------------------------------------------------*/
+  43:Core/Src/stm32g4xx_it.c **** /* USER CODE BEGIN PV */
+  44:Core/Src/stm32g4xx_it.c **** 
+  45:Core/Src/stm32g4xx_it.c **** /* USER CODE END PV */
+  46:Core/Src/stm32g4xx_it.c **** 
+  47:Core/Src/stm32g4xx_it.c **** /* Private function prototypes -----------------------------------------------*/
+  48:Core/Src/stm32g4xx_it.c **** /* USER CODE BEGIN PFP */
+  49:Core/Src/stm32g4xx_it.c **** 
+  50:Core/Src/stm32g4xx_it.c **** /* USER CODE END PFP */
+  51:Core/Src/stm32g4xx_it.c **** 
+  52:Core/Src/stm32g4xx_it.c **** /* Private user code ---------------------------------------------------------*/
+  53:Core/Src/stm32g4xx_it.c **** /* USER CODE BEGIN 0 */
+  54:Core/Src/stm32g4xx_it.c **** 
+  55:Core/Src/stm32g4xx_it.c **** /* USER CODE END 0 */
+  56:Core/Src/stm32g4xx_it.c **** 
+  57:Core/Src/stm32g4xx_it.c **** /* External variables --------------------------------------------------------*/
+  58:Core/Src/stm32g4xx_it.c **** extern TIM_HandleTypeDef htim1;
+  59:Core/Src/stm32g4xx_it.c **** extern TIM_HandleTypeDef htim2;
+  60:Core/Src/stm32g4xx_it.c **** extern TIM_HandleTypeDef htim3;
+  61:Core/Src/stm32g4xx_it.c **** extern TIM_HandleTypeDef htim4;
+  62:Core/Src/stm32g4xx_it.c **** extern TIM_HandleTypeDef htim6;
+  63:Core/Src/stm32g4xx_it.c **** extern TIM_HandleTypeDef htim15;
+  64:Core/Src/stm32g4xx_it.c **** extern TIM_HandleTypeDef htim20;
+  65:Core/Src/stm32g4xx_it.c **** extern TIM_HandleTypeDef htim16;
+  66:Core/Src/stm32g4xx_it.c **** 
+  67:Core/Src/stm32g4xx_it.c **** /* USER CODE BEGIN EV */
+  68:Core/Src/stm32g4xx_it.c **** 
+  69:Core/Src/stm32g4xx_it.c **** /* USER CODE END EV */
+  70:Core/Src/stm32g4xx_it.c **** 
+  71:Core/Src/stm32g4xx_it.c **** /******************************************************************************/
+  72:Core/Src/stm32g4xx_it.c **** /*           Cortex-M4 Processor Interruption and Exception Handlers          */
+  73:Core/Src/stm32g4xx_it.c **** /******************************************************************************/
+  74:Core/Src/stm32g4xx_it.c **** /**
+  75:Core/Src/stm32g4xx_it.c ****   * @brief This function handles Non maskable interrupt.
+  76:Core/Src/stm32g4xx_it.c ****   */
+  77:Core/Src/stm32g4xx_it.c **** void NMI_Handler(void)
+  78:Core/Src/stm32g4xx_it.c **** {
+  29              		.loc 1 78 1 view -0
+  30              		.cfi_startproc
+  31              		@ Volatile: function does not return.
+  32              		@ args = 0, pretend = 0, frame = 0
+  33              		@ frame_needed = 0, uses_anonymous_args = 0
+  34              		@ link register save eliminated.
+  35              	.L2:
+  79:Core/Src/stm32g4xx_it.c ****   /* USER CODE BEGIN NonMaskableInt_IRQn 0 */
+  80:Core/Src/stm32g4xx_it.c **** 
+ARM GAS  /tmp/ccj70Pn5.s 			page 3
+
+
+  81:Core/Src/stm32g4xx_it.c ****   /* USER CODE END NonMaskableInt_IRQn 0 */
+  82:Core/Src/stm32g4xx_it.c ****   /* USER CODE BEGIN NonMaskableInt_IRQn 1 */
+  83:Core/Src/stm32g4xx_it.c ****    while (1)
+  36              		.loc 1 83 4 view .LVU1
+  84:Core/Src/stm32g4xx_it.c ****   {
+  85:Core/Src/stm32g4xx_it.c ****   }
+  37              		.loc 1 85 3 view .LVU2
+  83:Core/Src/stm32g4xx_it.c ****   {
+  38              		.loc 1 83 10 view .LVU3
+  39 0000 FEE7     		b	.L2
+  40              		.cfi_endproc
+  41              	.LFE132:
+  43              		.section	.text.HardFault_Handler,"ax",%progbits
+  44              		.align	1
+  45              		.global	HardFault_Handler
+  46              		.syntax unified
+  47              		.thumb
+  48              		.thumb_func
+  50              	HardFault_Handler:
+  51              	.LFB133:
+  86:Core/Src/stm32g4xx_it.c ****   /* USER CODE END NonMaskableInt_IRQn 1 */
+  87:Core/Src/stm32g4xx_it.c **** }
+  88:Core/Src/stm32g4xx_it.c **** 
+  89:Core/Src/stm32g4xx_it.c **** /**
+  90:Core/Src/stm32g4xx_it.c ****   * @brief This function handles Hard fault interrupt.
+  91:Core/Src/stm32g4xx_it.c ****   */
+  92:Core/Src/stm32g4xx_it.c **** void HardFault_Handler(void)
+  93:Core/Src/stm32g4xx_it.c **** {
+  52              		.loc 1 93 1 view -0
+  53              		.cfi_startproc
+  54              		@ Volatile: function does not return.
+  55              		@ args = 0, pretend = 0, frame = 0
+  56              		@ frame_needed = 0, uses_anonymous_args = 0
+  57              		@ link register save eliminated.
+  58              	.L4:
+  94:Core/Src/stm32g4xx_it.c ****   /* USER CODE BEGIN HardFault_IRQn 0 */
+  95:Core/Src/stm32g4xx_it.c **** 
+  96:Core/Src/stm32g4xx_it.c ****   /* USER CODE END HardFault_IRQn 0 */
+  97:Core/Src/stm32g4xx_it.c ****   while (1)
+  59              		.loc 1 97 3 view .LVU5
+  98:Core/Src/stm32g4xx_it.c ****   {
+  99:Core/Src/stm32g4xx_it.c ****     /* USER CODE BEGIN W1_HardFault_IRQn 0 */
+ 100:Core/Src/stm32g4xx_it.c ****     /* USER CODE END W1_HardFault_IRQn 0 */
+ 101:Core/Src/stm32g4xx_it.c ****   }
+  60              		.loc 1 101 3 view .LVU6
+  97:Core/Src/stm32g4xx_it.c ****   {
+  61              		.loc 1 97 9 view .LVU7
+  62 0000 FEE7     		b	.L4
+  63              		.cfi_endproc
+  64              	.LFE133:
+  66              		.section	.text.MemManage_Handler,"ax",%progbits
+  67              		.align	1
+  68              		.global	MemManage_Handler
+  69              		.syntax unified
+  70              		.thumb
+  71              		.thumb_func
+  73              	MemManage_Handler:
+ARM GAS  /tmp/ccj70Pn5.s 			page 4
+
+
+  74              	.LFB134:
+ 102:Core/Src/stm32g4xx_it.c **** }
+ 103:Core/Src/stm32g4xx_it.c **** 
+ 104:Core/Src/stm32g4xx_it.c **** /**
+ 105:Core/Src/stm32g4xx_it.c ****   * @brief This function handles Memory management fault.
+ 106:Core/Src/stm32g4xx_it.c ****   */
+ 107:Core/Src/stm32g4xx_it.c **** void MemManage_Handler(void)
+ 108:Core/Src/stm32g4xx_it.c **** {
+  75              		.loc 1 108 1 view -0
+  76              		.cfi_startproc
+  77              		@ Volatile: function does not return.
+  78              		@ args = 0, pretend = 0, frame = 0
+  79              		@ frame_needed = 0, uses_anonymous_args = 0
+  80              		@ link register save eliminated.
+  81              	.L6:
+ 109:Core/Src/stm32g4xx_it.c ****   /* USER CODE BEGIN MemoryManagement_IRQn 0 */
+ 110:Core/Src/stm32g4xx_it.c **** 
+ 111:Core/Src/stm32g4xx_it.c ****   /* USER CODE END MemoryManagement_IRQn 0 */
+ 112:Core/Src/stm32g4xx_it.c ****   while (1)
+  82              		.loc 1 112 3 view .LVU9
+ 113:Core/Src/stm32g4xx_it.c ****   {
+ 114:Core/Src/stm32g4xx_it.c ****     /* USER CODE BEGIN W1_MemoryManagement_IRQn 0 */
+ 115:Core/Src/stm32g4xx_it.c ****     /* USER CODE END W1_MemoryManagement_IRQn 0 */
+ 116:Core/Src/stm32g4xx_it.c ****   }
+  83              		.loc 1 116 3 view .LVU10
+ 112:Core/Src/stm32g4xx_it.c ****   {
+  84              		.loc 1 112 9 view .LVU11
+  85 0000 FEE7     		b	.L6
+  86              		.cfi_endproc
+  87              	.LFE134:
+  89              		.section	.text.BusFault_Handler,"ax",%progbits
+  90              		.align	1
+  91              		.global	BusFault_Handler
+  92              		.syntax unified
+  93              		.thumb
+  94              		.thumb_func
+  96              	BusFault_Handler:
+  97              	.LFB135:
+ 117:Core/Src/stm32g4xx_it.c **** }
+ 118:Core/Src/stm32g4xx_it.c **** 
+ 119:Core/Src/stm32g4xx_it.c **** /**
+ 120:Core/Src/stm32g4xx_it.c ****   * @brief This function handles Prefetch fault, memory access fault.
+ 121:Core/Src/stm32g4xx_it.c ****   */
+ 122:Core/Src/stm32g4xx_it.c **** void BusFault_Handler(void)
+ 123:Core/Src/stm32g4xx_it.c **** {
+  98              		.loc 1 123 1 view -0
+  99              		.cfi_startproc
+ 100              		@ Volatile: function does not return.
+ 101              		@ args = 0, pretend = 0, frame = 0
+ 102              		@ frame_needed = 0, uses_anonymous_args = 0
+ 103              		@ link register save eliminated.
+ 104              	.L8:
+ 124:Core/Src/stm32g4xx_it.c ****   /* USER CODE BEGIN BusFault_IRQn 0 */
+ 125:Core/Src/stm32g4xx_it.c **** 
+ 126:Core/Src/stm32g4xx_it.c ****   /* USER CODE END BusFault_IRQn 0 */
+ 127:Core/Src/stm32g4xx_it.c ****   while (1)
+ 105              		.loc 1 127 3 view .LVU13
+ARM GAS  /tmp/ccj70Pn5.s 			page 5
+
+
+ 128:Core/Src/stm32g4xx_it.c ****   {
+ 129:Core/Src/stm32g4xx_it.c ****     /* USER CODE BEGIN W1_BusFault_IRQn 0 */
+ 130:Core/Src/stm32g4xx_it.c ****     /* USER CODE END W1_BusFault_IRQn 0 */
+ 131:Core/Src/stm32g4xx_it.c ****   }
+ 106              		.loc 1 131 3 view .LVU14
+ 127:Core/Src/stm32g4xx_it.c ****   {
+ 107              		.loc 1 127 9 view .LVU15
+ 108 0000 FEE7     		b	.L8
+ 109              		.cfi_endproc
+ 110              	.LFE135:
+ 112              		.section	.text.UsageFault_Handler,"ax",%progbits
+ 113              		.align	1
+ 114              		.global	UsageFault_Handler
+ 115              		.syntax unified
+ 116              		.thumb
+ 117              		.thumb_func
+ 119              	UsageFault_Handler:
+ 120              	.LFB136:
+ 132:Core/Src/stm32g4xx_it.c **** }
+ 133:Core/Src/stm32g4xx_it.c **** 
+ 134:Core/Src/stm32g4xx_it.c **** /**
+ 135:Core/Src/stm32g4xx_it.c ****   * @brief This function handles Undefined instruction or illegal state.
+ 136:Core/Src/stm32g4xx_it.c ****   */
+ 137:Core/Src/stm32g4xx_it.c **** void UsageFault_Handler(void)
+ 138:Core/Src/stm32g4xx_it.c **** {
+ 121              		.loc 1 138 1 view -0
+ 122              		.cfi_startproc
+ 123              		@ Volatile: function does not return.
+ 124              		@ args = 0, pretend = 0, frame = 0
+ 125              		@ frame_needed = 0, uses_anonymous_args = 0
+ 126              		@ link register save eliminated.
+ 127              	.L10:
+ 139:Core/Src/stm32g4xx_it.c ****   /* USER CODE BEGIN UsageFault_IRQn 0 */
+ 140:Core/Src/stm32g4xx_it.c **** 
+ 141:Core/Src/stm32g4xx_it.c ****   /* USER CODE END UsageFault_IRQn 0 */
+ 142:Core/Src/stm32g4xx_it.c ****   while (1)
+ 128              		.loc 1 142 3 view .LVU17
+ 143:Core/Src/stm32g4xx_it.c ****   {
+ 144:Core/Src/stm32g4xx_it.c ****     /* USER CODE BEGIN W1_UsageFault_IRQn 0 */
+ 145:Core/Src/stm32g4xx_it.c ****     /* USER CODE END W1_UsageFault_IRQn 0 */
+ 146:Core/Src/stm32g4xx_it.c ****   }
+ 129              		.loc 1 146 3 view .LVU18
+ 142:Core/Src/stm32g4xx_it.c ****   {
+ 130              		.loc 1 142 9 view .LVU19
+ 131 0000 FEE7     		b	.L10
+ 132              		.cfi_endproc
+ 133              	.LFE136:
+ 135              		.section	.text.DebugMon_Handler,"ax",%progbits
+ 136              		.align	1
+ 137              		.global	DebugMon_Handler
+ 138              		.syntax unified
+ 139              		.thumb
+ 140              		.thumb_func
+ 142              	DebugMon_Handler:
+ 143              	.LFB137:
+ 147:Core/Src/stm32g4xx_it.c **** }
+ 148:Core/Src/stm32g4xx_it.c **** 
+ARM GAS  /tmp/ccj70Pn5.s 			page 6
+
+
+ 149:Core/Src/stm32g4xx_it.c **** /**
+ 150:Core/Src/stm32g4xx_it.c ****   * @brief This function handles Debug monitor.
+ 151:Core/Src/stm32g4xx_it.c ****   */
+ 152:Core/Src/stm32g4xx_it.c **** void DebugMon_Handler(void)
+ 153:Core/Src/stm32g4xx_it.c **** {
+ 144              		.loc 1 153 1 view -0
+ 145              		.cfi_startproc
+ 146              		@ args = 0, pretend = 0, frame = 0
+ 147              		@ frame_needed = 0, uses_anonymous_args = 0
+ 148              		@ link register save eliminated.
+ 154:Core/Src/stm32g4xx_it.c ****   /* USER CODE BEGIN DebugMonitor_IRQn 0 */
+ 155:Core/Src/stm32g4xx_it.c **** 
+ 156:Core/Src/stm32g4xx_it.c ****   /* USER CODE END DebugMonitor_IRQn 0 */
+ 157:Core/Src/stm32g4xx_it.c ****   /* USER CODE BEGIN DebugMonitor_IRQn 1 */
+ 158:Core/Src/stm32g4xx_it.c **** 
+ 159:Core/Src/stm32g4xx_it.c ****   /* USER CODE END DebugMonitor_IRQn 1 */
+ 160:Core/Src/stm32g4xx_it.c **** }
+ 149              		.loc 1 160 1 view .LVU21
+ 150 0000 7047     		bx	lr
+ 151              		.cfi_endproc
+ 152              	.LFE137:
+ 154              		.section	.text.TIM1_BRK_TIM15_IRQHandler,"ax",%progbits
+ 155              		.align	1
+ 156              		.global	TIM1_BRK_TIM15_IRQHandler
+ 157              		.syntax unified
+ 158              		.thumb
+ 159              		.thumb_func
+ 161              	TIM1_BRK_TIM15_IRQHandler:
+ 162              	.LFB138:
+ 161:Core/Src/stm32g4xx_it.c **** 
+ 162:Core/Src/stm32g4xx_it.c **** /******************************************************************************/
+ 163:Core/Src/stm32g4xx_it.c **** /* STM32G4xx Peripheral Interrupt Handlers                                    */
+ 164:Core/Src/stm32g4xx_it.c **** /* Add here the Interrupt Handlers for the used peripherals.                  */
+ 165:Core/Src/stm32g4xx_it.c **** /* For the available peripheral interrupt handler names,                      */
+ 166:Core/Src/stm32g4xx_it.c **** /* please refer to the startup file (startup_stm32g4xx.s).                    */
+ 167:Core/Src/stm32g4xx_it.c **** /******************************************************************************/
+ 168:Core/Src/stm32g4xx_it.c **** 
+ 169:Core/Src/stm32g4xx_it.c **** /**
+ 170:Core/Src/stm32g4xx_it.c ****   * @brief This function handles TIM1 break interrupt and TIM15 global interrupt.
+ 171:Core/Src/stm32g4xx_it.c ****   */
+ 172:Core/Src/stm32g4xx_it.c **** void TIM1_BRK_TIM15_IRQHandler(void)
+ 173:Core/Src/stm32g4xx_it.c **** {
+ 163              		.loc 1 173 1 view -0
+ 164              		.cfi_startproc
+ 165              		@ args = 0, pretend = 0, frame = 0
+ 166              		@ frame_needed = 0, uses_anonymous_args = 0
+ 167 0000 08B5     		push	{r3, lr}
+ 168              	.LCFI0:
+ 169              		.cfi_def_cfa_offset 8
+ 170              		.cfi_offset 3, -8
+ 171              		.cfi_offset 14, -4
+ 174:Core/Src/stm32g4xx_it.c ****   /* USER CODE BEGIN TIM1_BRK_TIM15_IRQn 0 */
+ 175:Core/Src/stm32g4xx_it.c **** 
+ 176:Core/Src/stm32g4xx_it.c ****   /* USER CODE END TIM1_BRK_TIM15_IRQn 0 */
+ 177:Core/Src/stm32g4xx_it.c ****   HAL_TIM_IRQHandler(&htim1);
+ 172              		.loc 1 177 3 view .LVU23
+ 173 0002 0348     		ldr	r0, .L14
+ARM GAS  /tmp/ccj70Pn5.s 			page 7
+
+
+ 174 0004 FFF7FEFF 		bl	HAL_TIM_IRQHandler
+ 175              	.LVL0:
+ 178:Core/Src/stm32g4xx_it.c ****   HAL_TIM_IRQHandler(&htim15);
+ 176              		.loc 1 178 3 view .LVU24
+ 177 0008 0248     		ldr	r0, .L14+4
+ 178 000a FFF7FEFF 		bl	HAL_TIM_IRQHandler
+ 179              	.LVL1:
+ 179:Core/Src/stm32g4xx_it.c ****   /* USER CODE BEGIN TIM1_BRK_TIM15_IRQn 1 */
+ 180:Core/Src/stm32g4xx_it.c **** 
+ 181:Core/Src/stm32g4xx_it.c ****   /* USER CODE END TIM1_BRK_TIM15_IRQn 1 */
+ 182:Core/Src/stm32g4xx_it.c **** }
+ 180              		.loc 1 182 1 is_stmt 0 view .LVU25
+ 181 000e 08BD     		pop	{r3, pc}
+ 182              	.L15:
+ 183              		.align	2
+ 184              	.L14:
+ 185 0010 00000000 		.word	htim1
+ 186 0014 00000000 		.word	htim15
+ 187              		.cfi_endproc
+ 188              	.LFE138:
+ 190              		.section	.text.TIM1_UP_TIM16_IRQHandler,"ax",%progbits
+ 191              		.align	1
+ 192              		.global	TIM1_UP_TIM16_IRQHandler
+ 193              		.syntax unified
+ 194              		.thumb
+ 195              		.thumb_func
+ 197              	TIM1_UP_TIM16_IRQHandler:
+ 198              	.LFB139:
+ 183:Core/Src/stm32g4xx_it.c **** 
+ 184:Core/Src/stm32g4xx_it.c **** /**
+ 185:Core/Src/stm32g4xx_it.c ****   * @brief This function handles TIM1 update interrupt and TIM16 global interrupt.
+ 186:Core/Src/stm32g4xx_it.c ****   */
+ 187:Core/Src/stm32g4xx_it.c **** void TIM1_UP_TIM16_IRQHandler(void)
+ 188:Core/Src/stm32g4xx_it.c **** {
+ 199              		.loc 1 188 1 is_stmt 1 view -0
+ 200              		.cfi_startproc
+ 201              		@ args = 0, pretend = 0, frame = 0
+ 202              		@ frame_needed = 0, uses_anonymous_args = 0
+ 203 0000 08B5     		push	{r3, lr}
+ 204              	.LCFI1:
+ 205              		.cfi_def_cfa_offset 8
+ 206              		.cfi_offset 3, -8
+ 207              		.cfi_offset 14, -4
+ 189:Core/Src/stm32g4xx_it.c ****   /* USER CODE BEGIN TIM1_UP_TIM16_IRQn 0 */
+ 190:Core/Src/stm32g4xx_it.c **** 
+ 191:Core/Src/stm32g4xx_it.c ****   /* USER CODE END TIM1_UP_TIM16_IRQn 0 */
+ 192:Core/Src/stm32g4xx_it.c ****   HAL_TIM_IRQHandler(&htim1);
+ 208              		.loc 1 192 3 view .LVU27
+ 209 0002 0348     		ldr	r0, .L18
+ 210 0004 FFF7FEFF 		bl	HAL_TIM_IRQHandler
+ 211              	.LVL2:
+ 193:Core/Src/stm32g4xx_it.c ****   HAL_TIM_IRQHandler(&htim16);
+ 212              		.loc 1 193 3 view .LVU28
+ 213 0008 0248     		ldr	r0, .L18+4
+ 214 000a FFF7FEFF 		bl	HAL_TIM_IRQHandler
+ 215              	.LVL3:
+ 194:Core/Src/stm32g4xx_it.c ****   /* USER CODE BEGIN TIM1_UP_TIM16_IRQn 1 */
+ARM GAS  /tmp/ccj70Pn5.s 			page 8
+
+
+ 195:Core/Src/stm32g4xx_it.c **** 
+ 196:Core/Src/stm32g4xx_it.c ****   /* USER CODE END TIM1_UP_TIM16_IRQn 1 */
+ 197:Core/Src/stm32g4xx_it.c **** }
+ 216              		.loc 1 197 1 is_stmt 0 view .LVU29
+ 217 000e 08BD     		pop	{r3, pc}
+ 218              	.L19:
+ 219              		.align	2
+ 220              	.L18:
+ 221 0010 00000000 		.word	htim1
+ 222 0014 00000000 		.word	htim16
+ 223              		.cfi_endproc
+ 224              	.LFE139:
+ 226              		.section	.text.TIM2_IRQHandler,"ax",%progbits
+ 227              		.align	1
+ 228              		.global	TIM2_IRQHandler
+ 229              		.syntax unified
+ 230              		.thumb
+ 231              		.thumb_func
+ 233              	TIM2_IRQHandler:
+ 234              	.LFB140:
+ 198:Core/Src/stm32g4xx_it.c **** 
+ 199:Core/Src/stm32g4xx_it.c **** /**
+ 200:Core/Src/stm32g4xx_it.c ****   * @brief This function handles TIM2 global interrupt.
+ 201:Core/Src/stm32g4xx_it.c ****   */
+ 202:Core/Src/stm32g4xx_it.c **** void TIM2_IRQHandler(void)
+ 203:Core/Src/stm32g4xx_it.c **** {
+ 235              		.loc 1 203 1 is_stmt 1 view -0
+ 236              		.cfi_startproc
+ 237              		@ args = 0, pretend = 0, frame = 0
+ 238              		@ frame_needed = 0, uses_anonymous_args = 0
+ 239 0000 08B5     		push	{r3, lr}
+ 240              	.LCFI2:
+ 241              		.cfi_def_cfa_offset 8
+ 242              		.cfi_offset 3, -8
+ 243              		.cfi_offset 14, -4
+ 204:Core/Src/stm32g4xx_it.c ****   /* USER CODE BEGIN TIM2_IRQn 0 */
+ 205:Core/Src/stm32g4xx_it.c **** 
+ 206:Core/Src/stm32g4xx_it.c ****   /* USER CODE END TIM2_IRQn 0 */
+ 207:Core/Src/stm32g4xx_it.c ****   HAL_TIM_IRQHandler(&htim2);
+ 244              		.loc 1 207 3 view .LVU31
+ 245 0002 0248     		ldr	r0, .L22
+ 246 0004 FFF7FEFF 		bl	HAL_TIM_IRQHandler
+ 247              	.LVL4:
+ 208:Core/Src/stm32g4xx_it.c ****   /* USER CODE BEGIN TIM2_IRQn 1 */
+ 209:Core/Src/stm32g4xx_it.c **** 
+ 210:Core/Src/stm32g4xx_it.c ****   /* USER CODE END TIM2_IRQn 1 */
+ 211:Core/Src/stm32g4xx_it.c **** }
+ 248              		.loc 1 211 1 is_stmt 0 view .LVU32
+ 249 0008 08BD     		pop	{r3, pc}
+ 250              	.L23:
+ 251 000a 00BF     		.align	2
+ 252              	.L22:
+ 253 000c 00000000 		.word	htim2
+ 254              		.cfi_endproc
+ 255              	.LFE140:
+ 257              		.section	.text.TIM3_IRQHandler,"ax",%progbits
+ 258              		.align	1
+ARM GAS  /tmp/ccj70Pn5.s 			page 9
+
+
+ 259              		.global	TIM3_IRQHandler
+ 260              		.syntax unified
+ 261              		.thumb
+ 262              		.thumb_func
+ 264              	TIM3_IRQHandler:
+ 265              	.LFB141:
+ 212:Core/Src/stm32g4xx_it.c **** 
+ 213:Core/Src/stm32g4xx_it.c **** /**
+ 214:Core/Src/stm32g4xx_it.c ****   * @brief This function handles TIM3 global interrupt.
+ 215:Core/Src/stm32g4xx_it.c ****   */
+ 216:Core/Src/stm32g4xx_it.c **** void TIM3_IRQHandler(void)
+ 217:Core/Src/stm32g4xx_it.c **** {
+ 266              		.loc 1 217 1 is_stmt 1 view -0
+ 267              		.cfi_startproc
+ 268              		@ args = 0, pretend = 0, frame = 0
+ 269              		@ frame_needed = 0, uses_anonymous_args = 0
+ 270 0000 08B5     		push	{r3, lr}
+ 271              	.LCFI3:
+ 272              		.cfi_def_cfa_offset 8
+ 273              		.cfi_offset 3, -8
+ 274              		.cfi_offset 14, -4
+ 218:Core/Src/stm32g4xx_it.c ****   /* USER CODE BEGIN TIM3_IRQn 0 */
+ 219:Core/Src/stm32g4xx_it.c **** 
+ 220:Core/Src/stm32g4xx_it.c ****   /* USER CODE END TIM3_IRQn 0 */
+ 221:Core/Src/stm32g4xx_it.c ****   HAL_TIM_IRQHandler(&htim3);
+ 275              		.loc 1 221 3 view .LVU34
+ 276 0002 0248     		ldr	r0, .L26
+ 277 0004 FFF7FEFF 		bl	HAL_TIM_IRQHandler
+ 278              	.LVL5:
+ 222:Core/Src/stm32g4xx_it.c ****   /* USER CODE BEGIN TIM3_IRQn 1 */
+ 223:Core/Src/stm32g4xx_it.c **** 
+ 224:Core/Src/stm32g4xx_it.c ****   /* USER CODE END TIM3_IRQn 1 */
+ 225:Core/Src/stm32g4xx_it.c **** }
+ 279              		.loc 1 225 1 is_stmt 0 view .LVU35
+ 280 0008 08BD     		pop	{r3, pc}
+ 281              	.L27:
+ 282 000a 00BF     		.align	2
+ 283              	.L26:
+ 284 000c 00000000 		.word	htim3
+ 285              		.cfi_endproc
+ 286              	.LFE141:
+ 288              		.section	.text.TIM4_IRQHandler,"ax",%progbits
+ 289              		.align	1
+ 290              		.global	TIM4_IRQHandler
+ 291              		.syntax unified
+ 292              		.thumb
+ 293              		.thumb_func
+ 295              	TIM4_IRQHandler:
+ 296              	.LFB142:
+ 226:Core/Src/stm32g4xx_it.c **** 
+ 227:Core/Src/stm32g4xx_it.c **** /**
+ 228:Core/Src/stm32g4xx_it.c ****   * @brief This function handles TIM4 global interrupt.
+ 229:Core/Src/stm32g4xx_it.c ****   */
+ 230:Core/Src/stm32g4xx_it.c **** void TIM4_IRQHandler(void)
+ 231:Core/Src/stm32g4xx_it.c **** {
+ 297              		.loc 1 231 1 is_stmt 1 view -0
+ 298              		.cfi_startproc
+ARM GAS  /tmp/ccj70Pn5.s 			page 10
+
+
+ 299              		@ args = 0, pretend = 0, frame = 0
+ 300              		@ frame_needed = 0, uses_anonymous_args = 0
+ 301 0000 08B5     		push	{r3, lr}
+ 302              	.LCFI4:
+ 303              		.cfi_def_cfa_offset 8
+ 304              		.cfi_offset 3, -8
+ 305              		.cfi_offset 14, -4
+ 232:Core/Src/stm32g4xx_it.c ****   /* USER CODE BEGIN TIM4_IRQn 0 */
+ 233:Core/Src/stm32g4xx_it.c **** 
+ 234:Core/Src/stm32g4xx_it.c ****   /* USER CODE END TIM4_IRQn 0 */
+ 235:Core/Src/stm32g4xx_it.c ****   HAL_TIM_IRQHandler(&htim4);
+ 306              		.loc 1 235 3 view .LVU37
+ 307 0002 0248     		ldr	r0, .L30
+ 308 0004 FFF7FEFF 		bl	HAL_TIM_IRQHandler
+ 309              	.LVL6:
+ 236:Core/Src/stm32g4xx_it.c ****   /* USER CODE BEGIN TIM4_IRQn 1 */
+ 237:Core/Src/stm32g4xx_it.c **** 
+ 238:Core/Src/stm32g4xx_it.c ****   /* USER CODE END TIM4_IRQn 1 */
+ 239:Core/Src/stm32g4xx_it.c **** }
+ 310              		.loc 1 239 1 is_stmt 0 view .LVU38
+ 311 0008 08BD     		pop	{r3, pc}
+ 312              	.L31:
+ 313 000a 00BF     		.align	2
+ 314              	.L30:
+ 315 000c 00000000 		.word	htim4
+ 316              		.cfi_endproc
+ 317              	.LFE142:
+ 319              		.section	.text.TIM6_DAC_IRQHandler,"ax",%progbits
+ 320              		.align	1
+ 321              		.global	TIM6_DAC_IRQHandler
+ 322              		.syntax unified
+ 323              		.thumb
+ 324              		.thumb_func
+ 326              	TIM6_DAC_IRQHandler:
+ 327              	.LFB143:
+ 240:Core/Src/stm32g4xx_it.c **** 
+ 241:Core/Src/stm32g4xx_it.c **** /**
+ 242:Core/Src/stm32g4xx_it.c ****   * @brief This function handles TIM6 global interrupt, DAC1 and DAC3 channel underrun error interr
+ 243:Core/Src/stm32g4xx_it.c ****   */
+ 244:Core/Src/stm32g4xx_it.c **** void TIM6_DAC_IRQHandler(void)
+ 245:Core/Src/stm32g4xx_it.c **** {
+ 328              		.loc 1 245 1 is_stmt 1 view -0
+ 329              		.cfi_startproc
+ 330              		@ args = 0, pretend = 0, frame = 0
+ 331              		@ frame_needed = 0, uses_anonymous_args = 0
+ 332 0000 08B5     		push	{r3, lr}
+ 333              	.LCFI5:
+ 334              		.cfi_def_cfa_offset 8
+ 335              		.cfi_offset 3, -8
+ 336              		.cfi_offset 14, -4
+ 246:Core/Src/stm32g4xx_it.c ****   /* USER CODE BEGIN TIM6_DAC_IRQn 0 */
+ 247:Core/Src/stm32g4xx_it.c **** 
+ 248:Core/Src/stm32g4xx_it.c ****   /* USER CODE END TIM6_DAC_IRQn 0 */
+ 249:Core/Src/stm32g4xx_it.c ****   HAL_TIM_IRQHandler(&htim6);
+ 337              		.loc 1 249 3 view .LVU40
+ 338 0002 0248     		ldr	r0, .L34
+ 339 0004 FFF7FEFF 		bl	HAL_TIM_IRQHandler
+ARM GAS  /tmp/ccj70Pn5.s 			page 11
+
+
+ 340              	.LVL7:
+ 250:Core/Src/stm32g4xx_it.c ****   /* USER CODE BEGIN TIM6_DAC_IRQn 1 */
+ 251:Core/Src/stm32g4xx_it.c **** 
+ 252:Core/Src/stm32g4xx_it.c ****   /* USER CODE END TIM6_DAC_IRQn 1 */
+ 253:Core/Src/stm32g4xx_it.c **** }
+ 341              		.loc 1 253 1 is_stmt 0 view .LVU41
+ 342 0008 08BD     		pop	{r3, pc}
+ 343              	.L35:
+ 344 000a 00BF     		.align	2
+ 345              	.L34:
+ 346 000c 00000000 		.word	htim6
+ 347              		.cfi_endproc
+ 348              	.LFE143:
+ 350              		.section	.text.TIM20_BRK_IRQHandler,"ax",%progbits
+ 351              		.align	1
+ 352              		.global	TIM20_BRK_IRQHandler
+ 353              		.syntax unified
+ 354              		.thumb
+ 355              		.thumb_func
+ 357              	TIM20_BRK_IRQHandler:
+ 358              	.LFB144:
+ 254:Core/Src/stm32g4xx_it.c **** 
+ 255:Core/Src/stm32g4xx_it.c **** /**
+ 256:Core/Src/stm32g4xx_it.c ****   * @brief This function handles TIM20 break interrupt.
+ 257:Core/Src/stm32g4xx_it.c ****   */
+ 258:Core/Src/stm32g4xx_it.c **** void TIM20_BRK_IRQHandler(void)
+ 259:Core/Src/stm32g4xx_it.c **** {
+ 359              		.loc 1 259 1 is_stmt 1 view -0
+ 360              		.cfi_startproc
+ 361              		@ args = 0, pretend = 0, frame = 0
+ 362              		@ frame_needed = 0, uses_anonymous_args = 0
+ 363 0000 08B5     		push	{r3, lr}
+ 364              	.LCFI6:
+ 365              		.cfi_def_cfa_offset 8
+ 366              		.cfi_offset 3, -8
+ 367              		.cfi_offset 14, -4
+ 260:Core/Src/stm32g4xx_it.c ****   /* USER CODE BEGIN TIM20_BRK_IRQn 0 */
+ 261:Core/Src/stm32g4xx_it.c **** 
+ 262:Core/Src/stm32g4xx_it.c ****   /* USER CODE END TIM20_BRK_IRQn 0 */
+ 263:Core/Src/stm32g4xx_it.c ****   HAL_TIM_IRQHandler(&htim20);
+ 368              		.loc 1 263 3 view .LVU43
+ 369 0002 0248     		ldr	r0, .L38
+ 370 0004 FFF7FEFF 		bl	HAL_TIM_IRQHandler
+ 371              	.LVL8:
+ 264:Core/Src/stm32g4xx_it.c ****   /* USER CODE BEGIN TIM20_BRK_IRQn 1 */
+ 265:Core/Src/stm32g4xx_it.c **** 
+ 266:Core/Src/stm32g4xx_it.c ****   /* USER CODE END TIM20_BRK_IRQn 1 */
+ 267:Core/Src/stm32g4xx_it.c **** }
+ 372              		.loc 1 267 1 is_stmt 0 view .LVU44
+ 373 0008 08BD     		pop	{r3, pc}
+ 374              	.L39:
+ 375 000a 00BF     		.align	2
+ 376              	.L38:
+ 377 000c 00000000 		.word	htim20
+ 378              		.cfi_endproc
+ 379              	.LFE144:
+ 381              		.section	.text.TIM20_UP_IRQHandler,"ax",%progbits
+ARM GAS  /tmp/ccj70Pn5.s 			page 12
+
+
+ 382              		.align	1
+ 383              		.global	TIM20_UP_IRQHandler
+ 384              		.syntax unified
+ 385              		.thumb
+ 386              		.thumb_func
+ 388              	TIM20_UP_IRQHandler:
+ 389              	.LFB145:
+ 268:Core/Src/stm32g4xx_it.c **** 
+ 269:Core/Src/stm32g4xx_it.c **** /**
+ 270:Core/Src/stm32g4xx_it.c ****   * @brief This function handles TIM20 update interrupt.
+ 271:Core/Src/stm32g4xx_it.c ****   */
+ 272:Core/Src/stm32g4xx_it.c **** void TIM20_UP_IRQHandler(void)
+ 273:Core/Src/stm32g4xx_it.c **** {
+ 390              		.loc 1 273 1 is_stmt 1 view -0
+ 391              		.cfi_startproc
+ 392              		@ args = 0, pretend = 0, frame = 0
+ 393              		@ frame_needed = 0, uses_anonymous_args = 0
+ 394 0000 08B5     		push	{r3, lr}
+ 395              	.LCFI7:
+ 396              		.cfi_def_cfa_offset 8
+ 397              		.cfi_offset 3, -8
+ 398              		.cfi_offset 14, -4
+ 274:Core/Src/stm32g4xx_it.c ****   /* USER CODE BEGIN TIM20_UP_IRQn 0 */
+ 275:Core/Src/stm32g4xx_it.c **** 
+ 276:Core/Src/stm32g4xx_it.c ****   /* USER CODE END TIM20_UP_IRQn 0 */
+ 277:Core/Src/stm32g4xx_it.c ****   HAL_TIM_IRQHandler(&htim20);
+ 399              		.loc 1 277 3 view .LVU46
+ 400 0002 0248     		ldr	r0, .L42
+ 401 0004 FFF7FEFF 		bl	HAL_TIM_IRQHandler
+ 402              	.LVL9:
+ 278:Core/Src/stm32g4xx_it.c ****   /* USER CODE BEGIN TIM20_UP_IRQn 1 */
+ 279:Core/Src/stm32g4xx_it.c **** 
+ 280:Core/Src/stm32g4xx_it.c ****   /* USER CODE END TIM20_UP_IRQn 1 */
+ 281:Core/Src/stm32g4xx_it.c **** }
+ 403              		.loc 1 281 1 is_stmt 0 view .LVU47
+ 404 0008 08BD     		pop	{r3, pc}
+ 405              	.L43:
+ 406 000a 00BF     		.align	2
+ 407              	.L42:
+ 408 000c 00000000 		.word	htim20
+ 409              		.cfi_endproc
+ 410              	.LFE145:
+ 412              		.section	.text.TIM20_CC_IRQHandler,"ax",%progbits
+ 413              		.align	1
+ 414              		.global	TIM20_CC_IRQHandler
+ 415              		.syntax unified
+ 416              		.thumb
+ 417              		.thumb_func
+ 419              	TIM20_CC_IRQHandler:
+ 420              	.LFB146:
+ 282:Core/Src/stm32g4xx_it.c **** 
+ 283:Core/Src/stm32g4xx_it.c **** /**
+ 284:Core/Src/stm32g4xx_it.c ****   * @brief This function handles TIM20 capture compare interrupt.
+ 285:Core/Src/stm32g4xx_it.c ****   */
+ 286:Core/Src/stm32g4xx_it.c **** void TIM20_CC_IRQHandler(void)
+ 287:Core/Src/stm32g4xx_it.c **** {
+ 421              		.loc 1 287 1 is_stmt 1 view -0
+ARM GAS  /tmp/ccj70Pn5.s 			page 13
+
+
+ 422              		.cfi_startproc
+ 423              		@ args = 0, pretend = 0, frame = 0
+ 424              		@ frame_needed = 0, uses_anonymous_args = 0
+ 425 0000 08B5     		push	{r3, lr}
+ 426              	.LCFI8:
+ 427              		.cfi_def_cfa_offset 8
+ 428              		.cfi_offset 3, -8
+ 429              		.cfi_offset 14, -4
+ 288:Core/Src/stm32g4xx_it.c ****   /* USER CODE BEGIN TIM20_CC_IRQn 0 */
+ 289:Core/Src/stm32g4xx_it.c **** 
+ 290:Core/Src/stm32g4xx_it.c ****   /* USER CODE END TIM20_CC_IRQn 0 */
+ 291:Core/Src/stm32g4xx_it.c ****   HAL_TIM_IRQHandler(&htim20);
+ 430              		.loc 1 291 3 view .LVU49
+ 431 0002 0248     		ldr	r0, .L46
+ 432 0004 FFF7FEFF 		bl	HAL_TIM_IRQHandler
+ 433              	.LVL10:
+ 292:Core/Src/stm32g4xx_it.c ****   /* USER CODE BEGIN TIM20_CC_IRQn 1 */
+ 293:Core/Src/stm32g4xx_it.c **** 
+ 294:Core/Src/stm32g4xx_it.c ****   /* USER CODE END TIM20_CC_IRQn 1 */
+ 295:Core/Src/stm32g4xx_it.c **** }
+ 434              		.loc 1 295 1 is_stmt 0 view .LVU50
+ 435 0008 08BD     		pop	{r3, pc}
+ 436              	.L47:
+ 437 000a 00BF     		.align	2
+ 438              	.L46:
+ 439 000c 00000000 		.word	htim20
+ 440              		.cfi_endproc
+ 441              	.LFE146:
+ 443              		.text
+ 444              	.Letext0:
+ 445              		.file 2 "/home/yml/mondrian/arm-gnu-toolchain-13.2.Rel1-x86_64-arm-none-eabi/arm-none-eabi/include
+ 446              		.file 3 "/home/yml/mondrian/arm-gnu-toolchain-13.2.Rel1-x86_64-arm-none-eabi/arm-none-eabi/include
+ 447              		.file 4 "Drivers/CMSIS/Device/ST/STM32G4xx/Include/stm32g474xx.h"
+ 448              		.file 5 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_def.h"
+ 449              		.file 6 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_dma.h"
+ 450              		.file 7 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_tim.h"
+ARM GAS  /tmp/ccj70Pn5.s 			page 14
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 stm32g4xx_it.c
+     /tmp/ccj70Pn5.s:21     .text.NMI_Handler:00000000 $t
+     /tmp/ccj70Pn5.s:27     .text.NMI_Handler:00000000 NMI_Handler
+     /tmp/ccj70Pn5.s:44     .text.HardFault_Handler:00000000 $t
+     /tmp/ccj70Pn5.s:50     .text.HardFault_Handler:00000000 HardFault_Handler
+     /tmp/ccj70Pn5.s:67     .text.MemManage_Handler:00000000 $t
+     /tmp/ccj70Pn5.s:73     .text.MemManage_Handler:00000000 MemManage_Handler
+     /tmp/ccj70Pn5.s:90     .text.BusFault_Handler:00000000 $t
+     /tmp/ccj70Pn5.s:96     .text.BusFault_Handler:00000000 BusFault_Handler
+     /tmp/ccj70Pn5.s:113    .text.UsageFault_Handler:00000000 $t
+     /tmp/ccj70Pn5.s:119    .text.UsageFault_Handler:00000000 UsageFault_Handler
+     /tmp/ccj70Pn5.s:136    .text.DebugMon_Handler:00000000 $t
+     /tmp/ccj70Pn5.s:142    .text.DebugMon_Handler:00000000 DebugMon_Handler
+     /tmp/ccj70Pn5.s:155    .text.TIM1_BRK_TIM15_IRQHandler:00000000 $t
+     /tmp/ccj70Pn5.s:161    .text.TIM1_BRK_TIM15_IRQHandler:00000000 TIM1_BRK_TIM15_IRQHandler
+     /tmp/ccj70Pn5.s:185    .text.TIM1_BRK_TIM15_IRQHandler:00000010 $d
+     /tmp/ccj70Pn5.s:191    .text.TIM1_UP_TIM16_IRQHandler:00000000 $t
+     /tmp/ccj70Pn5.s:197    .text.TIM1_UP_TIM16_IRQHandler:00000000 TIM1_UP_TIM16_IRQHandler
+     /tmp/ccj70Pn5.s:221    .text.TIM1_UP_TIM16_IRQHandler:00000010 $d
+     /tmp/ccj70Pn5.s:227    .text.TIM2_IRQHandler:00000000 $t
+     /tmp/ccj70Pn5.s:233    .text.TIM2_IRQHandler:00000000 TIM2_IRQHandler
+     /tmp/ccj70Pn5.s:253    .text.TIM2_IRQHandler:0000000c $d
+     /tmp/ccj70Pn5.s:258    .text.TIM3_IRQHandler:00000000 $t
+     /tmp/ccj70Pn5.s:264    .text.TIM3_IRQHandler:00000000 TIM3_IRQHandler
+     /tmp/ccj70Pn5.s:284    .text.TIM3_IRQHandler:0000000c $d
+     /tmp/ccj70Pn5.s:289    .text.TIM4_IRQHandler:00000000 $t
+     /tmp/ccj70Pn5.s:295    .text.TIM4_IRQHandler:00000000 TIM4_IRQHandler
+     /tmp/ccj70Pn5.s:315    .text.TIM4_IRQHandler:0000000c $d
+     /tmp/ccj70Pn5.s:320    .text.TIM6_DAC_IRQHandler:00000000 $t
+     /tmp/ccj70Pn5.s:326    .text.TIM6_DAC_IRQHandler:00000000 TIM6_DAC_IRQHandler
+     /tmp/ccj70Pn5.s:346    .text.TIM6_DAC_IRQHandler:0000000c $d
+     /tmp/ccj70Pn5.s:351    .text.TIM20_BRK_IRQHandler:00000000 $t
+     /tmp/ccj70Pn5.s:357    .text.TIM20_BRK_IRQHandler:00000000 TIM20_BRK_IRQHandler
+     /tmp/ccj70Pn5.s:377    .text.TIM20_BRK_IRQHandler:0000000c $d
+     /tmp/ccj70Pn5.s:382    .text.TIM20_UP_IRQHandler:00000000 $t
+     /tmp/ccj70Pn5.s:388    .text.TIM20_UP_IRQHandler:00000000 TIM20_UP_IRQHandler
+     /tmp/ccj70Pn5.s:408    .text.TIM20_UP_IRQHandler:0000000c $d
+     /tmp/ccj70Pn5.s:413    .text.TIM20_CC_IRQHandler:00000000 $t
+     /tmp/ccj70Pn5.s:419    .text.TIM20_CC_IRQHandler:00000000 TIM20_CC_IRQHandler
+     /tmp/ccj70Pn5.s:439    .text.TIM20_CC_IRQHandler:0000000c $d
+
+UNDEFINED SYMBOLS
+HAL_TIM_IRQHandler
+htim1
+htim15
+htim16
+htim2
+htim3
+htim4
+htim6
+htim20

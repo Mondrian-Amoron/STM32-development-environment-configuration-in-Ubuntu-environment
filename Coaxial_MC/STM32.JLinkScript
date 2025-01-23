@@ -1,0 +1,5 @@
+speed 2000
+device STM32G474RB
+r
+loadfile ./build/Coaxial_MC.hex
+q

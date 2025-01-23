@@ -1,0 +1,299 @@
+ARM GAS  /tmp/cc7dh6Qm.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"servos.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.file 1 "Module/servos/servos.c"
+  20              		.global	__aeabi_i2d
+  21              		.global	__aeabi_dmul
+  22              		.global	__aeabi_dadd
+  23              		.global	__aeabi_d2uiz
+  24              		.section	.text.ServoSetAngle,"ax",%progbits
+  25              		.align	1
+  26              		.global	ServoSetAngle
+  27              		.syntax unified
+  28              		.thumb
+  29              		.thumb_func
+  31              	ServoSetAngle:
+  32              	.LVL0:
+  33              	.LFB133:
+   1:Module/servos/servos.c **** #include "servos.h"
+   2:Module/servos/servos.c **** 
+   3:Module/servos/servos.c **** void ServoInit(void)
+   4:Module/servos/servos.c **** {
+   5:Module/servos/servos.c ****     HAL_TIM_PWM_Start(&htim20, TIM_CHANNEL_1);//右
+   6:Module/servos/servos.c ****     HAL_TIM_PWM_Start(&htim20, TIM_CHANNEL_2);//中
+   7:Module/servos/servos.c ****     HAL_TIM_PWM_Start(&htim20, TIM_CHANNEL_3);//左
+   8:Module/servos/servos.c **** 
+   9:Module/servos/servos.c ****     ServoSetAngle(SERVO_RIGHT, 90);
+  10:Module/servos/servos.c ****     ServoSetAngle(SERVO_MIDDLE, 90);
+  11:Module/servos/servos.c ****     ServoSetAngle(SERVO_LEFT, 90);
+  12:Module/servos/servos.c **** }
+  13:Module/servos/servos.c **** 
+  14:Module/servos/servos.c **** void ServoSetAngle(uint8_t servo, uint16_t angle)
+  15:Module/servos/servos.c **** {
+  34              		.loc 1 15 1 view -0
+  35              		.cfi_startproc
+  36              		@ args = 0, pretend = 0, frame = 0
+  37              		@ frame_needed = 0, uses_anonymous_args = 0
+  38              		.loc 1 15 1 is_stmt 0 view .LVU1
+  39 0000 08B5     		push	{r3, lr}
+  40              	.LCFI0:
+  41              		.cfi_def_cfa_offset 8
+  42              		.cfi_offset 3, -8
+  43              		.cfi_offset 14, -4
+ARM GAS  /tmp/cc7dh6Qm.s 			page 2
+
+
+  44 0002 0346     		mov	r3, r0
+  45 0004 0846     		mov	r0, r1
+  46              	.LVL1:
+  16:Module/servos/servos.c ****     //500~2500，0~180
+  17:Module/servos/servos.c ****     uint16_t pulse = 0;
+  47              		.loc 1 17 5 is_stmt 1 view .LVU2
+  18:Module/servos/servos.c ****     if (servo == SERVO_RIGHT)
+  48              		.loc 1 18 5 view .LVU3
+  49              		.loc 1 18 8 is_stmt 0 view .LVU4
+  50 0006 012B     		cmp	r3, #1
+  51 0008 15D0     		beq	.L6
+  19:Module/servos/servos.c ****     {
+  20:Module/servos/servos.c ****         pulse = 500 + angle * 11.11;
+  21:Module/servos/servos.c ****         __HAL_TIM_SET_COMPARE(&htim20, TIM_CHANNEL_1, pulse);
+  22:Module/servos/servos.c ****     }
+  23:Module/servos/servos.c ****     else if (servo == SERVO_MIDDLE)
+  52              		.loc 1 23 10 is_stmt 1 view .LVU5
+  53              		.loc 1 23 13 is_stmt 0 view .LVU6
+  54 000a 022B     		cmp	r3, #2
+  55 000c 25D0     		beq	.L7
+  24:Module/servos/servos.c ****     {
+  25:Module/servos/servos.c ****         pulse = 500 + angle * 11.11;
+  26:Module/servos/servos.c ****         __HAL_TIM_SET_COMPARE(&htim20, TIM_CHANNEL_2, pulse);
+  27:Module/servos/servos.c ****     }
+  28:Module/servos/servos.c ****     else if (servo == SERVO_LEFT)
+  56              		.loc 1 28 10 is_stmt 1 view .LVU7
+  57              		.loc 1 28 13 is_stmt 0 view .LVU8
+  58 000e 032B     		cmp	r3, #3
+  59 0010 22D1     		bne	.L1
+  29:Module/servos/servos.c ****     {
+  30:Module/servos/servos.c ****         pulse = 500 + angle * 11.11;
+  60              		.loc 1 30 9 is_stmt 1 view .LVU9
+  61              		.loc 1 30 29 is_stmt 0 view .LVU10
+  62 0012 FFF7FEFF 		bl	__aeabi_i2d
+  63              	.LVL2:
+  64              		.loc 1 30 29 view .LVU11
+  65 0016 1AA3     		adr	r3, .L8
+  66 0018 D3E90023 		ldrd	r2, [r3]
+  67 001c FFF7FEFF 		bl	__aeabi_dmul
+  68              	.LVL3:
+  69              		.loc 1 30 21 view .LVU12
+  70 0020 0022     		movs	r2, #0
+  71 0022 194B     		ldr	r3, .L8+8
+  72 0024 FFF7FEFF 		bl	__aeabi_dadd
+  73              	.LVL4:
+  74              		.loc 1 30 15 view .LVU13
+  75 0028 FFF7FEFF 		bl	__aeabi_d2uiz
+  76              	.LVL5:
+  77 002c 80B2     		uxth	r0, r0
+  78              	.LVL6:
+  31:Module/servos/servos.c ****         __HAL_TIM_SET_COMPARE(&htim20, TIM_CHANNEL_3, pulse);
+  79              		.loc 1 31 9 is_stmt 1 view .LVU14
+  80 002e 174B     		ldr	r3, .L8+12
+  81 0030 1B68     		ldr	r3, [r3]
+  82 0032 D863     		str	r0, [r3, #60]
+  32:Module/servos/servos.c ****     }
+  33:Module/servos/servos.c **** }...
+ARM GAS  /tmp/cc7dh6Qm.s 			page 3
+
+
+  83              		.loc 1 33 1 is_stmt 0 view .LVU15
+  84 0034 10E0     		b	.L1
+  85              	.LVL7:
+  86              	.L6:
+  20:Module/servos/servos.c ****         pulse = 500 + angle * 11.11;
+  87              		.loc 1 20 9 is_stmt 1 view .LVU16
+  20:Module/servos/servos.c ****         pulse = 500 + angle * 11.11;
+  88              		.loc 1 20 29 is_stmt 0 view .LVU17
+  89 0036 FFF7FEFF 		bl	__aeabi_i2d
+  90              	.LVL8:
+  20:Module/servos/servos.c ****         pulse = 500 + angle * 11.11;
+  91              		.loc 1 20 29 view .LVU18
+  92 003a 11A3     		adr	r3, .L8
+  93 003c D3E90023 		ldrd	r2, [r3]
+  94 0040 FFF7FEFF 		bl	__aeabi_dmul
+  95              	.LVL9:
+  20:Module/servos/servos.c ****         pulse = 500 + angle * 11.11;
+  96              		.loc 1 20 21 view .LVU19
+  97 0044 0022     		movs	r2, #0
+  98 0046 104B     		ldr	r3, .L8+8
+  99 0048 FFF7FEFF 		bl	__aeabi_dadd
+ 100              	.LVL10:
+  20:Module/servos/servos.c ****         pulse = 500 + angle * 11.11;
+ 101              		.loc 1 20 15 view .LVU20
+ 102 004c FFF7FEFF 		bl	__aeabi_d2uiz
+ 103              	.LVL11:
+ 104 0050 80B2     		uxth	r0, r0
+ 105              	.LVL12:
+  21:Module/servos/servos.c ****         __HAL_TIM_SET_COMPARE(&htim20, TIM_CHANNEL_1, pulse);
+ 106              		.loc 1 21 9 is_stmt 1 view .LVU21
+ 107 0052 0E4B     		ldr	r3, .L8+12
+ 108 0054 1B68     		ldr	r3, [r3]
+ 109 0056 5863     		str	r0, [r3, #52]
+ 110              	.LVL13:
+ 111              	.L1:
+ 112              		.loc 1 33 1 is_stmt 0 view .LVU22
+ 113 0058 08BD     		pop	{r3, pc}
+ 114              	.LVL14:
+ 115              	.L7:
+  25:Module/servos/servos.c ****         pulse = 500 + angle * 11.11;
+ 116              		.loc 1 25 9 is_stmt 1 view .LVU23
+  25:Module/servos/servos.c ****         pulse = 500 + angle * 11.11;
+ 117              		.loc 1 25 29 is_stmt 0 view .LVU24
+ 118 005a FFF7FEFF 		bl	__aeabi_i2d
+ 119              	.LVL15:
+  25:Module/servos/servos.c ****         pulse = 500 + angle * 11.11;
+ 120              		.loc 1 25 29 view .LVU25
+ 121 005e 08A3     		adr	r3, .L8
+ 122 0060 D3E90023 		ldrd	r2, [r3]
+ 123 0064 FFF7FEFF 		bl	__aeabi_dmul
+ 124              	.LVL16:
+  25:Module/servos/servos.c ****         pulse = 500 + angle * 11.11;
+ 125              		.loc 1 25 21 view .LVU26
+ 126 0068 0022     		movs	r2, #0
+ 127 006a 074B     		ldr	r3, .L8+8
+ 128 006c FFF7FEFF 		bl	__aeabi_dadd
+ 129              	.LVL17:
+ARM GAS  /tmp/cc7dh6Qm.s 			page 4
+
+
+  25:Module/servos/servos.c ****         pulse = 500 + angle * 11.11;
+ 130              		.loc 1 25 15 view .LVU27
+ 131 0070 FFF7FEFF 		bl	__aeabi_d2uiz
+ 132              	.LVL18:
+ 133 0074 80B2     		uxth	r0, r0
+ 134              	.LVL19:
+  26:Module/servos/servos.c ****         __HAL_TIM_SET_COMPARE(&htim20, TIM_CHANNEL_2, pulse);
+ 135              		.loc 1 26 9 is_stmt 1 view .LVU28
+ 136 0076 054B     		ldr	r3, .L8+12
+ 137 0078 1B68     		ldr	r3, [r3]
+ 138 007a 9863     		str	r0, [r3, #56]
+ 139 007c ECE7     		b	.L1
+ 140              	.L9:
+ 141 007e 00BF     		.align	3
+ 142              	.L8:
+ 143 0080 B81E85EB 		.word	-343597384
+ 144 0084 51382640 		.word	1076246609
+ 145 0088 00407F40 		.word	1082081280
+ 146 008c 00000000 		.word	htim20
+ 147              		.cfi_endproc
+ 148              	.LFE133:
+ 150              		.section	.text.ServoInit,"ax",%progbits
+ 151              		.align	1
+ 152              		.global	ServoInit
+ 153              		.syntax unified
+ 154              		.thumb
+ 155              		.thumb_func
+ 157              	ServoInit:
+ 158              	.LFB132:
+   4:Module/servos/servos.c ****     HAL_TIM_PWM_Start(&htim20, TIM_CHANNEL_1);//右
+ 159              		.loc 1 4 1 view -0
+ 160              		.cfi_startproc
+ 161              		@ args = 0, pretend = 0, frame = 0
+ 162              		@ frame_needed = 0, uses_anonymous_args = 0
+ 163 0000 10B5     		push	{r4, lr}
+ 164              	.LCFI1:
+ 165              		.cfi_def_cfa_offset 8
+ 166              		.cfi_offset 4, -8
+ 167              		.cfi_offset 14, -4
+   5:Module/servos/servos.c ****     HAL_TIM_PWM_Start(&htim20, TIM_CHANNEL_2);//中
+ 168              		.loc 1 5 5 view .LVU30
+ 169 0002 0D4C     		ldr	r4, .L12
+ 170 0004 0021     		movs	r1, #0
+ 171 0006 2046     		mov	r0, r4
+ 172 0008 FFF7FEFF 		bl	HAL_TIM_PWM_Start
+ 173              	.LVL20:
+   6:Module/servos/servos.c ****     HAL_TIM_PWM_Start(&htim20, TIM_CHANNEL_2);//中
+ 174              		.loc 1 6 5 view .LVU31
+ 175 000c 0421     		movs	r1, #4
+ 176 000e 2046     		mov	r0, r4
+ 177 0010 FFF7FEFF 		bl	HAL_TIM_PWM_Start
+ 178              	.LVL21:
+   7:Module/servos/servos.c ****     HAL_TIM_PWM_Start(&htim20, TIM_CHANNEL_3);//左
+ 179              		.loc 1 7 5 view .LVU32
+ 180 0014 0821     		movs	r1, #8
+ 181 0016 2046     		mov	r0, r4
+ 182 0018 FFF7FEFF 		bl	HAL_TIM_PWM_Start
+ARM GAS  /tmp/cc7dh6Qm.s 			page 5
+
+
+ 183              	.LVL22:
+   9:Module/servos/servos.c ****     ServoSetAngle(SERVO_RIGHT, 90);
+ 184              		.loc 1 9 5 view .LVU33
+ 185 001c 5A21     		movs	r1, #90
+ 186 001e 0120     		movs	r0, #1
+ 187 0020 FFF7FEFF 		bl	ServoSetAngle
+ 188              	.LVL23:
+  10:Module/servos/servos.c ****     ServoSetAngle(SERVO_MIDDLE, 90);
+ 189              		.loc 1 10 5 view .LVU34
+ 190 0024 5A21     		movs	r1, #90
+ 191 0026 0220     		movs	r0, #2
+ 192 0028 FFF7FEFF 		bl	ServoSetAngle
+ 193              	.LVL24:
+  11:Module/servos/servos.c ****     ServoSetAngle(SERVO_LEFT, 90);
+ 194              		.loc 1 11 5 view .LVU35
+ 195 002c 5A21     		movs	r1, #90
+ 196 002e 0320     		movs	r0, #3
+ 197 0030 FFF7FEFF 		bl	ServoSetAngle
+ 198              	.LVL25:
+  12:Module/servos/servos.c **** }
+ 199              		.loc 1 12 1 is_stmt 0 view .LVU36
+ 200 0034 10BD     		pop	{r4, pc}
+ 201              	.L13:
+ 202 0036 00BF     		.align	2
+ 203              	.L12:
+ 204 0038 00000000 		.word	htim20
+ 205              		.cfi_endproc
+ 206              	.LFE132:
+ 208              		.text
+ 209              	.Letext0:
+ 210              		.file 2 "/home/yml/mondrian/arm-gnu-toolchain-13.2.Rel1-x86_64-arm-none-eabi/arm-none-eabi/include
+ 211              		.file 3 "/home/yml/mondrian/arm-gnu-toolchain-13.2.Rel1-x86_64-arm-none-eabi/arm-none-eabi/include
+ 212              		.file 4 "Drivers/CMSIS/Device/ST/STM32G4xx/Include/stm32g474xx.h"
+ 213              		.file 5 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_def.h"
+ 214              		.file 6 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_dma.h"
+ 215              		.file 7 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_tim.h"
+ 216              		.file 8 "Core/Inc/tim.h"
+ARM GAS  /tmp/cc7dh6Qm.s 			page 6
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 servos.c
+     /tmp/cc7dh6Qm.s:25     .text.ServoSetAngle:00000000 $t
+     /tmp/cc7dh6Qm.s:31     .text.ServoSetAngle:00000000 ServoSetAngle
+     /tmp/cc7dh6Qm.s:143    .text.ServoSetAngle:00000080 $d
+     /tmp/cc7dh6Qm.s:151    .text.ServoInit:00000000 $t
+     /tmp/cc7dh6Qm.s:157    .text.ServoInit:00000000 ServoInit
+     /tmp/cc7dh6Qm.s:204    .text.ServoInit:00000038 $d
+
+UNDEFINED SYMBOLS
+__aeabi_i2d
+__aeabi_dmul
+__aeabi_dadd
+__aeabi_d2uiz
+htim20
+HAL_TIM_PWM_Start

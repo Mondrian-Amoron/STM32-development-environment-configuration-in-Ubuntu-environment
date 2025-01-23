@@ -1,0 +1,1141 @@
+ARM GAS  /tmp/ccRsOCvX.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"robot.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.file 1 "Application/robot/robot.c"
+  20              		.section	.text.StartGIMBALTASK,"ax",%progbits
+  21              		.align	1
+  22              		.global	StartGIMBALTASK
+  23              		.syntax unified
+  24              		.thumb
+  25              		.thumb_func
+  27              	StartGIMBALTASK:
+  28              	.LFB143:
+  29              		.file 2 "Application/robot_task.h"
+   1:Application/robot_task.h **** 
+   2:Application/robot_task.h **** 
+   3:Application/robot_task.h **** #include "FreeRTOS.h"
+   4:Application/robot_task.h **** #include "task.h"
+   5:Application/robot_task.h **** #include "main.h"
+   6:Application/robot_task.h **** #include "cmsis_os.h"
+   7:Application/robot_task.h **** 
+   8:Application/robot_task.h **** // #include "robot.h"
+   9:Application/robot_task.h **** // #include "ins_task.h"
+  10:Application/robot_task.h **** // #include "motor_task.h"
+  11:Application/robot_task.h **** // #include "referee_task.h"
+  12:Application/robot_task.h **** #include "mpu6050.h"
+  13:Application/robot_task.h **** #include "init.h"
+  14:Application/robot_task.h **** 
+  15:Application/robot_task.h **** osThreadId imuTaskHandle;
+  16:Application/robot_task.h **** osThreadId gimbalTaskHandle;
+  17:Application/robot_task.h **** osThreadId chassisTaskHandle;
+  18:Application/robot_task.h **** 
+  19:Application/robot_task.h **** void StartIMUTASK(void const *argument);
+  20:Application/robot_task.h **** void StartGIMBALTASK(void const *argument);
+  21:Application/robot_task.h **** void StartCHASSISTASK(void const *argument);
+  22:Application/robot_task.h **** 
+  23:Application/robot_task.h **** /**
+  24:Application/robot_task.h ****  * @brief 初始化机器人任务,所有持续运行的任务都在这里初始化
+  25:Application/robot_task.h ****  *
+  26:Application/robot_task.h ****  */
+  27:Application/robot_task.h **** void OSTaskInit()
+  28:Application/robot_task.h **** {
+  29:Application/robot_task.h ****     osThreadDef(imutask, StartIMUTASK, osPriorityNormal, 0, 128);
+ARM GAS  /tmp/ccRsOCvX.s 			page 2
+
+
+  30:Application/robot_task.h ****     imuTaskHandle = osThreadCreate(osThread(imutask), NULL);
+  31:Application/robot_task.h **** 
+  32:Application/robot_task.h ****     osThreadDef(gimbaltask, StartGIMBALTASK, osPriorityNormal, 0, 128);
+  33:Application/robot_task.h ****     gimbalTaskHandle = osThreadCreate(osThread(gimbaltask), NULL);
+  34:Application/robot_task.h **** 
+  35:Application/robot_task.h ****     osThreadDef(chassistask, StartCHASSISTASK, osPriorityNormal, 0, 256);
+  36:Application/robot_task.h ****     chassisTaskHandle = osThreadCreate(osThread(chassistask), NULL);
+  37:Application/robot_task.h **** }
+  38:Application/robot_task.h **** 
+  39:Application/robot_task.h **** /**
+  40:Application/robot_task.h ****  *@brief IMU任务，读取陀螺仪数据，解算姿态角，更新姿态给机器人底盘使用
+  41:Application/robot_task.h ****  *@retval None 
+  42:Application/robot_task.h ****  *
+  43:Application/robot_task.h ****  */ 
+  44:Application/robot_task.h **** __attribute__((noreturn)) void StartIMUTASK(void const *argument)
+  45:Application/robot_task.h **** {
+  46:Application/robot_task.h ****     for (;;)
+  47:Application/robot_task.h ****     {
+  48:Application/robot_task.h ****         // 1kHz
+  49:Application/robot_task.h ****         ImuTask();
+  50:Application/robot_task.h ****         osDelay(1);
+  51:Application/robot_task.h ****     }
+  52:Application/robot_task.h **** }
+  53:Application/robot_task.h **** 
+  54:Application/robot_task.h **** /**
+  55:Application/robot_task.h ****  *@brief 底盘任务，根据IMU反馈的数据控制底盘运动
+  56:Application/robot_task.h ****  *@retval None 
+  57:Application/robot_task.h ****  *
+  58:Application/robot_task.h ****  */ 
+  59:Application/robot_task.h **** __attribute__((noreturn)) void StartCHASSISTASK(void const *argument)
+  60:Application/robot_task.h **** {
+  61:Application/robot_task.h ****     for (;;)
+  62:Application/robot_task.h ****     {
+  63:Application/robot_task.h ****         // 1kHz
+  64:Application/robot_task.h ****         ChassisTask();
+  65:Application/robot_task.h ****         osDelay(1);
+  66:Application/robot_task.h ****     }
+  67:Application/robot_task.h **** }
+  68:Application/robot_task.h **** 
+  69:Application/robot_task.h **** __attribute__((noreturn)) void StartGIMBALTASK(void const *argument)
+  70:Application/robot_task.h **** {
+  30              		.loc 2 70 1 view -0
+  31              		.cfi_startproc
+  32              		@ Volatile: function does not return.
+  33              		@ args = 0, pretend = 0, frame = 0
+  34              		@ frame_needed = 0, uses_anonymous_args = 0
+  35              	.LVL0:
+  36              		.loc 2 70 1 is_stmt 0 view .LVU1
+  37 0000 08B5     		push	{r3, lr}
+  38              	.LCFI0:
+  39              		.cfi_def_cfa_offset 8
+  40              		.cfi_offset 3, -8
+  41              		.cfi_offset 14, -4
+  42              	.LVL1:
+  43              	.L2:
+  71:Application/robot_task.h ****     for (;;)
+  44              		.loc 2 71 5 is_stmt 1 view .LVU2
+ARM GAS  /tmp/ccRsOCvX.s 			page 3
+
+
+  72:Application/robot_task.h ****     {   //500Hz
+  73:Application/robot_task.h ****         GimbalTask();
+  45              		.loc 2 73 9 view .LVU3
+  74:Application/robot_task.h ****         osDelay(1000);
+  46              		.loc 2 74 9 discriminator 1 view .LVU4
+  47 0002 4FF47A70 		mov	r0, #1000
+  48 0006 FFF7FEFF 		bl	osDelay
+  49              	.LVL2:
+  71:Application/robot_task.h ****     for (;;)
+  50              		.loc 2 71 5 view .LVU5
+  51 000a FAE7     		b	.L2
+  52              		.cfi_endproc
+  53              	.LFE143:
+  55              		.section	.text.OSTaskInit,"ax",%progbits
+  56              		.align	1
+  57              		.global	OSTaskInit
+  58              		.syntax unified
+  59              		.thumb
+  60              		.thumb_func
+  62              	OSTaskInit:
+  63              	.LFB140:
+  28:Application/robot_task.h ****     osThreadDef(imutask, StartIMUTASK, osPriorityNormal, 0, 128);
+  64              		.loc 2 28 1 view -0
+  65              		.cfi_startproc
+  66              		@ args = 0, pretend = 0, frame = 88
+  67              		@ frame_needed = 0, uses_anonymous_args = 0
+  68 0000 10B5     		push	{r4, lr}
+  69              	.LCFI1:
+  70              		.cfi_def_cfa_offset 8
+  71              		.cfi_offset 4, -8
+  72              		.cfi_offset 14, -4
+  73 0002 96B0     		sub	sp, sp, #88
+  74              	.LCFI2:
+  75              		.cfi_def_cfa_offset 96
+  29:Application/robot_task.h ****     imuTaskHandle = osThreadCreate(osThread(imutask), NULL);
+  76              		.loc 2 29 5 view .LVU7
+  77 0004 1B4C     		ldr	r4, .L6
+  78 0006 0DF13C0C 		add	ip, sp, #60
+  79 000a A646     		mov	lr, r4
+  80 000c BEE80F00 		ldmia	lr!, {r0, r1, r2, r3}
+  81 0010 ACE80F00 		stmia	ip!, {r0, r1, r2, r3}
+  82 0014 9EE80700 		ldm	lr, {r0, r1, r2}
+  83 0018 8CE80700 		stm	ip, {r0, r1, r2}
+  30:Application/robot_task.h **** 
+  84              		.loc 2 30 5 view .LVU8
+  30:Application/robot_task.h **** 
+  85              		.loc 2 30 21 is_stmt 0 view .LVU9
+  86 001c 0021     		movs	r1, #0
+  87 001e 0FA8     		add	r0, sp, #60
+  88 0020 FFF7FEFF 		bl	osThreadCreate
+  89              	.LVL3:
+  30:Application/robot_task.h **** 
+  90              		.loc 2 30 19 discriminator 1 view .LVU10
+  91 0024 144B     		ldr	r3, .L6+4
+  92 0026 1860     		str	r0, [r3]
+  32:Application/robot_task.h ****     gimbalTaskHandle = osThreadCreate(osThread(gimbaltask), NULL);
+  93              		.loc 2 32 5 is_stmt 1 view .LVU11
+ARM GAS  /tmp/ccRsOCvX.s 			page 4
+
+
+  94 0028 0DF1200C 		add	ip, sp, #32
+  95 002c 04F11C0E 		add	lr, r4, #28
+  96 0030 BEE80F00 		ldmia	lr!, {r0, r1, r2, r3}
+  97 0034 ACE80F00 		stmia	ip!, {r0, r1, r2, r3}
+  98 0038 9EE80700 		ldm	lr, {r0, r1, r2}
+  99 003c 8CE80700 		stm	ip, {r0, r1, r2}
+  33:Application/robot_task.h **** 
+ 100              		.loc 2 33 5 view .LVU12
+  33:Application/robot_task.h **** 
+ 101              		.loc 2 33 24 is_stmt 0 view .LVU13
+ 102 0040 0021     		movs	r1, #0
+ 103 0042 08A8     		add	r0, sp, #32
+ 104 0044 FFF7FEFF 		bl	osThreadCreate
+ 105              	.LVL4:
+  33:Application/robot_task.h **** 
+ 106              		.loc 2 33 22 discriminator 1 view .LVU14
+ 107 0048 0C4B     		ldr	r3, .L6+8
+ 108 004a 1860     		str	r0, [r3]
+  35:Application/robot_task.h ****     chassisTaskHandle = osThreadCreate(osThread(chassistask), NULL);
+ 109              		.loc 2 35 5 is_stmt 1 view .LVU15
+ 110 004c 0DF1040E 		add	lr, sp, #4
+ 111 0050 04F1380C 		add	ip, r4, #56
+ 112 0054 BCE80F00 		ldmia	ip!, {r0, r1, r2, r3}
+ 113 0058 AEE80F00 		stmia	lr!, {r0, r1, r2, r3}
+ 114 005c 9CE80700 		ldm	ip, {r0, r1, r2}
+ 115 0060 8EE80700 		stm	lr, {r0, r1, r2}
+  36:Application/robot_task.h **** }
+ 116              		.loc 2 36 5 view .LVU16
+  36:Application/robot_task.h **** }
+ 117              		.loc 2 36 25 is_stmt 0 view .LVU17
+ 118 0064 0021     		movs	r1, #0
+ 119 0066 01A8     		add	r0, sp, #4
+ 120 0068 FFF7FEFF 		bl	osThreadCreate
+ 121              	.LVL5:
+  36:Application/robot_task.h **** }
+ 122              		.loc 2 36 23 discriminator 1 view .LVU18
+ 123 006c 044B     		ldr	r3, .L6+12
+ 124 006e 1860     		str	r0, [r3]
+  37:Application/robot_task.h **** 
+ 125              		.loc 2 37 1 view .LVU19
+ 126 0070 16B0     		add	sp, sp, #88
+ 127              	.LCFI3:
+ 128              		.cfi_def_cfa_offset 8
+ 129              		@ sp needed
+ 130 0072 10BD     		pop	{r4, pc}
+ 131              	.L7:
+ 132              		.align	2
+ 133              	.L6:
+ 134 0074 00000000 		.word	.LANCHOR0
+ 135 0078 00000000 		.word	imuTaskHandle
+ 136 007c 00000000 		.word	gimbalTaskHandle
+ 137 0080 00000000 		.word	chassisTaskHandle
+ 138              		.cfi_endproc
+ 139              	.LFE140:
+ 141              		.section	.text.RobotInit,"ax",%progbits
+ 142              		.align	1
+ 143              		.global	RobotInit
+ARM GAS  /tmp/ccRsOCvX.s 			page 5
+
+
+ 144              		.syntax unified
+ 145              		.thumb
+ 146              		.thumb_func
+ 148              	RobotInit:
+ 149              	.LFB144:
+   1:Application/robot/robot.c **** #include "stdio.h"
+   2:Application/robot/robot.c **** 
+   3:Application/robot/robot.c **** #include "robot.h"
+   4:Application/robot/robot.c **** #include "robot_task.h"
+   5:Application/robot/robot.c **** #include "robot_def.h"
+   6:Application/robot/robot.c **** 
+   7:Application/robot/robot.c **** #include "mpu6050.h"
+   8:Application/robot/robot.c **** #include "imu.h"
+   9:Application/robot/robot.c **** #include "motor.h"
+  10:Application/robot/robot.c **** #include "encoder.h"
+  11:Application/robot/robot.c **** #include "oled.h"
+  12:Application/robot/robot.c **** 
+  13:Application/robot/robot.c **** float LEFT_Speed = -4000;
+  14:Application/robot/robot.c **** int cw_test;
+  15:Application/robot/robot.c **** int state_test;
+  16:Application/robot/robot.c **** int test_flag=1;
+  17:Application/robot/robot.c **** 
+  18:Application/robot/robot.c **** float alpha = 0.5;
+  19:Application/robot/robot.c **** float filter = 0;
+  20:Application/robot/robot.c **** float last_filter = 0;
+  21:Application/robot/robot.c **** 
+  22:Application/robot/robot.c **** char yawStr[20];  // 用于存储转换后的字符串
+  23:Application/robot/robot.c **** 
+  24:Application/robot/robot.c **** void RobotInit()
+  25:Application/robot/robot.c **** {
+ 150              		.loc 1 25 1 is_stmt 1 view -0
+ 151              		.cfi_startproc
+ 152              		@ args = 0, pretend = 0, frame = 0
+ 153              		@ frame_needed = 0, uses_anonymous_args = 0
+ 154 0000 08B5     		push	{r3, lr}
+ 155              	.LCFI4:
+ 156              		.cfi_def_cfa_offset 8
+ 157              		.cfi_offset 3, -8
+ 158              		.cfi_offset 14, -4
+  26:Application/robot/robot.c ****     MPU_Init(); //初始化MPU
+ 159              		.loc 1 26 5 view .LVU21
+ 160 0002 FFF7FEFF 		bl	MPU_Init
+ 161              	.LVL6:
+  27:Application/robot/robot.c ****     EncoderInit(); //初始化编码器
+ 162              		.loc 1 27 5 view .LVU22
+ 163 0006 FFF7FEFF 		bl	EncoderInit
+ 164              	.LVL7:
+  28:Application/robot/robot.c ****     MotorInit(); //初始化电机
+ 165              		.loc 1 28 5 view .LVU23
+ 166 000a FFF7FEFF 		bl	MotorInit
+ 167              	.LVL8:
+  29:Application/robot/robot.c ****     OSTaskInit(); //初始化任务
+ 168              		.loc 1 29 5 view .LVU24
+ 169 000e FFF7FEFF 		bl	OSTaskInit
+ 170              	.LVL9:
+  30:Application/robot/robot.c **** 
+  31:Application/robot/robot.c ****     OLED_Init();
+ARM GAS  /tmp/ccRsOCvX.s 			page 6
+
+
+ 171              		.loc 1 31 5 view .LVU25
+ 172 0012 FFF7FEFF 		bl	OLED_Init
+ 173              	.LVL10:
+  32:Application/robot/robot.c **** 	OLED_CLS();
+ 174              		.loc 1 32 2 view .LVU26
+ 175 0016 FFF7FEFF 		bl	OLED_CLS
+ 176              	.LVL11:
+  33:Application/robot/robot.c **** }
+ 177              		.loc 1 33 1 is_stmt 0 view .LVU27
+ 178 001a 08BD     		pop	{r3, pc}
+ 179              		.cfi_endproc
+ 180              	.LFE144:
+ 182              		.section	.text.ImuTask,"ax",%progbits
+ 183              		.align	1
+ 184              		.global	ImuTask
+ 185              		.syntax unified
+ 186              		.thumb
+ 187              		.thumb_func
+ 189              	ImuTask:
+ 190              	.LFB145:
+  34:Application/robot/robot.c **** 
+  35:Application/robot/robot.c **** void ImuTask()
+  36:Application/robot/robot.c **** {
+ 191              		.loc 1 36 1 is_stmt 1 view -0
+ 192              		.cfi_startproc
+ 193              		@ args = 0, pretend = 0, frame = 0
+ 194              		@ frame_needed = 0, uses_anonymous_args = 0
+ 195 0000 08B5     		push	{r3, lr}
+ 196              	.LCFI5:
+ 197              		.cfi_def_cfa_offset 8
+ 198              		.cfi_offset 3, -8
+ 199              		.cfi_offset 14, -4
+  37:Application/robot/robot.c ****     MpuGetData(); //获取MPU数据
+ 200              		.loc 1 37 5 view .LVU29
+ 201 0002 FFF7FEFF 		bl	MpuGetData
+ 202              	.LVL12:
+  38:Application/robot/robot.c **** 	GetAngle(&MPU6050,&Angle,0.001f); //获取并解算角度，包括滤波
+ 203              		.loc 1 38 2 view .LVU30
+ 204 0006 9FED030A 		vldr.32	s0, .L12
+ 205 000a 0349     		ldr	r1, .L12+4
+ 206 000c 0348     		ldr	r0, .L12+8
+ 207 000e FFF7FEFF 		bl	GetAngle
+ 208              	.LVL13:
+  39:Application/robot/robot.c **** }
+ 209              		.loc 1 39 1 is_stmt 0 view .LVU31
+ 210 0012 08BD     		pop	{r3, pc}
+ 211              	.L13:
+ 212              		.align	2
+ 213              	.L12:
+ 214 0014 6F12833A 		.word	981668463
+ 215 0018 00000000 		.word	Angle
+ 216 001c 00000000 		.word	MPU6050
+ 217              		.cfi_endproc
+ 218              	.LFE145:
+ 220              		.section	.text.StartIMUTASK,"ax",%progbits
+ 221              		.align	1
+ 222              		.global	StartIMUTASK
+ARM GAS  /tmp/ccRsOCvX.s 			page 7
+
+
+ 223              		.syntax unified
+ 224              		.thumb
+ 225              		.thumb_func
+ 227              	StartIMUTASK:
+ 228              	.LFB141:
+  45:Application/robot_task.h ****     for (;;)
+ 229              		.loc 2 45 1 is_stmt 1 view -0
+ 230              		.cfi_startproc
+ 231              		@ Volatile: function does not return.
+ 232              		@ args = 0, pretend = 0, frame = 0
+ 233              		@ frame_needed = 0, uses_anonymous_args = 0
+ 234              	.LVL14:
+  45:Application/robot_task.h ****     for (;;)
+ 235              		.loc 2 45 1 is_stmt 0 view .LVU33
+ 236 0000 08B5     		push	{r3, lr}
+ 237              	.LCFI6:
+ 238              		.cfi_def_cfa_offset 8
+ 239              		.cfi_offset 3, -8
+ 240              		.cfi_offset 14, -4
+ 241              	.LVL15:
+ 242              	.L15:
+  46:Application/robot_task.h ****     {
+ 243              		.loc 2 46 5 is_stmt 1 view .LVU34
+  49:Application/robot_task.h ****         osDelay(1);
+ 244              		.loc 2 49 9 view .LVU35
+ 245 0002 FFF7FEFF 		bl	ImuTask
+ 246              	.LVL16:
+  50:Application/robot_task.h ****     }
+ 247              		.loc 2 50 9 discriminator 1 view .LVU36
+ 248 0006 0120     		movs	r0, #1
+ 249 0008 FFF7FEFF 		bl	osDelay
+ 250              	.LVL17:
+  46:Application/robot_task.h ****     {
+ 251              		.loc 2 46 5 view .LVU37
+ 252 000c F9E7     		b	.L15
+ 253              		.cfi_endproc
+ 254              	.LFE141:
+ 256              		.section	.text.ChassisTask,"ax",%progbits
+ 257              		.align	1
+ 258              		.global	ChassisTask
+ 259              		.syntax unified
+ 260              		.thumb
+ 261              		.thumb_func
+ 263              	ChassisTask:
+ 264              	.LFB146:
+  40:Application/robot/robot.c **** 
+  41:Application/robot/robot.c **** void ChassisTask()
+  42:Application/robot/robot.c **** {
+ 265              		.loc 1 42 1 view -0
+ 266              		.cfi_startproc
+ 267              		@ args = 0, pretend = 0, frame = 0
+ 268              		@ frame_needed = 0, uses_anonymous_args = 0
+ 269 0000 10B5     		push	{r4, lr}
+ 270              	.LCFI7:
+ 271              		.cfi_def_cfa_offset 8
+ 272              		.cfi_offset 4, -8
+ 273              		.cfi_offset 14, -4
+ARM GAS  /tmp/ccRsOCvX.s 			page 8
+
+
+  43:Application/robot/robot.c ****     cw_test = HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_7);
+ 274              		.loc 1 43 5 view .LVU39
+ 275              		.loc 1 43 15 is_stmt 0 view .LVU40
+ 276 0002 8021     		movs	r1, #128
+ 277 0004 8748     		ldr	r0, .L33
+ 278 0006 FFF7FEFF 		bl	HAL_GPIO_ReadPin
+ 279              	.LVL18:
+ 280              		.loc 1 43 13 discriminator 1 view .LVU41
+ 281 000a 874B     		ldr	r3, .L33+4
+ 282 000c 1860     		str	r0, [r3]
+  44:Application/robot/robot.c ****     state_test = HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_15);
+ 283              		.loc 1 44 5 is_stmt 1 view .LVU42
+ 284              		.loc 1 44 18 is_stmt 0 view .LVU43
+ 285 000e 4FF40041 		mov	r1, #32768
+ 286 0012 8648     		ldr	r0, .L33+8
+ 287 0014 FFF7FEFF 		bl	HAL_GPIO_ReadPin
+ 288              	.LVL19:
+ 289              		.loc 1 44 16 discriminator 1 view .LVU44
+ 290 0018 854B     		ldr	r3, .L33+12
+ 291 001a 1860     		str	r0, [r3]
+  45:Application/robot/robot.c ****     /*读取电机的编码值，用于后续转速计算*/
+  46:Application/robot/robot.c ****     leftMotor.encoder = EncoderRead(MOTOR_LEFT); //读取左电机编码器数据
+ 292              		.loc 1 46 5 is_stmt 1 view .LVU45
+ 293              		.loc 1 46 25 is_stmt 0 view .LVU46
+ 294 001c 0420     		movs	r0, #4
+ 295 001e FFF7FEFF 		bl	EncoderRead
+ 296              	.LVL20:
+ 297              		.loc 1 46 23 discriminator 1 view .LVU47
+ 298 0022 844C     		ldr	r4, .L33+16
+ 299 0024 6060     		str	r0, [r4, #4]
+  47:Application/robot/robot.c ****     leftMidMotor.encoder = EncoderRead(MOTOR_LEFT_MID); //读取左中电机编码器数据
+ 300              		.loc 1 47 5 is_stmt 1 view .LVU48
+ 301              		.loc 1 47 28 is_stmt 0 view .LVU49
+ 302 0026 0120     		movs	r0, #1
+ 303 0028 FFF7FEFF 		bl	EncoderRead
+ 304              	.LVL21:
+ 305              		.loc 1 47 26 discriminator 1 view .LVU50
+ 306 002c 824B     		ldr	r3, .L33+20
+ 307 002e 5860     		str	r0, [r3, #4]
+  48:Application/robot/robot.c ****     rightMidMotor.encoder = EncoderRead(MOTOR_RIGHT_MID); //读取右中电机编码器数据
+ 308              		.loc 1 48 5 is_stmt 1 view .LVU51
+ 309              		.loc 1 48 29 is_stmt 0 view .LVU52
+ 310 0030 0220     		movs	r0, #2
+ 311 0032 FFF7FEFF 		bl	EncoderRead
+ 312              	.LVL22:
+ 313              		.loc 1 48 27 discriminator 1 view .LVU53
+ 314 0036 814B     		ldr	r3, .L33+24
+ 315 0038 5860     		str	r0, [r3, #4]
+  49:Application/robot/robot.c ****     rightMotor.encoder = EncoderRead(MOTOR_RIGHT); //读取右电机编码器数据
+ 316              		.loc 1 49 5 is_stmt 1 view .LVU54
+ 317              		.loc 1 49 26 is_stmt 0 view .LVU55
+ 318 003a 0320     		movs	r0, #3
+ 319 003c FFF7FEFF 		bl	EncoderRead
+ 320              	.LVL23:
+ 321              		.loc 1 49 24 discriminator 1 view .LVU56
+ 322 0040 7F4B     		ldr	r3, .L33+28
+ 323 0042 5860     		str	r0, [r3, #4]
+ARM GAS  /tmp/ccRsOCvX.s 			page 9
+
+
+  50:Application/robot/robot.c **** 
+  51:Application/robot/robot.c ****     if(leftMotor.encoder > 2500) leftMotor.encoder -= 5000;
+ 324              		.loc 1 51 5 is_stmt 1 view .LVU57
+ 325              		.loc 1 51 17 is_stmt 0 view .LVU58
+ 326 0044 6368     		ldr	r3, [r4, #4]
+ 327              		.loc 1 51 7 view .LVU59
+ 328 0046 40F6C412 		movw	r2, #2500
+ 329 004a 9342     		cmp	r3, r2
+ 330 004c 03DD     		ble	.L18
+ 331              		.loc 1 51 34 is_stmt 1 discriminator 1 view .LVU60
+ 332              		.loc 1 51 52 is_stmt 0 discriminator 1 view .LVU61
+ 333 004e A3F59C53 		sub	r3, r3, #4992
+ 334 0052 083B     		subs	r3, r3, #8
+ 335 0054 6360     		str	r3, [r4, #4]
+ 336              	.L18:
+  52:Application/robot/robot.c ****     if(leftMidMotor.encoder > 2500) leftMidMotor.encoder -= 5000;
+ 337              		.loc 1 52 5 is_stmt 1 view .LVU62
+ 338              		.loc 1 52 20 is_stmt 0 view .LVU63
+ 339 0056 784B     		ldr	r3, .L33+20
+ 340 0058 5B68     		ldr	r3, [r3, #4]
+ 341              		.loc 1 52 7 view .LVU64
+ 342 005a 40F6C412 		movw	r2, #2500
+ 343 005e 9342     		cmp	r3, r2
+ 344 0060 04DD     		ble	.L19
+ 345              		.loc 1 52 37 is_stmt 1 discriminator 1 view .LVU65
+ 346              		.loc 1 52 58 is_stmt 0 discriminator 1 view .LVU66
+ 347 0062 A3F59C53 		sub	r3, r3, #4992
+ 348 0066 083B     		subs	r3, r3, #8
+ 349 0068 734A     		ldr	r2, .L33+20
+ 350 006a 5360     		str	r3, [r2, #4]
+ 351              	.L19:
+  53:Application/robot/robot.c ****     if(rightMidMotor.encoder > 2500) rightMidMotor.encoder -= 5000;
+ 352              		.loc 1 53 5 is_stmt 1 view .LVU67
+ 353              		.loc 1 53 21 is_stmt 0 view .LVU68
+ 354 006c 734B     		ldr	r3, .L33+24
+ 355 006e 5B68     		ldr	r3, [r3, #4]
+ 356              		.loc 1 53 7 view .LVU69
+ 357 0070 40F6C412 		movw	r2, #2500
+ 358 0074 9342     		cmp	r3, r2
+ 359 0076 04DD     		ble	.L20
+ 360              		.loc 1 53 38 is_stmt 1 discriminator 1 view .LVU70
+ 361              		.loc 1 53 60 is_stmt 0 discriminator 1 view .LVU71
+ 362 0078 A3F59C53 		sub	r3, r3, #4992
+ 363 007c 083B     		subs	r3, r3, #8
+ 364 007e 6F4A     		ldr	r2, .L33+24
+ 365 0080 5360     		str	r3, [r2, #4]
+ 366              	.L20:
+  54:Application/robot/robot.c ****     if(rightMotor.encoder > 2500) rightMotor.encoder -= 5000;
+ 367              		.loc 1 54 5 is_stmt 1 view .LVU72
+ 368              		.loc 1 54 7 is_stmt 0 view .LVU73
+ 369 0082 40F6C413 		movw	r3, #2500
+ 370 0086 9842     		cmp	r0, r3
+ 371 0088 04DD     		ble	.L21
+ 372              		.loc 1 54 35 is_stmt 1 discriminator 1 view .LVU74
+ 373              		.loc 1 54 54 is_stmt 0 discriminator 1 view .LVU75
+ 374 008a A0F59C50 		sub	r0, r0, #4992
+ 375 008e 0838     		subs	r0, r0, #8
+ARM GAS  /tmp/ccRsOCvX.s 			page 10
+
+
+ 376 0090 6B4B     		ldr	r3, .L33+28
+ 377 0092 5860     		str	r0, [r3, #4]
+ 378              	.L21:
+  55:Application/robot/robot.c **** 
+  56:Application/robot/robot.c ****     __HAL_TIM_SET_COUNTER(&htim1,0);
+ 379              		.loc 1 56 5 is_stmt 1 view .LVU76
+ 380 0094 6B4B     		ldr	r3, .L33+32
+ 381 0096 1A68     		ldr	r2, [r3]
+ 382 0098 0023     		movs	r3, #0
+ 383 009a 5362     		str	r3, [r2, #36]
+  57:Application/robot/robot.c ****     __HAL_TIM_SET_COUNTER(&htim2,0);
+ 384              		.loc 1 57 5 view .LVU77
+ 385 009c 6A4A     		ldr	r2, .L33+36
+ 386 009e 1268     		ldr	r2, [r2]
+ 387 00a0 5362     		str	r3, [r2, #36]
+  58:Application/robot/robot.c ****     __HAL_TIM_SET_COUNTER(&htim3,0);
+ 388              		.loc 1 58 5 view .LVU78
+ 389 00a2 6A4A     		ldr	r2, .L33+40
+ 390 00a4 1268     		ldr	r2, [r2]
+ 391 00a6 5362     		str	r3, [r2, #36]
+  59:Application/robot/robot.c ****     __HAL_TIM_SET_COUNTER(&htim4,0);
+ 392              		.loc 1 59 5 view .LVU79
+ 393 00a8 694A     		ldr	r2, .L33+44
+ 394 00aa 1268     		ldr	r2, [r2]
+ 395 00ac 5362     		str	r3, [r2, #36]
+  60:Application/robot/robot.c **** 
+  61:Application/robot/robot.c ****     /*计算电机的角速度  为保证控制精度，末尾除以20，最后可控范围为0~270
+  62:Application/robot/robot.c ****     leftMotor.angleSpeed = leftMotor.encoder * 1000 / 400 * 60; //计算左电机角速度
+ 396              		.loc 1 62 5 view .LVU80
+ 397              		.loc 1 62 37 is_stmt 0 view .LVU81
+ 398 00ae 614C     		ldr	r4, .L33+16
+ 399 00b0 6368     		ldr	r3, [r4, #4]
+ 400              		.loc 1 62 46 view .LVU82
+ 401 00b2 4FF47A71 		mov	r1, #1000
+ 402 00b6 01FB03F3 		mul	r3, r1, r3
+ 403              		.loc 1 62 53 view .LVU83
+ 404 00ba 664A     		ldr	r2, .L33+48
+ 405 00bc 82FB03C0 		smull	ip, r0, r2, r3
+ 406 00c0 DB17     		asrs	r3, r3, #31
+ 407 00c2 C3EBE013 		rsb	r3, r3, r0, asr #7
+ 408              		.loc 1 62 59 view .LVU84
+ 409 00c6 C3EB0313 		rsb	r3, r3, r3, lsl #4
+ 410 00ca 9B00     		lsls	r3, r3, #2
+ 411              		.loc 1 62 26 view .LVU85
+ 412 00cc 07EE903A 		vmov	s15, r3	@ int
+ 413 00d0 F8EEE70A 		vcvt.f32.s32	s1, s15
+ 414 00d4 C4ED000A 		vstr.32	s1, [r4]
+  63:Application/robot/robot.c ****     leftMidMotor.angleSpeed = leftMidMotor.encoder * 1000 / 400 * 60; //计算左中电机角速度
+ 415              		.loc 1 63 5 is_stmt 1 view .LVU86
+ 416              		.loc 1 63 43 is_stmt 0 view .LVU87
+ 417 00d8 5748     		ldr	r0, .L33+20
+ 418 00da 4368     		ldr	r3, [r0, #4]
+ 419              		.loc 1 63 52 view .LVU88
+ 420 00dc 01FB03F3 		mul	r3, r1, r3
+ 421              		.loc 1 63 59 view .LVU89
+ 422 00e0 82FB03EC 		smull	lr, ip, r2, r3
+ 423 00e4 DB17     		asrs	r3, r3, #31
+ARM GAS  /tmp/ccRsOCvX.s 			page 11
+
+
+ 424 00e6 C3EBEC13 		rsb	r3, r3, ip, asr #7
+ 425              		.loc 1 63 65 view .LVU90
+ 426 00ea C3EB0313 		rsb	r3, r3, r3, lsl #4
+ 427 00ee 9B00     		lsls	r3, r3, #2
+ 428              		.loc 1 63 29 view .LVU91
+ 429 00f0 07EE903A 		vmov	s15, r3	@ int
+ 430 00f4 F8EEE77A 		vcvt.f32.s32	s15, s15
+ 431 00f8 C0ED007A 		vstr.32	s15, [r0]
+  64:Application/robot/robot.c ****     rightMidMotor.angleSpeed = rightMidMotor.encoder * 1000 / 400 * 60; //计算右中电机角速�
+ 432              		.loc 1 64 5 is_stmt 1 view .LVU92
+ 433              		.loc 1 64 45 is_stmt 0 view .LVU93
+ 434 00fc 4F48     		ldr	r0, .L33+24
+ 435 00fe 4368     		ldr	r3, [r0, #4]
+ 436              		.loc 1 64 54 view .LVU94
+ 437 0100 01FB03F3 		mul	r3, r1, r3
+ 438              		.loc 1 64 61 view .LVU95
+ 439 0104 82FB03EC 		smull	lr, ip, r2, r3
+ 440 0108 DB17     		asrs	r3, r3, #31
+ 441 010a C3EBEC13 		rsb	r3, r3, ip, asr #7
+ 442              		.loc 1 64 67 view .LVU96
+ 443 010e C3EB0313 		rsb	r3, r3, r3, lsl #4
+ 444 0112 9B00     		lsls	r3, r3, #2
+ 445              		.loc 1 64 30 view .LVU97
+ 446 0114 07EE903A 		vmov	s15, r3	@ int
+ 447 0118 F8EEE77A 		vcvt.f32.s32	s15, s15
+ 448 011c C0ED007A 		vstr.32	s15, [r0]
+  65:Application/robot/robot.c ****     rightMotor.angleSpeed = rightMotor.encoder * 1000 / 400 * 60; //计算右电机角速度
+ 449              		.loc 1 65 5 is_stmt 1 view .LVU98
+ 450              		.loc 1 65 39 is_stmt 0 view .LVU99
+ 451 0120 4748     		ldr	r0, .L33+28
+ 452 0122 4368     		ldr	r3, [r0, #4]
+ 453              		.loc 1 65 48 view .LVU100
+ 454 0124 01FB03F3 		mul	r3, r1, r3
+ 455              		.loc 1 65 55 view .LVU101
+ 456 0128 82FB0312 		smull	r1, r2, r2, r3
+ 457 012c DB17     		asrs	r3, r3, #31
+ 458 012e C3EBE213 		rsb	r3, r3, r2, asr #7
+ 459              		.loc 1 65 61 view .LVU102
+ 460 0132 C3EB0313 		rsb	r3, r3, r3, lsl #4
+ 461 0136 9B00     		lsls	r3, r3, #2
+ 462              		.loc 1 65 27 view .LVU103
+ 463 0138 07EE903A 		vmov	s15, r3	@ int
+ 464 013c F8EEE77A 		vcvt.f32.s32	s15, s15
+ 465 0140 C0ED007A 		vstr.32	s15, [r0]
+  66:Application/robot/robot.c **** 
+  67:Application/robot/robot.c ****     // leftMotor.angleSpeed = leftMotor.encoder; //计算左电机角速度
+  68:Application/robot/robot.c ****     // leftMidMotor.angleSpeed = leftMidMotor.encoder; //计算左中电机角速度
+  69:Application/robot/robot.c ****     // rightMidMotor.angleSpeed = rightMidMotor.encoder; //计算右中电机角速度
+  70:Application/robot/robot.c ****     // rightMotor.angleSpeed = rightMotor.encoder; //计算右电机角速度
+  71:Application/robot/robot.c **** 
+  72:Application/robot/robot.c ****     leftMotor.angleSpeed = alpha * leftMotor.angleSpeed + (1 - alpha) * last_filter;
+ 466              		.loc 1 72 5 is_stmt 1 view .LVU104
+ 467              		.loc 1 72 34 is_stmt 0 view .LVU105
+ 468 0144 444B     		ldr	r3, .L33+52
+ 469 0146 93ED007A 		vldr.32	s14, [r3]
+ 470 014a 60EE870A 		vmul.f32	s1, s1, s14
+ 471              		.loc 1 72 62 view .LVU106
+ARM GAS  /tmp/ccRsOCvX.s 			page 12
+
+
+ 472 014e F7EE007A 		vmov.f32	s15, #1.0e+0
+ 473 0152 77EEC77A 		vsub.f32	s15, s15, s14
+ 474              		.loc 1 72 71 view .LVU107
+ 475 0156 414B     		ldr	r3, .L33+56
+ 476 0158 93ED007A 		vldr.32	s14, [r3]
+ 477 015c 67EE877A 		vmul.f32	s15, s15, s14
+ 478              		.loc 1 72 57 view .LVU108
+ 479 0160 70EEA70A 		vadd.f32	s1, s1, s15
+ 480              		.loc 1 72 26 view .LVU109
+ 481 0164 2046     		mov	r0, r4
+ 482 0166 1830     		adds	r0, r0, #24
+ 483 0168 C4ED000A 		vstr.32	s1, [r4]
+  73:Application/robot/robot.c ****     last_filter = leftMotor.angleSpeed;
+ 484              		.loc 1 73 5 is_stmt 1 view .LVU110
+ 485              		.loc 1 73 17 is_stmt 0 view .LVU111
+ 486 016c C3ED000A 		vstr.32	s1, [r3]
+  74:Application/robot/robot.c **** 
+  75:Application/robot/robot.c ****     leftMotor.speedPID.output = pidCalculate(&leftMotor.speedPID, LEFT_Speed, leftMotor.angleSpeed)
+ 487              		.loc 1 75 5 is_stmt 1 view .LVU112
+ 488              		.loc 1 75 33 is_stmt 0 view .LVU113
+ 489 0170 3B4B     		ldr	r3, .L33+60
+ 490 0172 93ED000A 		vldr.32	s0, [r3]
+ 491 0176 FFF7FEFF 		bl	pidCalculate
+ 492              	.LVL24:
+ 493              		.loc 1 75 31 discriminator 1 view .LVU114
+ 494 017a 84ED120A 		vstr.32	s0, [r4, #72]
+  76:Application/robot/robot.c ****     if(leftMotor.speedPID.output < -1) 
+ 495              		.loc 1 76 5 is_stmt 1 view .LVU115
+ 496              		.loc 1 76 7 is_stmt 0 view .LVU116
+ 497 017e FFEE007A 		vmov.f32	s15, #-1.0e+0
+ 498 0182 B4EEE70A 		vcmpe.f32	s0, s15
+ 499 0186 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 500 018a 26D4     		bmi	.L32
+  77:Application/robot/robot.c ****     {
+  78:Application/robot/robot.c ****         leftMotor.Pwm = (int16_t)(4999 + leftMotor.speedPID.output);
+  79:Application/robot/robot.c ****         
+  80:Application/robot/robot.c ****         //MotorStop(MOTOR_LEFT);
+  81:Application/robot/robot.c ****         MotorRun(MOTOR_LEFT);
+  82:Application/robot/robot.c ****         MotorControlCwCCw(MOTOR_LEFT, MOTOR_CCW);
+  83:Application/robot/robot.c ****         __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_4, leftMotor.Pwm);
+  84:Application/robot/robot.c ****         
+  85:Application/robot/robot.c ****     }
+  86:Application/robot/robot.c ****     else if(leftMotor.speedPID.output > 1)
+ 501              		.loc 1 86 10 is_stmt 1 view .LVU117
+ 502              		.loc 1 86 12 is_stmt 0 view .LVU118
+ 503 018c F7EE007A 		vmov.f32	s15, #1.0e+0
+ 504 0190 B4EEE70A 		vcmpe.f32	s0, s15
+ 505 0194 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 506 0198 34DD     		ble	.L30
+  87:Application/robot/robot.c ****     {
+  88:Application/robot/robot.c ****         leftMotor.Pwm = (int16_t)(4999 - leftMotor.speedPID.output);
+ 507              		.loc 1 88 9 is_stmt 1 view .LVU119
+ 508              		.loc 1 88 40 is_stmt 0 view .LVU120
+ 509 019a DFED327A 		vldr.32	s15, .L33+64
+ 510 019e 77EEC07A 		vsub.f32	s15, s15, s0
+ 511              		.loc 1 88 25 view .LVU121
+ 512 01a2 FDEEE77A 		vcvt.s32.f32	s15, s15
+ARM GAS  /tmp/ccRsOCvX.s 			page 13
+
+
+ 513              		.loc 1 88 23 view .LVU122
+ 514 01a6 234C     		ldr	r4, .L33+16
+ 515 01a8 17EE903A 		vmov	r3, s15	@ int
+ 516 01ac E382     		strh	r3, [r4, #22]	@ movhi
+  89:Application/robot/robot.c ****         
+  90:Application/robot/robot.c ****         //MotorStop(MOTOR_LEFT);
+  91:Application/robot/robot.c ****         MotorRun(MOTOR_LEFT);
+ 517              		.loc 1 91 9 is_stmt 1 view .LVU123
+ 518 01ae 0420     		movs	r0, #4
+ 519 01b0 FFF7FEFF 		bl	MotorRun
+ 520              	.LVL25:
+  92:Application/robot/robot.c ****         MotorControlCwCCw(MOTOR_LEFT, MOTOR_CW);
+ 521              		.loc 1 92 9 view .LVU124
+ 522 01b4 0121     		movs	r1, #1
+ 523 01b6 0420     		movs	r0, #4
+ 524 01b8 FFF7FEFF 		bl	MotorControlCwCCw
+ 525              	.LVL26:
+  93:Application/robot/robot.c ****         __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_4, leftMotor.Pwm);
+ 526              		.loc 1 93 9 view .LVU125
+ 527 01bc 244B     		ldr	r3, .L33+44
+ 528 01be 1B68     		ldr	r3, [r3]
+ 529 01c0 E28A     		ldrh	r2, [r4, #22]
+ 530 01c2 1A64     		str	r2, [r3, #64]
+ 531              	.L24:
+  94:Application/robot/robot.c ****         
+  95:Application/robot/robot.c ****     }
+  96:Application/robot/robot.c ****     else
+  97:Application/robot/robot.c ****     {
+  98:Application/robot/robot.c ****         leftMotor.Pwm = 4999;
+  99:Application/robot/robot.c ****         MotorStop(MOTOR_LEFT);
+ 100:Application/robot/robot.c ****         MotorControlCwCCw(MOTOR_LEFT, MOTOR_CW);
+ 101:Application/robot/robot.c ****         __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_4, leftMotor.Pwm);
+ 102:Application/robot/robot.c ****     }
+ 103:Application/robot/robot.c ****     
+ 104:Application/robot/robot.c ****     //测试用
+ 105:Application/robot/robot.c **** 
+ 106:Application/robot/robot.c ****     // MotorRun(MOTOR_LEFT);
+ 107:Application/robot/robot.c ****     // MotorControlCwCCw(MOTOR_LEFT, MOTOR_CCW);
+ 108:Application/robot/robot.c ****     // __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_4, 4999);
+ 109:Application/robot/robot.c **** 
+ 110:Application/robot/robot.c **** 
+ 111:Application/robot/robot.c ****     LEFT_Speed = Angle.roll * 300;
+ 532              		.loc 1 111 5 view .LVU126
+ 533              		.loc 1 111 23 is_stmt 0 view .LVU127
+ 534 01c4 284B     		ldr	r3, .L33+68
+ 535 01c6 D3ED007A 		vldr.32	s15, [r3]
+ 536              		.loc 1 111 29 view .LVU128
+ 537 01ca 9FED287A 		vldr.32	s14, .L33+72
+ 538 01ce 67EE877A 		vmul.f32	s15, s15, s14
+ 539              		.loc 1 111 16 view .LVU129
+ 540 01d2 234B     		ldr	r3, .L33+60
+ 541 01d4 C3ED007A 		vstr.32	s15, [r3]
+ 112:Application/robot/robot.c **** }
+ 542              		.loc 1 112 1 view .LVU130
+ 543 01d8 10BD     		pop	{r4, pc}
+ 544              	.L32:
+  78:Application/robot/robot.c ****         
+ARM GAS  /tmp/ccRsOCvX.s 			page 14
+
+
+ 545              		.loc 1 78 9 is_stmt 1 view .LVU131
+  78:Application/robot/robot.c ****         
+ 546              		.loc 1 78 40 is_stmt 0 view .LVU132
+ 547 01da DFED227A 		vldr.32	s15, .L33+64
+ 548 01de 30EE270A 		vadd.f32	s0, s0, s15
+  78:Application/robot/robot.c ****         
+ 549              		.loc 1 78 25 view .LVU133
+ 550 01e2 BDEEC00A 		vcvt.s32.f32	s0, s0
+  78:Application/robot/robot.c ****         
+ 551              		.loc 1 78 23 view .LVU134
+ 552 01e6 10EE103A 		vmov	r3, s0	@ int
+ 553 01ea E382     		strh	r3, [r4, #22]	@ movhi
+  81:Application/robot/robot.c ****         MotorControlCwCCw(MOTOR_LEFT, MOTOR_CCW);
+ 554              		.loc 1 81 9 is_stmt 1 view .LVU135
+ 555 01ec 0420     		movs	r0, #4
+ 556 01ee FFF7FEFF 		bl	MotorRun
+ 557              	.LVL27:
+  82:Application/robot/robot.c ****         __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_4, leftMotor.Pwm);
+ 558              		.loc 1 82 9 view .LVU136
+ 559 01f2 0021     		movs	r1, #0
+ 560 01f4 0420     		movs	r0, #4
+ 561 01f6 FFF7FEFF 		bl	MotorControlCwCCw
+ 562              	.LVL28:
+  83:Application/robot/robot.c ****         
+ 563              		.loc 1 83 9 view .LVU137
+ 564 01fa 154B     		ldr	r3, .L33+44
+ 565 01fc 1B68     		ldr	r3, [r3]
+ 566 01fe E28A     		ldrh	r2, [r4, #22]
+ 567 0200 1A64     		str	r2, [r3, #64]
+ 568 0202 DFE7     		b	.L24
+ 569              	.L30:
+  98:Application/robot/robot.c ****         MotorStop(MOTOR_LEFT);
+ 570              		.loc 1 98 9 view .LVU138
+  98:Application/robot/robot.c ****         MotorStop(MOTOR_LEFT);
+ 571              		.loc 1 98 23 is_stmt 0 view .LVU139
+ 572 0204 0B4C     		ldr	r4, .L33+16
+ 573 0206 41F28733 		movw	r3, #4999
+ 574 020a E382     		strh	r3, [r4, #22]	@ movhi
+  99:Application/robot/robot.c ****         MotorControlCwCCw(MOTOR_LEFT, MOTOR_CW);
+ 575              		.loc 1 99 9 is_stmt 1 view .LVU140
+ 576 020c 0420     		movs	r0, #4
+ 577 020e FFF7FEFF 		bl	MotorStop
+ 578              	.LVL29:
+ 100:Application/robot/robot.c ****         __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_4, leftMotor.Pwm);
+ 579              		.loc 1 100 9 view .LVU141
+ 580 0212 0121     		movs	r1, #1
+ 581 0214 0420     		movs	r0, #4
+ 582 0216 FFF7FEFF 		bl	MotorControlCwCCw
+ 583              	.LVL30:
+ 101:Application/robot/robot.c ****     }
+ 584              		.loc 1 101 9 view .LVU142
+ 585 021a 0D4B     		ldr	r3, .L33+44
+ 586 021c 1B68     		ldr	r3, [r3]
+ 587 021e E28A     		ldrh	r2, [r4, #22]
+ 588 0220 1A64     		str	r2, [r3, #64]
+ 589 0222 CFE7     		b	.L24
+ 590              	.L34:
+ARM GAS  /tmp/ccRsOCvX.s 			page 15
+
+
+ 591              		.align	2
+ 592              	.L33:
+ 593 0224 00080048 		.word	1207961600
+ 594 0228 00000000 		.word	cw_test
+ 595 022c 00040048 		.word	1207960576
+ 596 0230 00000000 		.word	state_test
+ 597 0234 00000000 		.word	leftMotor
+ 598 0238 00000000 		.word	leftMidMotor
+ 599 023c 00000000 		.word	rightMidMotor
+ 600 0240 00000000 		.word	rightMotor
+ 601 0244 00000000 		.word	htim1
+ 602 0248 00000000 		.word	htim2
+ 603 024c 00000000 		.word	htim3
+ 604 0250 00000000 		.word	htim4
+ 605 0254 1F85EB51 		.word	1374389535
+ 606 0258 00000000 		.word	alpha
+ 607 025c 00000000 		.word	last_filter
+ 608 0260 00000000 		.word	LEFT_Speed
+ 609 0264 00389C45 		.word	1167865856
+ 610 0268 00000000 		.word	Angle
+ 611 026c 00009643 		.word	1133903872
+ 612              		.cfi_endproc
+ 613              	.LFE146:
+ 615              		.section	.text.StartCHASSISTASK,"ax",%progbits
+ 616              		.align	1
+ 617              		.global	StartCHASSISTASK
+ 618              		.syntax unified
+ 619              		.thumb
+ 620              		.thumb_func
+ 622              	StartCHASSISTASK:
+ 623              	.LFB142:
+  60:Application/robot_task.h ****     for (;;)
+ 624              		.loc 2 60 1 view -0
+ 625              		.cfi_startproc
+ 626              		@ Volatile: function does not return.
+ 627              		@ args = 0, pretend = 0, frame = 0
+ 628              		@ frame_needed = 0, uses_anonymous_args = 0
+ 629              	.LVL31:
+  60:Application/robot_task.h ****     for (;;)
+ 630              		.loc 2 60 1 is_stmt 0 view .LVU144
+ 631 0000 08B5     		push	{r3, lr}
+ 632              	.LCFI8:
+ 633              		.cfi_def_cfa_offset 8
+ 634              		.cfi_offset 3, -8
+ 635              		.cfi_offset 14, -4
+ 636              	.LVL32:
+ 637              	.L36:
+  61:Application/robot_task.h ****     {
+ 638              		.loc 2 61 5 is_stmt 1 view .LVU145
+  64:Application/robot_task.h ****         osDelay(1);
+ 639              		.loc 2 64 9 view .LVU146
+ 640 0002 FFF7FEFF 		bl	ChassisTask
+ 641              	.LVL33:
+  65:Application/robot_task.h ****     }
+ 642              		.loc 2 65 9 discriminator 1 view .LVU147
+ 643 0006 0120     		movs	r0, #1
+ 644 0008 FFF7FEFF 		bl	osDelay
+ARM GAS  /tmp/ccRsOCvX.s 			page 16
+
+
+ 645              	.LVL34:
+  61:Application/robot_task.h ****     {
+ 646              		.loc 2 61 5 view .LVU148
+ 647 000c F9E7     		b	.L36
+ 648              		.cfi_endproc
+ 649              	.LFE142:
+ 651              		.section	.text.GimbalTask,"ax",%progbits
+ 652              		.align	1
+ 653              		.global	GimbalTask
+ 654              		.syntax unified
+ 655              		.thumb
+ 656              		.thumb_func
+ 658              	GimbalTask:
+ 659              	.LFB147:
+ 113:Application/robot/robot.c **** 
+ 114:Application/robot/robot.c **** void GimbalTask()
+ 115:Application/robot/robot.c **** {
+ 660              		.loc 1 115 1 view -0
+ 661              		.cfi_startproc
+ 662              		@ args = 0, pretend = 0, frame = 0
+ 663              		@ frame_needed = 0, uses_anonymous_args = 0
+ 664              		@ link register save eliminated.
+ 116:Application/robot/robot.c **** 
+ 117:Application/robot/robot.c **** }...
+ 665              		.loc 1 117 1 view .LVU150
+ 666 0000 7047     		bx	lr
+ 667              		.cfi_endproc
+ 668              	.LFE147:
+ 670              		.section	.rodata.str1.4,"aMS",%progbits,1
+ 671              		.align	2
+ 672              	.LC4:
+ 673 0000 63686173 		.ascii	"chassistask\000"
+ 673      73697374 
+ 673      61736B00 
+ 674              		.align	2
+ 675              	.LC2:
+ 676 000c 67696D62 		.ascii	"gimbaltask\000"
+ 676      616C7461 
+ 676      736B00
+ 677 0017 00       		.align	2
+ 678              	.LC0:
+ 679 0018 696D7574 		.ascii	"imutask\000"
+ 679      61736B00 
+ 680              		.global	yawStr
+ 681              		.section	.bss.yawStr,"aw",%nobits
+ 682              		.align	2
+ 685              	yawStr:
+ 686 0000 00000000 		.space	20
+ 686      00000000 
+ 686      00000000 
+ 686      00000000 
+ 686      00000000 
+ 687              		.global	last_filter
+ 688              		.section	.bss.last_filter,"aw",%nobits
+ 689              		.align	2
+ 692              	last_filter:
+ 693 0000 00000000 		.space	4
+ARM GAS  /tmp/ccRsOCvX.s 			page 17
+
+
+ 694              		.global	filter
+ 695              		.section	.bss.filter,"aw",%nobits
+ 696              		.align	2
+ 699              	filter:
+ 700 0000 00000000 		.space	4
+ 701              		.global	alpha
+ 702              		.section	.data.alpha,"aw"
+ 703              		.align	2
+ 706              	alpha:
+ 707 0000 0000003F 		.word	1056964608
+ 708              		.global	test_flag
+ 709              		.section	.data.test_flag,"aw"
+ 710              		.align	2
+ 713              	test_flag:
+ 714 0000 01000000 		.word	1
+ 715              		.global	state_test
+ 716              		.section	.bss.state_test,"aw",%nobits
+ 717              		.align	2
+ 720              	state_test:
+ 721 0000 00000000 		.space	4
+ 722              		.global	cw_test
+ 723              		.section	.bss.cw_test,"aw",%nobits
+ 724              		.align	2
+ 727              	cw_test:
+ 728 0000 00000000 		.space	4
+ 729              		.global	LEFT_Speed
+ 730              		.section	.data.LEFT_Speed,"aw"
+ 731              		.align	2
+ 734              	LEFT_Speed:
+ 735 0000 00007AC5 		.word	-981860352
+ 736              		.global	chassisTaskHandle
+ 737              		.section	.bss.chassisTaskHandle,"aw",%nobits
+ 738              		.align	2
+ 741              	chassisTaskHandle:
+ 742 0000 00000000 		.space	4
+ 743              		.global	gimbalTaskHandle
+ 744              		.section	.bss.gimbalTaskHandle,"aw",%nobits
+ 745              		.align	2
+ 748              	gimbalTaskHandle:
+ 749 0000 00000000 		.space	4
+ 750              		.global	imuTaskHandle
+ 751              		.section	.bss.imuTaskHandle,"aw",%nobits
+ 752              		.align	2
+ 755              	imuTaskHandle:
+ 756 0000 00000000 		.space	4
+ 757              		.section	.rodata
+ 758              		.align	2
+ 759              		.set	.LANCHOR0,. + 0
+ 760              	.LC6:
+ 761 0000 18000000 		.word	.LC0
+ 762 0004 00000000 		.word	StartIMUTASK
+ 763 0008 0000     		.short	0
+ 764 000a 0000     		.space	2
+ 765 000c 00000000 		.word	0
+ 766 0010 80000000 		.word	128
+ 767 0014 00000000 		.word	0
+ 768 0018 00000000 		.word	0
+ARM GAS  /tmp/ccRsOCvX.s 			page 18
+
+
+ 769              	.LC7:
+ 770 001c 0C000000 		.word	.LC2
+ 771 0020 00000000 		.word	StartGIMBALTASK
+ 772 0024 0000     		.short	0
+ 773 0026 0000     		.space	2
+ 774 0028 00000000 		.word	0
+ 775 002c 80000000 		.word	128
+ 776 0030 00000000 		.word	0
+ 777 0034 00000000 		.word	0
+ 778              	.LC8:
+ 779 0038 00000000 		.word	.LC4
+ 780 003c 00000000 		.word	StartCHASSISTASK
+ 781 0040 0000     		.short	0
+ 782 0042 0000     		.space	2
+ 783 0044 00000000 		.word	0
+ 784 0048 00010000 		.word	256
+ 785 004c 00000000 		.word	0
+ 786 0050 00000000 		.word	0
+ 787              		.text
+ 788              	.Letext0:
+ 789              		.file 3 "/home/yml/mondrian/arm-gnu-toolchain-13.2.Rel1-x86_64-arm-none-eabi/arm-none-eabi/include
+ 790              		.file 4 "/home/yml/mondrian/arm-gnu-toolchain-13.2.Rel1-x86_64-arm-none-eabi/arm-none-eabi/include
+ 791              		.file 5 "Drivers/CMSIS/Device/ST/STM32G4xx/Include/stm32g474xx.h"
+ 792              		.file 6 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_def.h"
+ 793              		.file 7 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_gpio.h"
+ 794              		.file 8 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_dma.h"
+ 795              		.file 9 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_tim.h"
+ 796              		.file 10 "Core/Inc/tim.h"
+ 797              		.file 11 "Module/pid/pid.h"
+ 798              		.file 12 "Module/motor/motor.h"
+ 799              		.file 13 "Application/robot/robot.h"
+ 800              		.file 14 "Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F/portmacro.h"
+ 801              		.file 15 "Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h"
+ 802              		.file 16 "Middlewares/Third_Party/FreeRTOS/Source/include/task.h"
+ 803              		.file 17 "Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h"
+ 804              		.file 18 "Module/imu/alldata.h"
+ 805              		.file 19 "Module/encoder/encoder.h"
+ 806              		.file 20 "Module/imu/imu.h"
+ 807              		.file 21 "Module/imu/mpu6050.h"
+ 808              		.file 22 "Module/OLED/oled.h"
+ARM GAS  /tmp/ccRsOCvX.s 			page 19
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 robot.c
+     /tmp/ccRsOCvX.s:21     .text.StartGIMBALTASK:00000000 $t
+     /tmp/ccRsOCvX.s:27     .text.StartGIMBALTASK:00000000 StartGIMBALTASK
+     /tmp/ccRsOCvX.s:56     .text.OSTaskInit:00000000 $t
+     /tmp/ccRsOCvX.s:62     .text.OSTaskInit:00000000 OSTaskInit
+     /tmp/ccRsOCvX.s:134    .text.OSTaskInit:00000074 $d
+     /tmp/ccRsOCvX.s:755    .bss.imuTaskHandle:00000000 imuTaskHandle
+     /tmp/ccRsOCvX.s:748    .bss.gimbalTaskHandle:00000000 gimbalTaskHandle
+     /tmp/ccRsOCvX.s:741    .bss.chassisTaskHandle:00000000 chassisTaskHandle
+     /tmp/ccRsOCvX.s:142    .text.RobotInit:00000000 $t
+     /tmp/ccRsOCvX.s:148    .text.RobotInit:00000000 RobotInit
+     /tmp/ccRsOCvX.s:183    .text.ImuTask:00000000 $t
+     /tmp/ccRsOCvX.s:189    .text.ImuTask:00000000 ImuTask
+     /tmp/ccRsOCvX.s:214    .text.ImuTask:00000014 $d
+     /tmp/ccRsOCvX.s:221    .text.StartIMUTASK:00000000 $t
+     /tmp/ccRsOCvX.s:227    .text.StartIMUTASK:00000000 StartIMUTASK
+     /tmp/ccRsOCvX.s:257    .text.ChassisTask:00000000 $t
+     /tmp/ccRsOCvX.s:263    .text.ChassisTask:00000000 ChassisTask
+     /tmp/ccRsOCvX.s:593    .text.ChassisTask:00000224 $d
+     /tmp/ccRsOCvX.s:727    .bss.cw_test:00000000 cw_test
+     /tmp/ccRsOCvX.s:720    .bss.state_test:00000000 state_test
+     /tmp/ccRsOCvX.s:706    .data.alpha:00000000 alpha
+     /tmp/ccRsOCvX.s:692    .bss.last_filter:00000000 last_filter
+     /tmp/ccRsOCvX.s:734    .data.LEFT_Speed:00000000 LEFT_Speed
+     /tmp/ccRsOCvX.s:616    .text.StartCHASSISTASK:00000000 $t
+     /tmp/ccRsOCvX.s:622    .text.StartCHASSISTASK:00000000 StartCHASSISTASK
+     /tmp/ccRsOCvX.s:652    .text.GimbalTask:00000000 $t
+     /tmp/ccRsOCvX.s:658    .text.GimbalTask:00000000 GimbalTask
+     /tmp/ccRsOCvX.s:671    .rodata.str1.4:00000000 $d
+     /tmp/ccRsOCvX.s:685    .bss.yawStr:00000000 yawStr
+     /tmp/ccRsOCvX.s:682    .bss.yawStr:00000000 $d
+     /tmp/ccRsOCvX.s:689    .bss.last_filter:00000000 $d
+     /tmp/ccRsOCvX.s:699    .bss.filter:00000000 filter
+     /tmp/ccRsOCvX.s:696    .bss.filter:00000000 $d
+     /tmp/ccRsOCvX.s:703    .data.alpha:00000000 $d
+     /tmp/ccRsOCvX.s:713    .data.test_flag:00000000 test_flag
+     /tmp/ccRsOCvX.s:710    .data.test_flag:00000000 $d
+     /tmp/ccRsOCvX.s:717    .bss.state_test:00000000 $d
+     /tmp/ccRsOCvX.s:724    .bss.cw_test:00000000 $d
+     /tmp/ccRsOCvX.s:731    .data.LEFT_Speed:00000000 $d
+     /tmp/ccRsOCvX.s:738    .bss.chassisTaskHandle:00000000 $d
+     /tmp/ccRsOCvX.s:745    .bss.gimbalTaskHandle:00000000 $d
+     /tmp/ccRsOCvX.s:752    .bss.imuTaskHandle:00000000 $d
+     /tmp/ccRsOCvX.s:758    .rodata:00000000 $d
+
+UNDEFINED SYMBOLS
+osDelay
+osThreadCreate
+MPU_Init
+EncoderInit
+MotorInit
+OLED_Init
+OLED_CLS
+MpuGetData
+GetAngle
+Angle
+ARM GAS  /tmp/ccRsOCvX.s 			page 20
+
+
+MPU6050
+HAL_GPIO_ReadPin
+EncoderRead
+pidCalculate
+MotorRun
+MotorControlCwCCw
+MotorStop
+leftMotor
+leftMidMotor
+rightMidMotor
+rightMotor
+htim1
+htim2
+htim3
+htim4

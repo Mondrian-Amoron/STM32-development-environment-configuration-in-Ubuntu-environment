@@ -1,0 +1,1038 @@
+ARM GAS  /tmp/ccGPMYlw.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"imu.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.file 1 "Module/imu/imu.c"
+  20              		.section	.text.imu_rest,"ax",%progbits
+  21              		.align	1
+  22              		.global	imu_rest
+  23              		.syntax unified
+  24              		.thumb
+  25              		.thumb_func
+  27              	imu_rest:
+  28              	.LFB132:
+   1:Module/imu/imu.c **** #include "imu.h"
+   2:Module/imu/imu.c **** #include "mpu6050.h"
+   3:Module/imu/imu.c **** #include <math.h>
+   4:Module/imu/imu.c **** 
+   5:Module/imu/imu.c **** const float MY_PI = 3.1415926535;
+   6:Module/imu/imu.c **** const float RtA = 57.2957795f;
+   7:Module/imu/imu.c **** const float AtR = 0.0174532925f;
+   8:Module/imu/imu.c **** const float Gyro_G = 0.03051756f*2;	  	//�����ǳ�ʼ������+-2000��ÿ��
+   9:Module/imu/imu.c **** const float Gyro_Gr = 0.0005326f*2;     //������ÿ��,ת������ÿ���
+  10:Module/imu/imu.c **** 
+  11:Module/imu/imu.c **** static float NormAcc;
+  12:Module/imu/imu.c **** static  float KpDef = 8.0f ;
+  13:Module/imu/imu.c **** static  float KiDef = 0.0001f;
+  14:Module/imu/imu.c **** 
+  15:Module/imu/imu.c **** /* 四元数系数 */
+  16:Module/imu/imu.c **** typedef volatile struct {
+  17:Module/imu/imu.c ****   float q0;
+  18:Module/imu/imu.c ****   float q1;
+  19:Module/imu/imu.c ****   float q2;
+  20:Module/imu/imu.c ****   float q3;
+  21:Module/imu/imu.c **** } Quaternion;
+  22:Module/imu/imu.c **** Quaternion NumQ = {1, 0, 0, 0};
+  23:Module/imu/imu.c **** 
+  24:Module/imu/imu.c **** /* 陀螺仪积分误差 */
+  25:Module/imu/imu.c **** struct V{
+  26:Module/imu/imu.c **** 	float x;
+  27:Module/imu/imu.c **** 	float y;
+  28:Module/imu/imu.c **** 	float z;
+  29:Module/imu/imu.c **** };	
+  30:Module/imu/imu.c **** volatile struct V GyroIntegError = {0};
+ARM GAS  /tmp/ccGPMYlw.s 			page 2
+
+
+  31:Module/imu/imu.c **** 
+  32:Module/imu/imu.c **** /* 四元数解法初始化 */
+  33:Module/imu/imu.c **** void imu_rest(void)
+  34:Module/imu/imu.c **** {
+  29              		.loc 1 34 1 view -0
+  30              		.cfi_startproc
+  31              		@ args = 0, pretend = 0, frame = 0
+  32              		@ frame_needed = 0, uses_anonymous_args = 0
+  33              		@ link register save eliminated.
+  35:Module/imu/imu.c **** 	NumQ.q0 =1;
+  34              		.loc 1 35 2 view .LVU1
+  35              		.loc 1 35 10 is_stmt 0 view .LVU2
+  36 0000 074A     		ldr	r2, .L2
+  37 0002 4FF07E53 		mov	r3, #1065353216
+  38 0006 1360     		str	r3, [r2]	@ float
+  36:Module/imu/imu.c **** 	NumQ.q1 = 0;
+  39              		.loc 1 36 2 is_stmt 1 view .LVU3
+  40              		.loc 1 36 10 is_stmt 0 view .LVU4
+  41 0008 0023     		movs	r3, #0
+  42 000a 5360     		str	r3, [r2, #4]	@ float
+  37:Module/imu/imu.c **** 	NumQ.q2 = 0;
+  43              		.loc 1 37 2 is_stmt 1 view .LVU5
+  44              		.loc 1 37 10 is_stmt 0 view .LVU6
+  45 000c 9360     		str	r3, [r2, #8]	@ float
+  38:Module/imu/imu.c **** 	NumQ.q3 = 0;	
+  46              		.loc 1 38 2 is_stmt 1 view .LVU7
+  47              		.loc 1 38 10 is_stmt 0 view .LVU8
+  48 000e D360     		str	r3, [r2, #12]	@ float
+  39:Module/imu/imu.c **** 	GyroIntegError.x = 0;
+  49              		.loc 1 39 2 is_stmt 1 view .LVU9
+  50              		.loc 1 39 19 is_stmt 0 view .LVU10
+  51 0010 044A     		ldr	r2, .L2+4
+  52 0012 1360     		str	r3, [r2]	@ float
+  40:Module/imu/imu.c **** 	GyroIntegError.y = 0;
+  53              		.loc 1 40 2 is_stmt 1 view .LVU11
+  54              		.loc 1 40 19 is_stmt 0 view .LVU12
+  55 0014 5360     		str	r3, [r2, #4]	@ float
+  41:Module/imu/imu.c **** 	GyroIntegError.z = 0;
+  56              		.loc 1 41 2 is_stmt 1 view .LVU13
+  57              		.loc 1 41 19 is_stmt 0 view .LVU14
+  58 0016 9360     		str	r3, [r2, #8]	@ float
+  42:Module/imu/imu.c **** 	Angle.pitch = 0;
+  59              		.loc 1 42 2 is_stmt 1 view .LVU15
+  60              		.loc 1 42 14 is_stmt 0 view .LVU16
+  61 0018 034A     		ldr	r2, .L2+8
+  62 001a 5360     		str	r3, [r2, #4]	@ float
+  43:Module/imu/imu.c **** 	Angle.roll = 0;
+  63              		.loc 1 43 2 is_stmt 1 view .LVU17
+  64              		.loc 1 43 13 is_stmt 0 view .LVU18
+  65 001c 1360     		str	r3, [r2]	@ float
+  44:Module/imu/imu.c **** }
+  66              		.loc 1 44 1 view .LVU19
+  67 001e 7047     		bx	lr
+  68              	.L3:
+  69              		.align	2
+  70              	.L2:
+  71 0020 00000000 		.word	NumQ
+ARM GAS  /tmp/ccGPMYlw.s 			page 3
+
+
+  72 0024 00000000 		.word	GyroIntegError
+  73 0028 00000000 		.word	Angle
+  74              		.cfi_endproc
+  75              	.LFE132:
+  77              		.global	__aeabi_f2d
+  78              		.global	__aeabi_ddiv
+  79              		.global	__aeabi_d2f
+  80              		.global	__aeabi_dmul
+  81              		.section	.text.GetAngle,"ax",%progbits
+  82              		.align	1
+  83              		.global	GetAngle
+  84              		.syntax unified
+  85              		.thumb
+  86              		.thumb_func
+  88              	GetAngle:
+  89              	.LVL0:
+  90              	.LFB133:
+  45:Module/imu/imu.c **** 
+  46:Module/imu/imu.c **** void GetAngle(const _st_Mpu *pMpu,_st_AngE *pAngE, float dt) 
+  47:Module/imu/imu.c **** {		
+  91              		.loc 1 47 1 is_stmt 1 view -0
+  92              		.cfi_startproc
+  93              		@ args = 0, pretend = 0, frame = 48
+  94              		@ frame_needed = 0, uses_anonymous_args = 0
+  95              		.loc 1 47 1 is_stmt 0 view .LVU21
+  96 0000 70B5     		push	{r4, r5, r6, lr}
+  97              	.LCFI0:
+  98              		.cfi_def_cfa_offset 16
+  99              		.cfi_offset 4, -16
+ 100              		.cfi_offset 5, -12
+ 101              		.cfi_offset 6, -8
+ 102              		.cfi_offset 14, -4
+ 103 0002 2DED048B 		vpush.64	{d8, d9}
+ 104              	.LCFI1:
+ 105              		.cfi_def_cfa_offset 32
+ 106              		.cfi_offset 80, -32
+ 107              		.cfi_offset 81, -28
+ 108              		.cfi_offset 82, -24
+ 109              		.cfi_offset 83, -20
+ 110 0006 8CB0     		sub	sp, sp, #48
+ 111              	.LCFI2:
+ 112              		.cfi_def_cfa_offset 80
+ 113 0008 0546     		mov	r5, r0
+ 114 000a 0E46     		mov	r6, r1
+ 115 000c B0EE408A 		vmov.f32	s16, s0
+  48:Module/imu/imu.c **** 	volatile struct V Gravity,Acc,Gyro,AccGravity;
+ 116              		.loc 1 48 2 is_stmt 1 view .LVU22
+  49:Module/imu/imu.c **** 
+  50:Module/imu/imu.c **** 	
+  51:Module/imu/imu.c **** //static  float KiDef = 0.00001f;
+  52:Module/imu/imu.c **** 	
+  53:Module/imu/imu.c **** 	float q0_t,q1_t,q2_t,q3_t;
+ 117              		.loc 1 53 2 view .LVU23
+  54:Module/imu/imu.c ****   //float NormAcc;	
+  55:Module/imu/imu.c **** 	float NormQuat; 
+ 118              		.loc 1 55 2 view .LVU24
+  56:Module/imu/imu.c **** 	float HalfTime = dt * 0.5f;
+ARM GAS  /tmp/ccGPMYlw.s 			page 4
+
+
+ 119              		.loc 1 56 2 view .LVU25
+ 120              		.loc 1 56 8 is_stmt 0 view .LVU26
+ 121 0010 F6EE008A 		vmov.f32	s17, #5.0e-1
+ 122 0014 60EE288A 		vmul.f32	s17, s0, s17
+ 123              	.LVL1:
+  57:Module/imu/imu.c **** 
+  58:Module/imu/imu.c **** 	//提取等效旋转矩阵中的重力分量  
+  59:Module/imu/imu.c **** 	Gravity.x = 2*(NumQ.q1 * NumQ.q3 - NumQ.q0 * NumQ.q2);								
+ 124              		.loc 1 59 2 is_stmt 1 view .LVU27
+ 125              		.loc 1 59 21 is_stmt 0 view .LVU28
+ 126 0018 F54C     		ldr	r4, .L10
+ 127 001a D4ED017A 		vldr.32	s15, [r4, #4]
+ 128              		.loc 1 59 31 view .LVU29
+ 129 001e 94ED037A 		vldr.32	s14, [r4, #12]
+ 130              		.loc 1 59 25 view .LVU30
+ 131 0022 67EE877A 		vmul.f32	s15, s15, s14
+ 132              		.loc 1 59 41 view .LVU31
+ 133 0026 94ED007A 		vldr.32	s14, [r4]
+ 134              		.loc 1 59 51 view .LVU32
+ 135 002a D4ED026A 		vldr.32	s13, [r4, #8]
+ 136              		.loc 1 59 45 view .LVU33
+ 137 002e 27EE267A 		vmul.f32	s14, s14, s13
+ 138              		.loc 1 59 35 view .LVU34
+ 139 0032 77EEC77A 		vsub.f32	s15, s15, s14
+ 140              		.loc 1 59 15 view .LVU35
+ 141 0036 77EEA77A 		vadd.f32	s15, s15, s15
+ 142              		.loc 1 59 12 view .LVU36
+ 143 003a CDED097A 		vstr.32	s15, [sp, #36]
+  60:Module/imu/imu.c **** 	Gravity.y = 2*(NumQ.q0 * NumQ.q1 + NumQ.q2 * NumQ.q3);						  
+ 144              		.loc 1 60 2 is_stmt 1 view .LVU37
+ 145              		.loc 1 60 21 is_stmt 0 view .LVU38
+ 146 003e D4ED007A 		vldr.32	s15, [r4]
+ 147              		.loc 1 60 31 view .LVU39
+ 148 0042 94ED017A 		vldr.32	s14, [r4, #4]
+ 149              		.loc 1 60 25 view .LVU40
+ 150 0046 67EE877A 		vmul.f32	s15, s15, s14
+ 151              		.loc 1 60 41 view .LVU41
+ 152 004a 94ED027A 		vldr.32	s14, [r4, #8]
+ 153              		.loc 1 60 51 view .LVU42
+ 154 004e D4ED036A 		vldr.32	s13, [r4, #12]
+ 155              		.loc 1 60 45 view .LVU43
+ 156 0052 27EE267A 		vmul.f32	s14, s14, s13
+ 157              		.loc 1 60 35 view .LVU44
+ 158 0056 77EE877A 		vadd.f32	s15, s15, s14
+ 159              		.loc 1 60 15 view .LVU45
+ 160 005a 77EEA77A 		vadd.f32	s15, s15, s15
+ 161              		.loc 1 60 12 view .LVU46
+ 162 005e CDED0A7A 		vstr.32	s15, [sp, #40]
+  61:Module/imu/imu.c **** 	Gravity.z = 1-2*(NumQ.q1 * NumQ.q1 + NumQ.q2 * NumQ.q2);	
+ 163              		.loc 1 61 2 is_stmt 1 view .LVU47
+ 164              		.loc 1 61 23 is_stmt 0 view .LVU48
+ 165 0062 D4ED017A 		vldr.32	s15, [r4, #4]
+ 166              		.loc 1 61 33 view .LVU49
+ 167 0066 94ED017A 		vldr.32	s14, [r4, #4]
+ 168              		.loc 1 61 27 view .LVU50
+ 169 006a 67EE877A 		vmul.f32	s15, s15, s14
+ 170              		.loc 1 61 43 view .LVU51
+ARM GAS  /tmp/ccGPMYlw.s 			page 5
+
+
+ 171 006e 94ED027A 		vldr.32	s14, [r4, #8]
+ 172              		.loc 1 61 53 view .LVU52
+ 173 0072 D4ED026A 		vldr.32	s13, [r4, #8]
+ 174              		.loc 1 61 47 view .LVU53
+ 175 0076 27EE267A 		vmul.f32	s14, s14, s13
+ 176              		.loc 1 61 37 view .LVU54
+ 177 007a 77EE877A 		vadd.f32	s15, s15, s14
+ 178              		.loc 1 61 17 view .LVU55
+ 179 007e 77EEA77A 		vadd.f32	s15, s15, s15
+ 180              		.loc 1 61 15 view .LVU56
+ 181 0082 B7EE009A 		vmov.f32	s18, #1.0e+0
+ 182 0086 79EE677A 		vsub.f32	s15, s18, s15
+ 183              		.loc 1 61 12 view .LVU57
+ 184 008a CDED0B7A 		vstr.32	s15, [sp, #44]
+  62:Module/imu/imu.c **** 	
+  63:Module/imu/imu.c **** 	// 加速度归一化
+  64:Module/imu/imu.c **** 	//printf("accX:%d\r\n",MPU6050.accX);
+  65:Module/imu/imu.c **** 	NormAcc = 1/sqrt(squa(MPU6050.accX)+ squa(MPU6050.accY) +squa(MPU6050.accZ));
+ 185              		.loc 1 65 2 is_stmt 1 view .LVU58
+ 186              		.loc 1 65 19 is_stmt 0 view .LVU59
+ 187 008e D94B     		ldr	r3, .L10+4
+ 188 0090 B3F90020 		ldrsh	r2, [r3]
+ 189 0094 07EE902A 		vmov	s15, r2	@ int
+ 190 0098 F8EEE77A 		vcvt.f32.s32	s15, s15
+ 191 009c 67EEA77A 		vmul.f32	s15, s15, s15
+ 192              		.loc 1 65 39 view .LVU60
+ 193 00a0 B3F90220 		ldrsh	r2, [r3, #2]
+ 194 00a4 07EE102A 		vmov	s14, r2	@ int
+ 195 00a8 B8EEC77A 		vcvt.f32.s32	s14, s14
+ 196 00ac 27EE077A 		vmul.f32	s14, s14, s14
+ 197              		.loc 1 65 37 view .LVU61
+ 198 00b0 77EE877A 		vadd.f32	s15, s15, s14
+ 199              		.loc 1 65 59 view .LVU62
+ 200 00b4 B3F90430 		ldrsh	r3, [r3, #4]
+ 201 00b8 07EE103A 		vmov	s14, r3	@ int
+ 202 00bc B8EEC77A 		vcvt.f32.s32	s14, s14
+ 203 00c0 27EE077A 		vmul.f32	s14, s14, s14
+ 204              		.loc 1 65 14 view .LVU63
+ 205 00c4 77EE877A 		vadd.f32	s15, s15, s14
+ 206 00c8 17EE900A 		vmov	r0, s15
+ 207              	.LVL2:
+ 208              		.loc 1 65 14 view .LVU64
+ 209 00cc FFF7FEFF 		bl	__aeabi_f2d
+ 210              	.LVL3:
+ 211              		.loc 1 65 14 view .LVU65
+ 212 00d0 41EC100B 		vmov	d0, r0, r1
+ 213 00d4 FFF7FEFF 		bl	sqrt
+ 214              	.LVL4:
+ 215 00d8 53EC102B 		vmov	r2, r3, d0
+ 216              		.loc 1 65 13 discriminator 1 view .LVU66
+ 217 00dc 0020     		movs	r0, #0
+ 218 00de C649     		ldr	r1, .L10+8
+ 219 00e0 FFF7FEFF 		bl	__aeabi_ddiv
+ 220              	.LVL5:
+ 221 00e4 FFF7FEFF 		bl	__aeabi_d2f
+ 222              	.LVL6:
+ 223 00e8 07EE900A 		vmov	s15, r0
+ARM GAS  /tmp/ccGPMYlw.s 			page 6
+
+
+ 224              		.loc 1 65 10 discriminator 1 view .LVU67
+ 225 00ec C34B     		ldr	r3, .L10+12
+ 226 00ee 1860     		str	r0, [r3]	@ float
+  66:Module/imu/imu.c **** 	//printf("NorAcc%f\r\n",NormAcc);
+  67:Module/imu/imu.c **** 	//	NormAcc = Q_rsqrt(squa(MPU6050.accX)+ squa(MPU6050.accY) +squa(MPU6050.accZ));
+  68:Module/imu/imu.c **** 	
+  69:Module/imu/imu.c ****   Acc.x = pMpu->accX * NormAcc;
+ 227              		.loc 1 69 3 is_stmt 1 view .LVU68
+ 228              		.loc 1 69 15 is_stmt 0 view .LVU69
+ 229 00f0 B5F90030 		ldrsh	r3, [r5]
+ 230 00f4 07EE103A 		vmov	s14, r3	@ int
+ 231              		.loc 1 69 22 view .LVU70
+ 232 00f8 B8EEC77A 		vcvt.f32.s32	s14, s14
+ 233 00fc 27EE277A 		vmul.f32	s14, s14, s15
+ 234              		.loc 1 69 9 view .LVU71
+ 235 0100 8DED067A 		vstr.32	s14, [sp, #24]
+  70:Module/imu/imu.c ****   Acc.y = pMpu->accY * NormAcc;
+ 236              		.loc 1 70 3 is_stmt 1 view .LVU72
+ 237              		.loc 1 70 15 is_stmt 0 view .LVU73
+ 238 0104 B5F90230 		ldrsh	r3, [r5, #2]
+ 239 0108 07EE103A 		vmov	s14, r3	@ int
+ 240              		.loc 1 70 22 view .LVU74
+ 241 010c B8EEC77A 		vcvt.f32.s32	s14, s14
+ 242 0110 27EE277A 		vmul.f32	s14, s14, s15
+ 243              		.loc 1 70 9 view .LVU75
+ 244 0114 8DED077A 		vstr.32	s14, [sp, #28]
+  71:Module/imu/imu.c ****   Acc.z = pMpu->accZ * NormAcc;
+ 245              		.loc 1 71 3 is_stmt 1 view .LVU76
+ 246              		.loc 1 71 15 is_stmt 0 view .LVU77
+ 247 0118 B5F90430 		ldrsh	r3, [r5, #4]
+ 248 011c 07EE103A 		vmov	s14, r3	@ int
+ 249              		.loc 1 71 22 view .LVU78
+ 250 0120 B8EEC77A 		vcvt.f32.s32	s14, s14
+ 251 0124 67EE277A 		vmul.f32	s15, s14, s15
+ 252              		.loc 1 71 9 view .LVU79
+ 253 0128 CDED087A 		vstr.32	s15, [sp, #32]
+  72:Module/imu/imu.c **** 	
+  73:Module/imu/imu.c ****  	//向量差乘得出的值
+  74:Module/imu/imu.c **** 	AccGravity.x = (Acc.y * Gravity.z - Acc.z * Gravity.y);
+ 254              		.loc 1 74 2 is_stmt 1 view .LVU80
+ 255              		.loc 1 74 21 is_stmt 0 view .LVU81
+ 256 012c DDED077A 		vldr.32	s15, [sp, #28]
+ 257              		.loc 1 74 33 view .LVU82
+ 258 0130 9DED0B7A 		vldr.32	s14, [sp, #44]
+ 259              		.loc 1 74 24 view .LVU83
+ 260 0134 67EE877A 		vmul.f32	s15, s15, s14
+ 261              		.loc 1 74 41 view .LVU84
+ 262 0138 9DED087A 		vldr.32	s14, [sp, #32]
+ 263              		.loc 1 74 53 view .LVU85
+ 264 013c DDED0A6A 		vldr.32	s13, [sp, #40]
+ 265              		.loc 1 74 44 view .LVU86
+ 266 0140 27EE267A 		vmul.f32	s14, s14, s13
+ 267              		.loc 1 74 36 view .LVU87
+ 268 0144 77EEC77A 		vsub.f32	s15, s15, s14
+ 269              		.loc 1 74 15 view .LVU88
+ 270 0148 CDED007A 		vstr.32	s15, [sp]
+  75:Module/imu/imu.c **** 	AccGravity.y = (Acc.z * Gravity.x - Acc.x * Gravity.z);
+ARM GAS  /tmp/ccGPMYlw.s 			page 7
+
+
+ 271              		.loc 1 75 2 is_stmt 1 view .LVU89
+ 272              		.loc 1 75 21 is_stmt 0 view .LVU90
+ 273 014c DDED087A 		vldr.32	s15, [sp, #32]
+ 274              		.loc 1 75 33 view .LVU91
+ 275 0150 9DED097A 		vldr.32	s14, [sp, #36]
+ 276              		.loc 1 75 24 view .LVU92
+ 277 0154 67EE877A 		vmul.f32	s15, s15, s14
+ 278              		.loc 1 75 41 view .LVU93
+ 279 0158 9DED067A 		vldr.32	s14, [sp, #24]
+ 280              		.loc 1 75 53 view .LVU94
+ 281 015c DDED0B6A 		vldr.32	s13, [sp, #44]
+ 282              		.loc 1 75 44 view .LVU95
+ 283 0160 27EE267A 		vmul.f32	s14, s14, s13
+ 284              		.loc 1 75 36 view .LVU96
+ 285 0164 77EEC77A 		vsub.f32	s15, s15, s14
+ 286              		.loc 1 75 15 view .LVU97
+ 287 0168 CDED017A 		vstr.32	s15, [sp, #4]
+  76:Module/imu/imu.c **** 	AccGravity.z = (Acc.x * Gravity.y - Acc.y * Gravity.x);
+ 288              		.loc 1 76 2 is_stmt 1 view .LVU98
+ 289              		.loc 1 76 21 is_stmt 0 view .LVU99
+ 290 016c DDED067A 		vldr.32	s15, [sp, #24]
+ 291              		.loc 1 76 33 view .LVU100
+ 292 0170 9DED0A7A 		vldr.32	s14, [sp, #40]
+ 293              		.loc 1 76 24 view .LVU101
+ 294 0174 67EE877A 		vmul.f32	s15, s15, s14
+ 295              		.loc 1 76 41 view .LVU102
+ 296 0178 9DED077A 		vldr.32	s14, [sp, #28]
+ 297              		.loc 1 76 53 view .LVU103
+ 298 017c DDED096A 		vldr.32	s13, [sp, #36]
+ 299              		.loc 1 76 44 view .LVU104
+ 300 0180 27EE267A 		vmul.f32	s14, s14, s13
+ 301              		.loc 1 76 36 view .LVU105
+ 302 0184 77EEC77A 		vsub.f32	s15, s15, s14
+ 303              		.loc 1 76 15 view .LVU106
+ 304 0188 CDED027A 		vstr.32	s15, [sp, #8]
+  77:Module/imu/imu.c **** 	
+  78:Module/imu/imu.c **** 	//再做加速度积分补偿角速度的补偿值
+  79:Module/imu/imu.c ****   GyroIntegError.x += AccGravity.x * KiDef;
+ 305              		.loc 1 79 3 is_stmt 1 view .LVU107
+ 306              		.loc 1 79 33 is_stmt 0 view .LVU108
+ 307 018c DDED006A 		vldr.32	s13, [sp]
+ 308              		.loc 1 79 36 view .LVU109
+ 309 0190 DFED9B7A 		vldr.32	s15, .L10+16
+ 310 0194 66EEA76A 		vmul.f32	s13, s13, s15
+ 311              		.loc 1 79 17 view .LVU110
+ 312 0198 9A4B     		ldr	r3, .L10+20
+ 313 019a 93ED007A 		vldr.32	s14, [r3]
+ 314              		.loc 1 79 20 view .LVU111
+ 315 019e 37EE267A 		vadd.f32	s14, s14, s13
+ 316 01a2 83ED007A 		vstr.32	s14, [r3]
+  80:Module/imu/imu.c ****   GyroIntegError.y += AccGravity.y * KiDef;
+ 317              		.loc 1 80 3 is_stmt 1 view .LVU112
+ 318              		.loc 1 80 33 is_stmt 0 view .LVU113
+ 319 01a6 DDED016A 		vldr.32	s13, [sp, #4]
+ 320              		.loc 1 80 36 view .LVU114
+ 321 01aa 66EEA76A 		vmul.f32	s13, s13, s15
+ 322              		.loc 1 80 17 view .LVU115
+ARM GAS  /tmp/ccGPMYlw.s 			page 8
+
+
+ 323 01ae 93ED017A 		vldr.32	s14, [r3, #4]
+ 324              		.loc 1 80 20 view .LVU116
+ 325 01b2 37EE267A 		vadd.f32	s14, s14, s13
+ 326 01b6 83ED017A 		vstr.32	s14, [r3, #4]
+  81:Module/imu/imu.c ****   GyroIntegError.z += AccGravity.z * KiDef;
+ 327              		.loc 1 81 3 is_stmt 1 view .LVU117
+ 328              		.loc 1 81 33 is_stmt 0 view .LVU118
+ 329 01ba 9DED027A 		vldr.32	s14, [sp, #8]
+ 330              		.loc 1 81 36 view .LVU119
+ 331 01be 27EE277A 		vmul.f32	s14, s14, s15
+ 332              		.loc 1 81 17 view .LVU120
+ 333 01c2 D3ED027A 		vldr.32	s15, [r3, #8]
+ 334              		.loc 1 81 20 view .LVU121
+ 335 01c6 77EE877A 		vadd.f32	s15, s15, s14
+ 336 01ca C3ED027A 		vstr.32	s15, [r3, #8]
+  82:Module/imu/imu.c **** 	
+  83:Module/imu/imu.c **** 	//角速度融合加速度积分补偿值
+  84:Module/imu/imu.c ****   Gyro.x = pMpu->gyroX * Gyro_Gr + KpDef * AccGravity.x  +  GyroIntegError.x;//
+ 337              		.loc 1 84 3 is_stmt 1 view .LVU122
+ 338              		.loc 1 84 16 is_stmt 0 view .LVU123
+ 339 01ce B5F90620 		ldrsh	r2, [r5, #6]
+ 340 01d2 07EE902A 		vmov	s15, r2	@ int
+ 341              		.loc 1 84 24 view .LVU124
+ 342 01d6 F8EEE77A 		vcvt.f32.s32	s15, s15
+ 343 01da 9FED8B7A 		vldr.32	s14, .L10+24
+ 344 01de 67EE877A 		vmul.f32	s15, s15, s14
+ 345              		.loc 1 84 54 view .LVU125
+ 346 01e2 9DED006A 		vldr.32	s12, [sp]
+ 347              		.loc 1 84 42 view .LVU126
+ 348 01e6 F2EE006A 		vmov.f32	s13, #8.0e+0
+ 349 01ea 26EE266A 		vmul.f32	s12, s12, s13
+ 350              		.loc 1 84 34 view .LVU127
+ 351 01ee 77EE867A 		vadd.f32	s15, s15, s12
+ 352              		.loc 1 84 75 view .LVU128
+ 353 01f2 93ED006A 		vldr.32	s12, [r3]
+ 354              		.loc 1 84 58 view .LVU129
+ 355 01f6 77EE867A 		vadd.f32	s15, s15, s12
+ 356              		.loc 1 84 10 view .LVU130
+ 357 01fa CDED037A 		vstr.32	s15, [sp, #12]
+  85:Module/imu/imu.c ****   Gyro.y = pMpu->gyroY * Gyro_Gr + KpDef * AccGravity.y  +  GyroIntegError.y;
+ 358              		.loc 1 85 3 is_stmt 1 view .LVU131
+ 359              		.loc 1 85 16 is_stmt 0 view .LVU132
+ 360 01fe B5F90820 		ldrsh	r2, [r5, #8]
+ 361 0202 07EE902A 		vmov	s15, r2	@ int
+ 362              		.loc 1 85 24 view .LVU133
+ 363 0206 F8EEE77A 		vcvt.f32.s32	s15, s15
+ 364 020a 67EE877A 		vmul.f32	s15, s15, s14
+ 365              		.loc 1 85 54 view .LVU134
+ 366 020e 9DED016A 		vldr.32	s12, [sp, #4]
+ 367              		.loc 1 85 42 view .LVU135
+ 368 0212 26EE266A 		vmul.f32	s12, s12, s13
+ 369              		.loc 1 85 34 view .LVU136
+ 370 0216 77EE867A 		vadd.f32	s15, s15, s12
+ 371              		.loc 1 85 75 view .LVU137
+ 372 021a 93ED016A 		vldr.32	s12, [r3, #4]
+ 373              		.loc 1 85 58 view .LVU138
+ 374 021e 77EE867A 		vadd.f32	s15, s15, s12
+ARM GAS  /tmp/ccGPMYlw.s 			page 9
+
+
+ 375              		.loc 1 85 10 view .LVU139
+ 376 0222 CDED047A 		vstr.32	s15, [sp, #16]
+  86:Module/imu/imu.c ****   Gyro.z = pMpu->gyroZ * Gyro_Gr + KpDef * AccGravity.z  +  GyroIntegError.z;
+ 377              		.loc 1 86 3 is_stmt 1 view .LVU140
+ 378              		.loc 1 86 16 is_stmt 0 view .LVU141
+ 379 0226 B5F90A20 		ldrsh	r2, [r5, #10]
+ 380 022a 07EE902A 		vmov	s15, r2	@ int
+ 381              		.loc 1 86 24 view .LVU142
+ 382 022e F8EEE77A 		vcvt.f32.s32	s15, s15
+ 383 0232 67EE877A 		vmul.f32	s15, s15, s14
+ 384              		.loc 1 86 54 view .LVU143
+ 385 0236 9DED027A 		vldr.32	s14, [sp, #8]
+ 386              		.loc 1 86 42 view .LVU144
+ 387 023a 27EE267A 		vmul.f32	s14, s14, s13
+ 388              		.loc 1 86 34 view .LVU145
+ 389 023e 77EE877A 		vadd.f32	s15, s15, s14
+ 390              		.loc 1 86 75 view .LVU146
+ 391 0242 93ED027A 		vldr.32	s14, [r3, #8]
+ 392              		.loc 1 86 58 view .LVU147
+ 393 0246 77EE877A 		vadd.f32	s15, s15, s14
+ 394              		.loc 1 86 10 view .LVU148
+ 395 024a CDED057A 		vstr.32	s15, [sp, #20]
+  87:Module/imu/imu.c **** 		
+  88:Module/imu/imu.c **** 	// 一阶龙格库塔法, 更新四元数
+  89:Module/imu/imu.c **** 	q0_t = (-NumQ.q1*Gyro.x - NumQ.q2*Gyro.y - NumQ.q3*Gyro.z) * HalfTime;
+ 396              		.loc 1 89 2 is_stmt 1 view .LVU149
+ 397              		.loc 1 89 15 is_stmt 0 view .LVU150
+ 398 024e 94ED016A 		vldr.32	s12, [r4, #4]
+ 399              		.loc 1 89 23 view .LVU151
+ 400 0252 DDED037A 		vldr.32	s15, [sp, #12]
+ 401              		.loc 1 89 18 view .LVU152
+ 402 0256 26EE676A 		vnmul.f32	s12, s12, s15
+ 403              		.loc 1 89 32 view .LVU153
+ 404 025a D4ED027A 		vldr.32	s15, [r4, #8]
+ 405              		.loc 1 89 40 view .LVU154
+ 406 025e 9DED047A 		vldr.32	s14, [sp, #16]
+ 407              		.loc 1 89 35 view .LVU155
+ 408 0262 67EE877A 		vmul.f32	s15, s15, s14
+ 409              		.loc 1 89 26 view .LVU156
+ 410 0266 36EE676A 		vsub.f32	s12, s12, s15
+ 411              		.loc 1 89 49 view .LVU157
+ 412 026a D4ED037A 		vldr.32	s15, [r4, #12]
+ 413              		.loc 1 89 57 view .LVU158
+ 414 026e 9DED057A 		vldr.32	s14, [sp, #20]
+ 415              		.loc 1 89 52 view .LVU159
+ 416 0272 67EE877A 		vmul.f32	s15, s15, s14
+ 417              		.loc 1 89 43 view .LVU160
+ 418 0276 36EE676A 		vsub.f32	s12, s12, s15
+ 419              		.loc 1 89 7 view .LVU161
+ 420 027a 26EE286A 		vmul.f32	s12, s12, s17
+ 421              	.LVL7:
+  90:Module/imu/imu.c **** 	q1_t = ( NumQ.q0*Gyro.x - NumQ.q3*Gyro.y + NumQ.q2*Gyro.z) * HalfTime;
+ 422              		.loc 1 90 2 is_stmt 1 view .LVU162
+ 423              		.loc 1 90 15 is_stmt 0 view .LVU163
+ 424 027e D4ED006A 		vldr.32	s13, [r4]
+ 425              		.loc 1 90 23 view .LVU164
+ 426 0282 DDED037A 		vldr.32	s15, [sp, #12]
+ARM GAS  /tmp/ccGPMYlw.s 			page 10
+
+
+ 427              		.loc 1 90 18 view .LVU165
+ 428 0286 66EEA76A 		vmul.f32	s13, s13, s15
+ 429              		.loc 1 90 32 view .LVU166
+ 430 028a D4ED037A 		vldr.32	s15, [r4, #12]
+ 431              		.loc 1 90 40 view .LVU167
+ 432 028e 9DED047A 		vldr.32	s14, [sp, #16]
+ 433              		.loc 1 90 35 view .LVU168
+ 434 0292 67EE877A 		vmul.f32	s15, s15, s14
+ 435              		.loc 1 90 26 view .LVU169
+ 436 0296 76EEE76A 		vsub.f32	s13, s13, s15
+ 437              		.loc 1 90 49 view .LVU170
+ 438 029a D4ED027A 		vldr.32	s15, [r4, #8]
+ 439              		.loc 1 90 57 view .LVU171
+ 440 029e 9DED057A 		vldr.32	s14, [sp, #20]
+ 441              		.loc 1 90 52 view .LVU172
+ 442 02a2 67EE877A 		vmul.f32	s15, s15, s14
+ 443              		.loc 1 90 43 view .LVU173
+ 444 02a6 76EEA76A 		vadd.f32	s13, s13, s15
+ 445              		.loc 1 90 7 view .LVU174
+ 446 02aa 66EEA86A 		vmul.f32	s13, s13, s17
+ 447              	.LVL8:
+  91:Module/imu/imu.c **** 	q2_t = ( NumQ.q3*Gyro.x + NumQ.q0*Gyro.y - NumQ.q1*Gyro.z) * HalfTime;
+ 448              		.loc 1 91 2 is_stmt 1 view .LVU175
+ 449              		.loc 1 91 15 is_stmt 0 view .LVU176
+ 450 02ae 94ED037A 		vldr.32	s14, [r4, #12]
+ 451              		.loc 1 91 23 view .LVU177
+ 452 02b2 DDED037A 		vldr.32	s15, [sp, #12]
+ 453              		.loc 1 91 18 view .LVU178
+ 454 02b6 27EE277A 		vmul.f32	s14, s14, s15
+ 455              		.loc 1 91 32 view .LVU179
+ 456 02ba D4ED007A 		vldr.32	s15, [r4]
+ 457              		.loc 1 91 40 view .LVU180
+ 458 02be DDED045A 		vldr.32	s11, [sp, #16]
+ 459              		.loc 1 91 35 view .LVU181
+ 460 02c2 67EEA57A 		vmul.f32	s15, s15, s11
+ 461              		.loc 1 91 26 view .LVU182
+ 462 02c6 37EE277A 		vadd.f32	s14, s14, s15
+ 463              		.loc 1 91 49 view .LVU183
+ 464 02ca D4ED017A 		vldr.32	s15, [r4, #4]
+ 465              		.loc 1 91 57 view .LVU184
+ 466 02ce DDED055A 		vldr.32	s11, [sp, #20]
+ 467              		.loc 1 91 52 view .LVU185
+ 468 02d2 67EEA57A 		vmul.f32	s15, s15, s11
+ 469              		.loc 1 91 43 view .LVU186
+ 470 02d6 37EE677A 		vsub.f32	s14, s14, s15
+ 471              		.loc 1 91 7 view .LVU187
+ 472 02da 27EE287A 		vmul.f32	s14, s14, s17
+ 473              	.LVL9:
+  92:Module/imu/imu.c **** 	q3_t = (-NumQ.q2*Gyro.x + NumQ.q1*Gyro.y + NumQ.q0*Gyro.z) * HalfTime;
+ 474              		.loc 1 92 2 is_stmt 1 view .LVU188
+ 475              		.loc 1 92 15 is_stmt 0 view .LVU189
+ 476 02de D4ED027A 		vldr.32	s15, [r4, #8]
+ 477              		.loc 1 92 23 view .LVU190
+ 478 02e2 DDED035A 		vldr.32	s11, [sp, #12]
+ 479              		.loc 1 92 18 view .LVU191
+ 480 02e6 67EEE57A 		vnmul.f32	s15, s15, s11
+ 481              		.loc 1 92 32 view .LVU192
+ARM GAS  /tmp/ccGPMYlw.s 			page 11
+
+
+ 482 02ea D4ED015A 		vldr.32	s11, [r4, #4]
+ 483              		.loc 1 92 40 view .LVU193
+ 484 02ee 9DED045A 		vldr.32	s10, [sp, #16]
+ 485              		.loc 1 92 35 view .LVU194
+ 486 02f2 65EE855A 		vmul.f32	s11, s11, s10
+ 487              		.loc 1 92 26 view .LVU195
+ 488 02f6 77EEA57A 		vadd.f32	s15, s15, s11
+ 489              		.loc 1 92 49 view .LVU196
+ 490 02fa D4ED005A 		vldr.32	s11, [r4]
+ 491              		.loc 1 92 57 view .LVU197
+ 492 02fe 9DED055A 		vldr.32	s10, [sp, #20]
+ 493              		.loc 1 92 52 view .LVU198
+ 494 0302 65EE855A 		vmul.f32	s11, s11, s10
+ 495              		.loc 1 92 43 view .LVU199
+ 496 0306 77EEA57A 		vadd.f32	s15, s15, s11
+ 497              		.loc 1 92 7 view .LVU200
+ 498 030a 67EEA87A 		vmul.f32	s15, s15, s17
+ 499              	.LVL10:
+  93:Module/imu/imu.c **** 	
+  94:Module/imu/imu.c **** 	NumQ.q0 += q0_t;
+ 500              		.loc 1 94 2 is_stmt 1 view .LVU201
+ 501              		.loc 1 94 6 is_stmt 0 view .LVU202
+ 502 030e D4ED005A 		vldr.32	s11, [r4]
+ 503              		.loc 1 94 10 view .LVU203
+ 504 0312 35EE866A 		vadd.f32	s12, s11, s12
+ 505              	.LVL11:
+ 506              		.loc 1 94 10 view .LVU204
+ 507 0316 84ED006A 		vstr.32	s12, [r4]
+  95:Module/imu/imu.c **** 	NumQ.q1 += q1_t;
+ 508              		.loc 1 95 2 is_stmt 1 view .LVU205
+ 509              		.loc 1 95 6 is_stmt 0 view .LVU206
+ 510 031a 94ED016A 		vldr.32	s12, [r4, #4]
+ 511              		.loc 1 95 10 view .LVU207
+ 512 031e 76EE266A 		vadd.f32	s13, s12, s13
+ 513              	.LVL12:
+ 514              		.loc 1 95 10 view .LVU208
+ 515 0322 C4ED016A 		vstr.32	s13, [r4, #4]
+  96:Module/imu/imu.c **** 	NumQ.q2 += q2_t;
+ 516              		.loc 1 96 2 is_stmt 1 view .LVU209
+ 517              		.loc 1 96 6 is_stmt 0 view .LVU210
+ 518 0326 D4ED026A 		vldr.32	s13, [r4, #8]
+ 519              		.loc 1 96 10 view .LVU211
+ 520 032a 36EE877A 		vadd.f32	s14, s13, s14
+ 521              	.LVL13:
+ 522              		.loc 1 96 10 view .LVU212
+ 523 032e 84ED027A 		vstr.32	s14, [r4, #8]
+  97:Module/imu/imu.c **** 	NumQ.q3 += q3_t;
+ 524              		.loc 1 97 2 is_stmt 1 view .LVU213
+ 525              		.loc 1 97 6 is_stmt 0 view .LVU214
+ 526 0332 94ED037A 		vldr.32	s14, [r4, #12]
+ 527              		.loc 1 97 10 view .LVU215
+ 528 0336 77EE277A 		vadd.f32	s15, s14, s15
+ 529              	.LVL14:
+ 530              		.loc 1 97 10 view .LVU216
+ 531 033a C4ED037A 		vstr.32	s15, [r4, #12]
+  98:Module/imu/imu.c **** 	// 四元数归一化
+  99:Module/imu/imu.c **** 
+ARM GAS  /tmp/ccGPMYlw.s 			page 12
+
+
+ 100:Module/imu/imu.c **** 	NormQuat = 1/sqrt(squa(NumQ.q0) + squa(NumQ.q1) + squa(NumQ.q2) + squa(NumQ.q3));
+ 532              		.loc 1 100 2 is_stmt 1 view .LVU217
+ 533              		.loc 1 100 20 is_stmt 0 view .LVU218
+ 534 033e D4ED007A 		vldr.32	s15, [r4]
+ 535 0342 94ED007A 		vldr.32	s14, [r4]
+ 536 0346 67EE877A 		vmul.f32	s15, s15, s14
+ 537              		.loc 1 100 36 view .LVU219
+ 538 034a 94ED017A 		vldr.32	s14, [r4, #4]
+ 539 034e D4ED016A 		vldr.32	s13, [r4, #4]
+ 540 0352 27EE267A 		vmul.f32	s14, s14, s13
+ 541              		.loc 1 100 34 view .LVU220
+ 542 0356 77EE877A 		vadd.f32	s15, s15, s14
+ 543              		.loc 1 100 52 view .LVU221
+ 544 035a 94ED027A 		vldr.32	s14, [r4, #8]
+ 545 035e D4ED026A 		vldr.32	s13, [r4, #8]
+ 546 0362 27EE267A 		vmul.f32	s14, s14, s13
+ 547              		.loc 1 100 50 view .LVU222
+ 548 0366 77EE877A 		vadd.f32	s15, s15, s14
+ 549              		.loc 1 100 68 view .LVU223
+ 550 036a 94ED037A 		vldr.32	s14, [r4, #12]
+ 551 036e D4ED036A 		vldr.32	s13, [r4, #12]
+ 552 0372 27EE267A 		vmul.f32	s14, s14, s13
+ 553              		.loc 1 100 15 view .LVU224
+ 554 0376 77EE877A 		vadd.f32	s15, s15, s14
+ 555 037a 17EE900A 		vmov	r0, s15
+ 556 037e FFF7FEFF 		bl	__aeabi_f2d
+ 557              	.LVL15:
+ 558 0382 41EC100B 		vmov	d0, r0, r1
+ 559 0386 FFF7FEFF 		bl	sqrt
+ 560              	.LVL16:
+ 561 038a 53EC102B 		vmov	r2, r3, d0
+ 562              		.loc 1 100 14 discriminator 1 view .LVU225
+ 563 038e 0020     		movs	r0, #0
+ 564 0390 1949     		ldr	r1, .L10+8
+ 565 0392 FFF7FEFF 		bl	__aeabi_ddiv
+ 566              	.LVL17:
+ 567              		.loc 1 100 11 discriminator 1 view .LVU226
+ 568 0396 FFF7FEFF 		bl	__aeabi_d2f
+ 569              	.LVL18:
+ 570 039a 07EE900A 		vmov	s15, r0
+ 571              	.LVL19:
+ 101:Module/imu/imu.c **** 	NumQ.q0 *= NormQuat;
+ 572              		.loc 1 101 2 is_stmt 1 view .LVU227
+ 573              		.loc 1 101 6 is_stmt 0 view .LVU228
+ 574 039e 94ED007A 		vldr.32	s14, [r4]
+ 575              		.loc 1 101 10 view .LVU229
+ 576 03a2 27EE277A 		vmul.f32	s14, s14, s15
+ 577 03a6 84ED007A 		vstr.32	s14, [r4]
+ 102:Module/imu/imu.c **** 	NumQ.q1 *= NormQuat;
+ 578              		.loc 1 102 2 is_stmt 1 view .LVU230
+ 579              		.loc 1 102 6 is_stmt 0 view .LVU231
+ 580 03aa 94ED017A 		vldr.32	s14, [r4, #4]
+ 581              		.loc 1 102 10 view .LVU232
+ 582 03ae 27EE277A 		vmul.f32	s14, s14, s15
+ 583 03b2 84ED017A 		vstr.32	s14, [r4, #4]
+ 103:Module/imu/imu.c **** 	NumQ.q2 *= NormQuat;
+ 584              		.loc 1 103 2 is_stmt 1 view .LVU233
+ARM GAS  /tmp/ccGPMYlw.s 			page 13
+
+
+ 585              		.loc 1 103 6 is_stmt 0 view .LVU234
+ 586 03b6 94ED027A 		vldr.32	s14, [r4, #8]
+ 587              		.loc 1 103 10 view .LVU235
+ 588 03ba 27EE277A 		vmul.f32	s14, s14, s15
+ 589 03be 84ED027A 		vstr.32	s14, [r4, #8]
+ 104:Module/imu/imu.c **** 	NumQ.q3 *= NormQuat;	
+ 590              		.loc 1 104 2 is_stmt 1 view .LVU236
+ 591              		.loc 1 104 6 is_stmt 0 view .LVU237
+ 592 03c2 94ED037A 		vldr.32	s14, [r4, #12]
+ 593              		.loc 1 104 10 view .LVU238
+ 594 03c6 67EE277A 		vmul.f32	s15, s14, s15
+ 595 03ca C4ED037A 		vstr.32	s15, [r4, #12]
+ 596              	.LBB2:
+ 105:Module/imu/imu.c **** 	
+ 106:Module/imu/imu.c **** 	// 四元数转欧拉角
+ 107:Module/imu/imu.c **** 	{
+ 108:Module/imu/imu.c **** 		 
+ 109:Module/imu/imu.c **** 			#ifdef	YAW_GYRO
+ 110:Module/imu/imu.c **** 			*(
+ 111:Module/imu/imu.c **** 		float *)pAngE = atan2f(2 * NumQ.q1 *NumQ.q2 + 2 * NumQ.q0 * NumQ.q3, 1 - 2 * NumQ.q2 *NumQ.q2 - 2
+ 112:Module/imu/imu.c **** 			#else
+ 113:Module/imu/imu.c **** 				float yaw_G = pMpu->gyroZ * Gyro_G;
+ 597              		.loc 1 113 5 is_stmt 1 view .LVU239
+ 598              		.loc 1 113 23 is_stmt 0 view .LVU240
+ 599 03ce B5F90A30 		ldrsh	r3, [r5, #10]
+ 600 03d2 07EE903A 		vmov	s15, r3	@ int
+ 601              		.loc 1 113 31 view .LVU241
+ 602 03d6 F8EEE77A 		vcvt.f32.s32	s15, s15
+ 603              		.loc 1 113 11 view .LVU242
+ 604 03da 9FED0C7A 		vldr.32	s14, .L10+28
+ 605 03de 67EE877A 		vmul.f32	s15, s15, s14
+ 606              	.LVL20:
+ 114:Module/imu/imu.c **** 				if((yaw_G > 1.0f) || (yaw_G < -1.0f)) ////数据太小可以认为是干扰，不是偏航动�
+ 607              		.loc 1 114 5 is_stmt 1 view .LVU243
+ 608              		.loc 1 114 7 is_stmt 0 view .LVU244
+ 609 03e2 F4EEC97A 		vcmpe.f32	s15, s18
+ 610 03e6 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 611 03ea 40F38880 		ble	.L9
+ 612 03ee 0FE0     		b	.L11
+ 613              	.L12:
+ 614              		.align	2
+ 615              	.L10:
+ 616 03f0 00000000 		.word	NumQ
+ 617 03f4 00000000 		.word	MPU6050
+ 618 03f8 0000F03F 		.word	1072693248
+ 619 03fc 00000000 		.word	NormAcc
+ 620 0400 17B7D138 		.word	953267991
+ 621 0404 00000000 		.word	GyroIntegError
+ 622 0408 2E9E8B3A 		.word	982228526
+ 623 040c F6FF793D 		.word	1031405558
+ 624              	.L11:
+ 625              	.L5:
+ 115:Module/imu/imu.c **** 				{
+ 116:Module/imu/imu.c **** 					pAngE->yaw  += yaw_G * dt * 2.0f;//2倍的积分用来补偿角度
+ 626              		.loc 1 116 6 is_stmt 1 view .LVU245
+ 627              		.loc 1 116 11 is_stmt 0 view .LVU246
+ 628 0410 96ED027A 		vldr.32	s14, [r6, #8]
+ARM GAS  /tmp/ccGPMYlw.s 			page 14
+
+
+ 629              		.loc 1 116 27 view .LVU247
+ 630 0414 28EE278A 		vmul.f32	s16, s16, s15
+ 631              	.LVL21:
+ 632              		.loc 1 116 32 view .LVU248
+ 633 0418 38EE088A 		vadd.f32	s16, s16, s16
+ 634              		.loc 1 116 18 view .LVU249
+ 635 041c 77EE087A 		vadd.f32	s15, s14, s16
+ 636              	.LVL22:
+ 637              		.loc 1 116 18 view .LVU250
+ 638 0420 C6ED027A 		vstr.32	s15, [r6, #8]
+ 639              	.L6:
+ 117:Module/imu/imu.c **** 					// printf("Yaw:%f\r\n",pAngE->yaw);
+ 118:Module/imu/imu.c **** 				}
+ 119:Module/imu/imu.c **** 			#endif
+ 120:Module/imu/imu.c **** 			pAngE->pitch  =  asin(2 * NumQ.q0 *NumQ.q2 - 2 * NumQ.q1 * NumQ.q3) * RtA;						
+ 640              		.loc 1 120 4 is_stmt 1 view .LVU251
+ 641              		.loc 1 120 34 is_stmt 0 view .LVU252
+ 642 0424 3C4C     		ldr	r4, .L13+8
+ 643 0426 D4ED007A 		vldr.32	s15, [r4]
+ 644              		.loc 1 120 28 view .LVU253
+ 645 042a 77EEA77A 		vadd.f32	s15, s15, s15
+ 646              		.loc 1 120 43 view .LVU254
+ 647 042e 94ED027A 		vldr.32	s14, [r4, #8]
+ 648              		.loc 1 120 38 view .LVU255
+ 649 0432 27EE877A 		vmul.f32	s14, s15, s14
+ 650              		.loc 1 120 57 view .LVU256
+ 651 0436 D4ED017A 		vldr.32	s15, [r4, #4]
+ 652              		.loc 1 120 51 view .LVU257
+ 653 043a 77EEA77A 		vadd.f32	s15, s15, s15
+ 654              		.loc 1 120 67 view .LVU258
+ 655 043e D4ED036A 		vldr.32	s13, [r4, #12]
+ 656              		.loc 1 120 61 view .LVU259
+ 657 0442 67EEA67A 		vmul.f32	s15, s15, s13
+ 658              		.loc 1 120 21 view .LVU260
+ 659 0446 77EE677A 		vsub.f32	s15, s14, s15
+ 660 044a 17EE900A 		vmov	r0, s15
+ 661              	.LVL23:
+ 662              		.loc 1 120 21 view .LVU261
+ 663 044e FFF7FEFF 		bl	__aeabi_f2d
+ 664              	.LVL24:
+ 665              		.loc 1 120 21 view .LVU262
+ 666 0452 41EC100B 		vmov	d0, r0, r1
+ 667 0456 FFF7FEFF 		bl	asin
+ 668              	.LVL25:
+ 669 045a 51EC100B 		vmov	r0, r1, d0
+ 670              		.loc 1 120 72 discriminator 1 view .LVU263
+ 671 045e 2CA3     		adr	r3, .L13
+ 672 0460 D3E90023 		ldrd	r2, [r3]
+ 673 0464 FFF7FEFF 		bl	__aeabi_dmul
+ 674              	.LVL26:
+ 675 0468 FFF7FEFF 		bl	__aeabi_d2f
+ 676              	.LVL27:
+ 677              		.loc 1 120 18 discriminator 1 view .LVU264
+ 678 046c 7060     		str	r0, [r6, #4]	@ float
+ 121:Module/imu/imu.c **** 		
+ 122:Module/imu/imu.c **** 			pAngE->roll	= atan2(2 * NumQ.q2 *NumQ.q3 + 2 * NumQ.q0 * NumQ.q1, 1 - 2 * NumQ.q1 *NumQ.q1 - 2 *
+ 679              		.loc 1 122 4 is_stmt 1 view .LVU265
+ARM GAS  /tmp/ccGPMYlw.s 			page 15
+
+
+ 680              		.loc 1 122 32 is_stmt 0 view .LVU266
+ 681 046e D4ED027A 		vldr.32	s15, [r4, #8]
+ 682              		.loc 1 122 26 view .LVU267
+ 683 0472 77EEA77A 		vadd.f32	s15, s15, s15
+ 684              		.loc 1 122 41 view .LVU268
+ 685 0476 94ED037A 		vldr.32	s14, [r4, #12]
+ 686              		.loc 1 122 36 view .LVU269
+ 687 047a 27EE878A 		vmul.f32	s16, s15, s14
+ 688              		.loc 1 122 55 view .LVU270
+ 689 047e D4ED007A 		vldr.32	s15, [r4]
+ 690              		.loc 1 122 49 view .LVU271
+ 691 0482 77EEA77A 		vadd.f32	s15, s15, s15
+ 692              		.loc 1 122 65 view .LVU272
+ 693 0486 94ED017A 		vldr.32	s14, [r4, #4]
+ 694              		.loc 1 122 59 view .LVU273
+ 695 048a 67EE877A 		vmul.f32	s15, s15, s14
+ 696              		.loc 1 122 45 view .LVU274
+ 697 048e 38EE278A 		vadd.f32	s16, s16, s15
+ 698              		.loc 1 122 82 view .LVU275
+ 699 0492 D4ED017A 		vldr.32	s15, [r4, #4]
+ 700              		.loc 1 122 76 view .LVU276
+ 701 0496 77EEA77A 		vadd.f32	s15, s15, s15
+ 702              		.loc 1 122 91 view .LVU277
+ 703 049a 94ED017A 		vldr.32	s14, [r4, #4]
+ 704              		.loc 1 122 86 view .LVU278
+ 705 049e 67EE877A 		vmul.f32	s15, s15, s14
+ 706              		.loc 1 122 72 view .LVU279
+ 707 04a2 B7EE007A 		vmov.f32	s14, #1.0e+0
+ 708 04a6 37EE677A 		vsub.f32	s14, s14, s15
+ 709              		.loc 1 122 105 view .LVU280
+ 710 04aa D4ED027A 		vldr.32	s15, [r4, #8]
+ 711              		.loc 1 122 99 view .LVU281
+ 712 04ae 77EEA77A 		vadd.f32	s15, s15, s15
+ 713              		.loc 1 122 115 view .LVU282
+ 714 04b2 D4ED026A 		vldr.32	s13, [r4, #8]
+ 715              		.loc 1 122 109 view .LVU283
+ 716 04b6 67EEA67A 		vmul.f32	s15, s15, s13
+ 717              		.loc 1 122 18 view .LVU284
+ 718 04ba 77EE677A 		vsub.f32	s15, s14, s15
+ 719 04be 17EE900A 		vmov	r0, s15
+ 720 04c2 FFF7FEFF 		bl	__aeabi_f2d
+ 721              	.LVL28:
+ 722 04c6 41EC190B 		vmov	d9, r0, r1
+ 723 04ca 18EE100A 		vmov	r0, s16
+ 724 04ce FFF7FEFF 		bl	__aeabi_f2d
+ 725              	.LVL29:
+ 726 04d2 B0EE491A 		vmov.f32	s2, s18
+ 727 04d6 F0EE691A 		vmov.f32	s3, s19
+ 728 04da 41EC100B 		vmov	d0, r0, r1
+ 729 04de FFF7FEFF 		bl	atan2
+ 730              	.LVL30:
+ 731 04e2 51EC100B 		vmov	r0, r1, d0
+ 732              		.loc 1 122 120 discriminator 1 view .LVU285
+ 733 04e6 0AA3     		adr	r3, .L13
+ 734 04e8 D3E90023 		ldrd	r2, [r3]
+ 735 04ec FFF7FEFF 		bl	__aeabi_dmul
+ 736              	.LVL31:
+ARM GAS  /tmp/ccGPMYlw.s 			page 16
+
+
+ 737 04f0 FFF7FEFF 		bl	__aeabi_d2f
+ 738              	.LVL32:
+ 739              		.loc 1 122 16 discriminator 1 view .LVU286
+ 740 04f4 3060     		str	r0, [r6]	@ float
+ 741              	.LBE2:
+ 123:Module/imu/imu.c **** 			// printf("Pitch:%f;\r\n",pAngE->pitch);
+ 124:Module/imu/imu.c **** 			// printf("Roll:%f;\r\n",pAngE->roll);
+ 125:Module/imu/imu.c **** 	}
+ 126:Module/imu/imu.c **** }...
+ 742              		.loc 1 126 1 view .LVU287
+ 743 04f6 0CB0     		add	sp, sp, #48
+ 744              	.LCFI3:
+ 745              		.cfi_remember_state
+ 746              		.cfi_def_cfa_offset 32
+ 747              		@ sp needed
+ 748 04f8 BDEC048B 		vldm	sp!, {d8-d9}
+ 749              	.LCFI4:
+ 750              		.cfi_restore 82
+ 751              		.cfi_restore 83
+ 752              		.cfi_restore 80
+ 753              		.cfi_restore 81
+ 754              		.cfi_def_cfa_offset 16
+ 755 04fc 70BD     		pop	{r4, r5, r6, pc}
+ 756              	.LVL33:
+ 757              	.L9:
+ 758              	.LCFI5:
+ 759              		.cfi_restore_state
+ 760              	.LBB3:
+ 114:Module/imu/imu.c **** 				if((yaw_G > 1.0f) || (yaw_G < -1.0f)) ////数据太小可以认为是干扰，不是偏航动�
+ 761              		.loc 1 114 23 discriminator 1 view .LVU288
+ 762 04fe BFEE007A 		vmov.f32	s14, #-1.0e+0
+ 763 0502 F4EEC77A 		vcmpe.f32	s15, s14
+ 764 0506 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 765 050a 8BD5     		bpl	.L6
+ 766 050c 80E7     		b	.L5
+ 767              	.L14:
+ 768 050e 00BF     		.align	3
+ 769              	.L13:
+ 770 0510 00000020 		.word	536870912
+ 771 0514 DCA54C40 		.word	1078765020
+ 772 0518 00000000 		.word	NumQ
+ 773              	.LBE3:
+ 774              		.cfi_endproc
+ 775              	.LFE133:
+ 777              		.global	GyroIntegError
+ 778              		.section	.bss.GyroIntegError,"aw",%nobits
+ 779              		.align	2
+ 782              	GyroIntegError:
+ 783 0000 00000000 		.space	12
+ 783      00000000 
+ 783      00000000 
+ 784              		.global	NumQ
+ 785              		.section	.data.NumQ,"aw"
+ 786              		.align	2
+ 789              	NumQ:
+ 790 0000 0000803F 		.word	1065353216
+ 791 0004 00000000 		.word	0
+ARM GAS  /tmp/ccGPMYlw.s 			page 17
+
+
+ 792 0008 00000000 		.word	0
+ 793 000c 00000000 		.word	0
+ 794              		.section	.bss.NormAcc,"aw",%nobits
+ 795              		.align	2
+ 798              	NormAcc:
+ 799 0000 00000000 		.space	4
+ 800              		.global	Gyro_Gr
+ 801              		.section	.rodata.Gyro_Gr,"a"
+ 802              		.align	2
+ 805              	Gyro_Gr:
+ 806 0000 2E9E8B3A 		.word	982228526
+ 807              		.global	Gyro_G
+ 808              		.section	.rodata.Gyro_G,"a"
+ 809              		.align	2
+ 812              	Gyro_G:
+ 813 0000 F6FF793D 		.word	1031405558
+ 814              		.global	AtR
+ 815              		.section	.rodata.AtR,"a"
+ 816              		.align	2
+ 819              	AtR:
+ 820 0000 35FA8E3C 		.word	1016003125
+ 821              		.global	RtA
+ 822              		.section	.rodata.RtA,"a"
+ 823              		.align	2
+ 826              	RtA:
+ 827 0000 E12E6542 		.word	1113927393
+ 828              		.global	MY_PI
+ 829              		.section	.rodata.MY_PI,"a"
+ 830              		.align	2
+ 833              	MY_PI:
+ 834 0000 DB0F4940 		.word	1078530011
+ 835              		.text
+ 836              	.Letext0:
+ 837              		.file 2 "Module/imu/alldata.h"
+ 838              		.file 3 "/home/yml/mondrian/arm-gnu-toolchain-13.2.Rel1-x86_64-arm-none-eabi/arm-none-eabi/include
+ARM GAS  /tmp/ccGPMYlw.s 			page 18
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 imu.c
+     /tmp/ccGPMYlw.s:21     .text.imu_rest:00000000 $t
+     /tmp/ccGPMYlw.s:27     .text.imu_rest:00000000 imu_rest
+     /tmp/ccGPMYlw.s:71     .text.imu_rest:00000020 $d
+     /tmp/ccGPMYlw.s:789    .data.NumQ:00000000 NumQ
+     /tmp/ccGPMYlw.s:782    .bss.GyroIntegError:00000000 GyroIntegError
+     /tmp/ccGPMYlw.s:82     .text.GetAngle:00000000 $t
+     /tmp/ccGPMYlw.s:88     .text.GetAngle:00000000 GetAngle
+     /tmp/ccGPMYlw.s:616    .text.GetAngle:000003f0 $d
+     /tmp/ccGPMYlw.s:798    .bss.NormAcc:00000000 NormAcc
+     /tmp/ccGPMYlw.s:628    .text.GetAngle:00000410 $t
+     /tmp/ccGPMYlw.s:770    .text.GetAngle:00000510 $d
+     /tmp/ccGPMYlw.s:779    .bss.GyroIntegError:00000000 $d
+     /tmp/ccGPMYlw.s:786    .data.NumQ:00000000 $d
+     /tmp/ccGPMYlw.s:795    .bss.NormAcc:00000000 $d
+     /tmp/ccGPMYlw.s:805    .rodata.Gyro_Gr:00000000 Gyro_Gr
+     /tmp/ccGPMYlw.s:802    .rodata.Gyro_Gr:00000000 $d
+     /tmp/ccGPMYlw.s:812    .rodata.Gyro_G:00000000 Gyro_G
+     /tmp/ccGPMYlw.s:809    .rodata.Gyro_G:00000000 $d
+     /tmp/ccGPMYlw.s:819    .rodata.AtR:00000000 AtR
+     /tmp/ccGPMYlw.s:816    .rodata.AtR:00000000 $d
+     /tmp/ccGPMYlw.s:826    .rodata.RtA:00000000 RtA
+     /tmp/ccGPMYlw.s:823    .rodata.RtA:00000000 $d
+     /tmp/ccGPMYlw.s:833    .rodata.MY_PI:00000000 MY_PI
+     /tmp/ccGPMYlw.s:830    .rodata.MY_PI:00000000 $d
+
+UNDEFINED SYMBOLS
+Angle
+__aeabi_f2d
+__aeabi_ddiv
+__aeabi_d2f
+__aeabi_dmul
+sqrt
+MPU6050
+asin
+atan2

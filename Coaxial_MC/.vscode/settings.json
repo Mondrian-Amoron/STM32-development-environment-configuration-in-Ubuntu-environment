@@ -1,0 +1,17 @@
+{
+    "files.associations": {
+        "fdcan.h": "c",
+        "can3508.h": "c",
+        "stm32g4xx.h": "c",
+        "inv_mpu.h": "c",
+        "i2c.h": "c",
+        "stm32g4xx_hal.h": "c",
+        "init.h": "c",
+        "robot.h": "c",
+        "motor.h": "c",
+        "encoder.h": "c",
+        "kalman.h": "c",
+        "stdio.h": "c"
+    },
+    "makefile.configureOnOpen": true
+}

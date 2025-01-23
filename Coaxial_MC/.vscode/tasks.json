@@ -1,0 +1,14 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "jlink_Flash", 
+            "type": "shell",
+            "command":"make Flash",
+            "group": {
+                "kind": "build",
+                "isDefault": false,
+            }
+        }
+    ]
+}

@@ -1,0 +1,378 @@
+ARM GAS  /tmp/ccwT0PK3.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"init.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.file 1 "Module/imu/init.c"
+  20              		.section	.text.ALL_Init,"ax",%progbits
+  21              		.align	1
+  22              		.global	ALL_Init
+  23              		.syntax unified
+  24              		.thumb
+  25              		.thumb_func
+  27              	ALL_Init:
+  28              	.LFB0:
+   1:Module/imu/init.c **** #include "init.h"
+   2:Module/imu/init.c **** #include "alldata.h"
+   3:Module/imu/init.c **** 
+   4:Module/imu/init.c **** volatile my_uint32_t SysTick_count; //系统时间计数
+   5:Module/imu/init.c **** _st_Mpu MPU6050;   //MPU6050原始数据
+   6:Module/imu/init.c **** _st_AngE Angle;    //当前角度姿态值
+   7:Module/imu/init.c **** _st_Remote Remote; //遥控通道值
+   8:Module/imu/init.c **** 
+   9:Module/imu/init.c **** _st_ALL_flag ALL_flag; //系统标志位，包含解锁标志位等
+  10:Module/imu/init.c **** 
+  11:Module/imu/init.c **** PidObject pidRateX; //内环PID数据
+  12:Module/imu/init.c **** PidObject pidRateY;
+  13:Module/imu/init.c **** PidObject pidRateZ;
+  14:Module/imu/init.c **** 
+  15:Module/imu/init.c **** PidObject pidPitch; //外环PID数据
+  16:Module/imu/init.c **** PidObject pidRoll;
+  17:Module/imu/init.c **** PidObject pidYaw;
+  18:Module/imu/init.c **** 
+  19:Module/imu/init.c **** //void pid_param_Init(void); //PID控制参数初始化，改写PID并不会保存数据，请调�
+  20:Module/imu/init.c **** 
+  21:Module/imu/init.c **** my_int16_t motor_PWM_Value[4];//
+  22:Module/imu/init.c **** 
+  23:Module/imu/init.c **** void ALL_Init(void)
+  24:Module/imu/init.c **** {
+  29              		.loc 1 24 1 view -0
+  30              		.cfi_startproc
+  31              		@ args = 0, pretend = 0, frame = 0
+  32              		@ frame_needed = 0, uses_anonymous_args = 0
+  33              		@ link register save eliminated.
+  25:Module/imu/init.c **** //	USB_HID_Init();   		//USB上位机初始化
+ARM GAS  /tmp/ccwT0PK3.s 			page 2
+
+
+  26:Module/imu/init.c **** //	
+  27:Module/imu/init.c **** //	IIC_Init();             //I2C初始化
+  28:Module/imu/init.c **** //	
+  29:Module/imu/init.c **** //	pid_param_Init();       //PID参数初始化
+  30:Module/imu/init.c **** //	
+  31:Module/imu/init.c **** //	
+  32:Module/imu/init.c **** 	// MpuInit();              //MPU6050初始化
+  33:Module/imu/init.c **** ////----------------------------------------	
+  34:Module/imu/init.c **** //// 水平静止标定，该功能只需要进行一次，不要每次进行。店家发货前已�
+  35:Module/imu/init.c **** //// 如需校准，重新打开即可，延时5S是为了插上电池后有充足的时间将飞�
+  36:Module/imu/init.c **** ////	delay_ms(5000);MpuGetOffset();
+  37:Module/imu/init.c **** ////----------------------------------------		
+  38:Module/imu/init.c **** ////	USART1_Config();  //备用串口     
+  39:Module/imu/init.c **** 
+  40:Module/imu/init.c **** //	
+  41:Module/imu/init.c **** //	NRF24L01_init();				//2.4G遥控通信初始化
+  42:Module/imu/init.c **** //	
+  43:Module/imu/init.c **** //	TIM2_PWM_Config();			//4路PWM初始化
+  44:Module/imu/init.c **** //	TIM3_PWM_Config();      //LED PWM初始化
+  45:Module/imu/init.c **** //	
+  46:Module/imu/init.c **** //	
+  47:Module/imu/init.c **** //	
+  48:Module/imu/init.c **** //	TIM1_Config();					//系统工作周期初始化 
+  49:Module/imu/init.c **** 	
+  50:Module/imu/init.c **** }
+  34              		.loc 1 50 1 view .LVU1
+  35 0000 7047     		bx	lr
+  36              		.cfi_endproc
+  37              	.LFE0:
+  39              		.section	.text.pid_param_Init,"ax",%progbits
+  40              		.align	1
+  41              		.global	pid_param_Init
+  42              		.syntax unified
+  43              		.thumb
+  44              		.thumb_func
+  46              	pid_param_Init:
+  47              	.LFB1:
+  51:Module/imu/init.c **** 
+  52:Module/imu/init.c **** 
+  53:Module/imu/init.c **** ////PID在此处修改
+  54:Module/imu/init.c **** //void pid_param_Init(void)//PID参数初始化
+  55:Module/imu/init.c **** //{
+  56:Module/imu/init.c **** //	pidRateX.kp = 4.0f;
+  57:Module/imu/init.c **** //	pidRateY.kp = 4.0f;
+  58:Module/imu/init.c **** //	pidRateZ.kp = 8.0f;
+  59:Module/imu/init.c **** //	
+  60:Module/imu/init.c **** //	pidRateX.ki = 0.02f;
+  61:Module/imu/init.c **** //	pidRateY.ki = 0.02f;
+  62:Module/imu/init.c **** //	pidRateZ.ki = 0.0f;	
+  63:Module/imu/init.c **** //	
+  64:Module/imu/init.c **** //	pidRateX.kd = 0.28f;
+  65:Module/imu/init.c **** //	pidRateY.kd = 0.28f;
+  66:Module/imu/init.c **** //	pidRateZ.kd = 0.4f;	
+  67:Module/imu/init.c **** //	
+  68:Module/imu/init.c **** //	pidPitch.kp = 6.0f;
+  69:Module/imu/init.c **** //	pidRoll.kp = 6.0f;
+  70:Module/imu/init.c **** //	pidYaw.kp = 6.0f;	
+ARM GAS  /tmp/ccwT0PK3.s 			page 3
+
+
+  71:Module/imu/init.c **** 
+  72:Module/imu/init.c **** 
+  73:Module/imu/init.c **** //}
+  74:Module/imu/init.c **** 
+  75:Module/imu/init.c **** 
+  76:Module/imu/init.c **** ////PID在此处修改
+  77:Module/imu/init.c **** //void pid_param_Init(void)//PID参数初始化
+  78:Module/imu/init.c **** //{
+  79:Module/imu/init.c **** //	pidRateX.kp = 3.f;
+  80:Module/imu/init.c **** //	pidRateY.kp = 3.f;
+  81:Module/imu/init.c **** //	pidRateZ.kp = 6.0f;
+  82:Module/imu/init.c **** //	
+  83:Module/imu/init.c **** //	pidRateX.ki = 0.05f;
+  84:Module/imu/init.c **** //	pidRateY.ki = 0.05f;
+  85:Module/imu/init.c **** //	pidRateZ.ki = 0.02f;	
+  86:Module/imu/init.c **** //	
+  87:Module/imu/init.c **** //	pidRateX.kd = 0.3f;
+  88:Module/imu/init.c **** //	pidRateY.kd = 0.3f;
+  89:Module/imu/init.c **** //	pidRateZ.kd = 0.3f;	
+  90:Module/imu/init.c **** //	
+  91:Module/imu/init.c **** //	pidPitch.kp = 10.0f;
+  92:Module/imu/init.c **** //	pidRoll.kp = 10.0f;
+  93:Module/imu/init.c **** //	pidYaw.kp = 8.0f;	
+  94:Module/imu/init.c **** 
+  95:Module/imu/init.c **** 
+  96:Module/imu/init.c **** //}
+  97:Module/imu/init.c **** //PID在此处修改
+  98:Module/imu/init.c **** void pid_param_Init(void)//PID参数初始化
+  99:Module/imu/init.c **** {
+  48              		.loc 1 99 1 view -0
+  49              		.cfi_startproc
+  50              		@ args = 0, pretend = 0, frame = 0
+  51              		@ frame_needed = 0, uses_anonymous_args = 0
+  52              		@ link register save eliminated.
+  53 0000 10B4     		push	{r4}
+  54              	.LCFI0:
+  55              		.cfi_def_cfa_offset 4
+  56              		.cfi_offset 4, -4
+ 100:Module/imu/init.c **** 	pidRateX.kp = 3.f;
+  57              		.loc 1 100 2 view .LVU3
+  58              		.loc 1 100 14 is_stmt 0 view .LVU4
+  59 0002 0C4C     		ldr	r4, .L4
+  60 0004 0C4B     		ldr	r3, .L4+4
+  61 0006 2361     		str	r3, [r4, #16]	@ float
+ 101:Module/imu/init.c **** 	pidRateY.kp = 3.f;
+  62              		.loc 1 101 2 is_stmt 1 view .LVU5
+  63              		.loc 1 101 14 is_stmt 0 view .LVU6
+  64 0008 0C49     		ldr	r1, .L4+8
+  65 000a 0B61     		str	r3, [r1, #16]	@ float
+ 102:Module/imu/init.c **** 	pidRateZ.kp = 8.0f;
+  66              		.loc 1 102 2 is_stmt 1 view .LVU7
+  67              		.loc 1 102 14 is_stmt 0 view .LVU8
+  68 000c 0C4A     		ldr	r2, .L4+12
+  69 000e 4FF08243 		mov	r3, #1090519040
+  70 0012 1361     		str	r3, [r2, #16]	@ float
+ 103:Module/imu/init.c **** 	
+ 104:Module/imu/init.c **** 	pidRateX.kd = 0.20f;
+ARM GAS  /tmp/ccwT0PK3.s 			page 4
+
+
+  71              		.loc 1 104 2 is_stmt 1 view .LVU9
+  72              		.loc 1 104 14 is_stmt 0 view .LVU10
+  73 0014 0B48     		ldr	r0, .L4+16
+  74 0016 A061     		str	r0, [r4, #24]	@ float
+ 105:Module/imu/init.c **** 	pidRateY.kd = 0.20f;
+  75              		.loc 1 105 2 is_stmt 1 view .LVU11
+  76              		.loc 1 105 14 is_stmt 0 view .LVU12
+  77 0018 8861     		str	r0, [r1, #24]	@ float
+ 106:Module/imu/init.c **** 	pidRateZ.kd = 0.4f;	
+  78              		.loc 1 106 2 is_stmt 1 view .LVU13
+  79              		.loc 1 106 14 is_stmt 0 view .LVU14
+  80 001a 0B49     		ldr	r1, .L4+20
+  81 001c 9161     		str	r1, [r2, #24]	@ float
+ 107:Module/imu/init.c **** 	
+ 108:Module/imu/init.c **** 	pidPitch.kp = 8.0f;
+  82              		.loc 1 108 2 is_stmt 1 view .LVU15
+  83              		.loc 1 108 14 is_stmt 0 view .LVU16
+  84 001e 0B4A     		ldr	r2, .L4+24
+  85 0020 1361     		str	r3, [r2, #16]	@ float
+ 109:Module/imu/init.c **** 	pidRoll.kp = 8.0f;
+  86              		.loc 1 109 2 is_stmt 1 view .LVU17
+  87              		.loc 1 109 13 is_stmt 0 view .LVU18
+  88 0022 0B4A     		ldr	r2, .L4+28
+  89 0024 1361     		str	r3, [r2, #16]	@ float
+ 110:Module/imu/init.c **** 	pidYaw.kp = 6.0f;	
+  90              		.loc 1 110 2 is_stmt 1 view .LVU19
+  91              		.loc 1 110 12 is_stmt 0 view .LVU20
+  92 0026 0B4B     		ldr	r3, .L4+32
+  93 0028 0B4A     		ldr	r2, .L4+36
+  94 002a 1A61     		str	r2, [r3, #16]	@ float
+ 111:Module/imu/init.c **** 	
+ 112:Module/imu/init.c **** 	
+ 113:Module/imu/init.c **** //	pidPitch.ki = 0.01f;
+ 114:Module/imu/init.c **** //	pidRoll.ki = 0.01f;
+ 115:Module/imu/init.c **** 
+ 116:Module/imu/init.c **** 
+ 117:Module/imu/init.c **** }...
+  95              		.loc 1 117 1 view .LVU21
+  96 002c 5DF8044B 		ldr	r4, [sp], #4
+  97              	.LCFI1:
+  98              		.cfi_restore 4
+  99              		.cfi_def_cfa_offset 0
+ 100 0030 7047     		bx	lr
+ 101              	.L5:
+ 102 0032 00BF     		.align	2
+ 103              	.L4:
+ 104 0034 00000000 		.word	pidRateX
+ 105 0038 00004040 		.word	1077936128
+ 106 003c 00000000 		.word	pidRateY
+ 107 0040 00000000 		.word	pidRateZ
+ 108 0044 CDCC4C3E 		.word	1045220557
+ 109 0048 CDCCCC3E 		.word	1053609165
+ 110 004c 00000000 		.word	pidPitch
+ 111 0050 00000000 		.word	pidRoll
+ 112 0054 00000000 		.word	pidYaw
+ 113 0058 0000C040 		.word	1086324736
+ 114              		.cfi_endproc
+ARM GAS  /tmp/ccwT0PK3.s 			page 5
+
+
+ 115              	.LFE1:
+ 117              		.global	motor_PWM_Value
+ 118              		.section	.bss.motor_PWM_Value,"aw",%nobits
+ 119              		.align	2
+ 122              	motor_PWM_Value:
+ 123 0000 00000000 		.space	8
+ 123      00000000 
+ 124              		.global	pidYaw
+ 125              		.section	.bss.pidYaw,"aw",%nobits
+ 126              		.align	2
+ 129              	pidYaw:
+ 130 0000 00000000 		.space	52
+ 130      00000000 
+ 130      00000000 
+ 130      00000000 
+ 130      00000000 
+ 131              		.global	pidRoll
+ 132              		.section	.bss.pidRoll,"aw",%nobits
+ 133              		.align	2
+ 136              	pidRoll:
+ 137 0000 00000000 		.space	52
+ 137      00000000 
+ 137      00000000 
+ 137      00000000 
+ 137      00000000 
+ 138              		.global	pidPitch
+ 139              		.section	.bss.pidPitch,"aw",%nobits
+ 140              		.align	2
+ 143              	pidPitch:
+ 144 0000 00000000 		.space	52
+ 144      00000000 
+ 144      00000000 
+ 144      00000000 
+ 144      00000000 
+ 145              		.global	pidRateZ
+ 146              		.section	.bss.pidRateZ,"aw",%nobits
+ 147              		.align	2
+ 150              	pidRateZ:
+ 151 0000 00000000 		.space	52
+ 151      00000000 
+ 151      00000000 
+ 151      00000000 
+ 151      00000000 
+ 152              		.global	pidRateY
+ 153              		.section	.bss.pidRateY,"aw",%nobits
+ 154              		.align	2
+ 157              	pidRateY:
+ 158 0000 00000000 		.space	52
+ 158      00000000 
+ 158      00000000 
+ 158      00000000 
+ 158      00000000 
+ 159              		.global	pidRateX
+ 160              		.section	.bss.pidRateX,"aw",%nobits
+ 161              		.align	2
+ 164              	pidRateX:
+ 165 0000 00000000 		.space	52
+ARM GAS  /tmp/ccwT0PK3.s 			page 6
+
+
+ 165      00000000 
+ 165      00000000 
+ 165      00000000 
+ 165      00000000 
+ 166              		.global	ALL_flag
+ 167              		.section	.bss.ALL_flag,"aw",%nobits
+ 168              		.align	2
+ 171              	ALL_flag:
+ 172 0000 00       		.space	1
+ 173              		.global	Remote
+ 174              		.section	.bss.Remote,"aw",%nobits
+ 175              		.align	2
+ 178              	Remote:
+ 179 0000 00000000 		.space	16
+ 179      00000000 
+ 179      00000000 
+ 179      00000000 
+ 180              		.global	Angle
+ 181              		.section	.bss.Angle,"aw",%nobits
+ 182              		.align	2
+ 185              	Angle:
+ 186 0000 00000000 		.space	12
+ 186      00000000 
+ 186      00000000 
+ 187              		.global	MPU6050
+ 188              		.section	.bss.MPU6050,"aw",%nobits
+ 189              		.align	2
+ 192              	MPU6050:
+ 193 0000 00000000 		.space	12
+ 193      00000000 
+ 193      00000000 
+ 194              		.global	SysTick_count
+ 195              		.section	.bss.SysTick_count,"aw",%nobits
+ 196              		.align	2
+ 199              	SysTick_count:
+ 200 0000 00000000 		.space	4
+ 201              		.text
+ 202              	.Letext0:
+ 203              		.file 2 "Module/imu/alldata.h"
+ARM GAS  /tmp/ccwT0PK3.s 			page 7
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 init.c
+     /tmp/ccwT0PK3.s:21     .text.ALL_Init:00000000 $t
+     /tmp/ccwT0PK3.s:27     .text.ALL_Init:00000000 ALL_Init
+     /tmp/ccwT0PK3.s:40     .text.pid_param_Init:00000000 $t
+     /tmp/ccwT0PK3.s:46     .text.pid_param_Init:00000000 pid_param_Init
+     /tmp/ccwT0PK3.s:104    .text.pid_param_Init:00000034 $d
+     /tmp/ccwT0PK3.s:164    .bss.pidRateX:00000000 pidRateX
+     /tmp/ccwT0PK3.s:157    .bss.pidRateY:00000000 pidRateY
+     /tmp/ccwT0PK3.s:150    .bss.pidRateZ:00000000 pidRateZ
+     /tmp/ccwT0PK3.s:143    .bss.pidPitch:00000000 pidPitch
+     /tmp/ccwT0PK3.s:136    .bss.pidRoll:00000000 pidRoll
+     /tmp/ccwT0PK3.s:129    .bss.pidYaw:00000000 pidYaw
+     /tmp/ccwT0PK3.s:122    .bss.motor_PWM_Value:00000000 motor_PWM_Value
+     /tmp/ccwT0PK3.s:119    .bss.motor_PWM_Value:00000000 $d
+     /tmp/ccwT0PK3.s:126    .bss.pidYaw:00000000 $d
+     /tmp/ccwT0PK3.s:133    .bss.pidRoll:00000000 $d
+     /tmp/ccwT0PK3.s:140    .bss.pidPitch:00000000 $d
+     /tmp/ccwT0PK3.s:147    .bss.pidRateZ:00000000 $d
+     /tmp/ccwT0PK3.s:154    .bss.pidRateY:00000000 $d
+     /tmp/ccwT0PK3.s:161    .bss.pidRateX:00000000 $d
+     /tmp/ccwT0PK3.s:171    .bss.ALL_flag:00000000 ALL_flag
+     /tmp/ccwT0PK3.s:168    .bss.ALL_flag:00000000 $d
+     /tmp/ccwT0PK3.s:178    .bss.Remote:00000000 Remote
+     /tmp/ccwT0PK3.s:175    .bss.Remote:00000000 $d
+     /tmp/ccwT0PK3.s:185    .bss.Angle:00000000 Angle
+     /tmp/ccwT0PK3.s:182    .bss.Angle:00000000 $d
+     /tmp/ccwT0PK3.s:192    .bss.MPU6050:00000000 MPU6050
+     /tmp/ccwT0PK3.s:189    .bss.MPU6050:00000000 $d
+     /tmp/ccwT0PK3.s:199    .bss.SysTick_count:00000000 SysTick_count
+     /tmp/ccwT0PK3.s:196    .bss.SysTick_count:00000000 $d
+
+NO UNDEFINED SYMBOLS

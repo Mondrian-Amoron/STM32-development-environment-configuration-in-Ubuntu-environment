@@ -1,0 +1,249 @@
+ARM GAS  /tmp/ccSi8LRU.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"encoder.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.file 1 "Module/encoder/encoder.c"
+  20              		.section	.text.EncoderInit,"ax",%progbits
+  21              		.align	1
+  22              		.global	EncoderInit
+  23              		.syntax unified
+  24              		.thumb
+  25              		.thumb_func
+  27              	EncoderInit:
+  28              	.LFB132:
+   1:Module/encoder/encoder.c **** #include "encoder.h"
+   2:Module/encoder/encoder.c **** #include "stdint.h"
+   3:Module/encoder/encoder.c **** #include "robot_def.h"
+   4:Module/encoder/encoder.c **** 
+   5:Module/encoder/encoder.c **** void EncoderInit(void)
+   6:Module/encoder/encoder.c **** {
+  29              		.loc 1 6 1 view -0
+  30              		.cfi_startproc
+  31              		@ args = 0, pretend = 0, frame = 0
+  32              		@ frame_needed = 0, uses_anonymous_args = 0
+  33 0000 10B5     		push	{r4, lr}
+  34              	.LCFI0:
+  35              		.cfi_def_cfa_offset 8
+  36              		.cfi_offset 4, -8
+  37              		.cfi_offset 14, -4
+   7:Module/encoder/encoder.c ****     //开启电机1的编码器通道
+   8:Module/encoder/encoder.c ****     HAL_TIM_Encoder_Start(&htim1, TIM_CHANNEL_1);
+  38              		.loc 1 8 5 view .LVU1
+  39 0002 124C     		ldr	r4, .L3
+  40 0004 0021     		movs	r1, #0
+  41 0006 2046     		mov	r0, r4
+  42 0008 FFF7FEFF 		bl	HAL_TIM_Encoder_Start
+  43              	.LVL0:
+   9:Module/encoder/encoder.c ****     HAL_TIM_Encoder_Start(&htim1, TIM_CHANNEL_2);
+  44              		.loc 1 9 5 view .LVU2
+  45 000c 0421     		movs	r1, #4
+  46 000e 2046     		mov	r0, r4
+  47 0010 FFF7FEFF 		bl	HAL_TIM_Encoder_Start
+  48              	.LVL1:
+  10:Module/encoder/encoder.c ****     
+ARM GAS  /tmp/ccSi8LRU.s 			page 2
+
+
+  11:Module/encoder/encoder.c ****     //开启电机2的编码器通道
+  12:Module/encoder/encoder.c ****     HAL_TIM_Encoder_Start(&htim2, TIM_CHANNEL_1);
+  49              		.loc 1 12 5 view .LVU3
+  50 0014 0E4C     		ldr	r4, .L3+4
+  51 0016 0021     		movs	r1, #0
+  52 0018 2046     		mov	r0, r4
+  53 001a FFF7FEFF 		bl	HAL_TIM_Encoder_Start
+  54              	.LVL2:
+  13:Module/encoder/encoder.c ****     HAL_TIM_Encoder_Start(&htim2, TIM_CHANNEL_2);
+  55              		.loc 1 13 5 view .LVU4
+  56 001e 0421     		movs	r1, #4
+  57 0020 2046     		mov	r0, r4
+  58 0022 FFF7FEFF 		bl	HAL_TIM_Encoder_Start
+  59              	.LVL3:
+  14:Module/encoder/encoder.c **** 
+  15:Module/encoder/encoder.c ****     //开启电机3的编码器通道
+  16:Module/encoder/encoder.c ****     HAL_TIM_Encoder_Start(&htim3, TIM_CHANNEL_1);
+  60              		.loc 1 16 5 view .LVU5
+  61 0026 0B4C     		ldr	r4, .L3+8
+  62 0028 0021     		movs	r1, #0
+  63 002a 2046     		mov	r0, r4
+  64 002c FFF7FEFF 		bl	HAL_TIM_Encoder_Start
+  65              	.LVL4:
+  17:Module/encoder/encoder.c ****     HAL_TIM_Encoder_Start(&htim3, TIM_CHANNEL_2);
+  66              		.loc 1 17 5 view .LVU6
+  67 0030 0421     		movs	r1, #4
+  68 0032 2046     		mov	r0, r4
+  69 0034 FFF7FEFF 		bl	HAL_TIM_Encoder_Start
+  70              	.LVL5:
+  18:Module/encoder/encoder.c **** 
+  19:Module/encoder/encoder.c ****     //开启电机4的编码器通道
+  20:Module/encoder/encoder.c ****     HAL_TIM_Encoder_Start(&htim4, TIM_CHANNEL_1);
+  71              		.loc 1 20 5 view .LVU7
+  72 0038 074C     		ldr	r4, .L3+12
+  73 003a 0021     		movs	r1, #0
+  74 003c 2046     		mov	r0, r4
+  75 003e FFF7FEFF 		bl	HAL_TIM_Encoder_Start
+  76              	.LVL6:
+  21:Module/encoder/encoder.c ****     HAL_TIM_Encoder_Start(&htim4, TIM_CHANNEL_2);
+  77              		.loc 1 21 5 view .LVU8
+  78 0042 0421     		movs	r1, #4
+  79 0044 2046     		mov	r0, r4
+  80 0046 FFF7FEFF 		bl	HAL_TIM_Encoder_Start
+  81              	.LVL7:
+  22:Module/encoder/encoder.c **** }
+  82              		.loc 1 22 1 is_stmt 0 view .LVU9
+  83 004a 10BD     		pop	{r4, pc}
+  84              	.L4:
+  85              		.align	2
+  86              	.L3:
+  87 004c 00000000 		.word	htim1
+  88 0050 00000000 		.word	htim2
+  89 0054 00000000 		.word	htim3
+  90 0058 00000000 		.word	htim4
+  91              		.cfi_endproc
+  92              	.LFE132:
+  94              		.section	.text.EncoderRead,"ax",%progbits
+ARM GAS  /tmp/ccSi8LRU.s 			page 3
+
+
+  95              		.align	1
+  96              		.global	EncoderRead
+  97              		.syntax unified
+  98              		.thumb
+  99              		.thumb_func
+ 101              	EncoderRead:
+ 102              	.LVL8:
+ 103              	.LFB133:
+  23:Module/encoder/encoder.c **** 
+  24:Module/encoder/encoder.c **** short EncoderRead(uint8_t encoder)
+  25:Module/encoder/encoder.c **** {
+ 104              		.loc 1 25 1 is_stmt 1 view -0
+ 105              		.cfi_startproc
+ 106              		@ args = 0, pretend = 0, frame = 0
+ 107              		@ frame_needed = 0, uses_anonymous_args = 0
+ 108              		@ link register save eliminated.
+  26:Module/encoder/encoder.c ****     switch(encoder)
+ 109              		.loc 1 26 5 view .LVU11
+ 110 0000 0138     		subs	r0, r0, #1
+ 111              	.LVL9:
+ 112              		.loc 1 26 5 is_stmt 0 view .LVU12
+ 113 0002 0328     		cmp	r0, #3
+ 114 0004 17D8     		bhi	.L12
+ 115 0006 DFE800F0 		tbb	[pc, r0]
+ 116              	.L8:
+ 117 000a 02       		.byte	(.L11-.L8)/2
+ 118 000b 07       		.byte	(.L10-.L8)/2
+ 119 000c 0C       		.byte	(.L9-.L8)/2
+ 120 000d 11       		.byte	(.L7-.L8)/2
+ 121              		.p2align 1
+ 122              	.L11:
+  27:Module/encoder/encoder.c ****     {
+  28:Module/encoder/encoder.c ****         case MOTOR_LEFT_MID:
+  29:Module/encoder/encoder.c ****             return (short)__HAL_TIM_GET_COUNTER(&htim1);
+ 123              		.loc 1 29 13 is_stmt 1 view .LVU13
+ 124              		.loc 1 29 27 is_stmt 0 view .LVU14
+ 125 000e 0B4B     		ldr	r3, .L13
+ 126 0010 1B68     		ldr	r3, [r3]
+ 127 0012 586A     		ldr	r0, [r3, #36]
+ 128              	.LVL10:
+ 129              		.loc 1 29 20 view .LVU15
+ 130 0014 00B2     		sxth	r0, r0
+ 131 0016 7047     		bx	lr
+ 132              	.L10:
+  30:Module/encoder/encoder.c ****         case MOTOR_RIGHT_MID:
+  31:Module/encoder/encoder.c ****             return (short)__HAL_TIM_GET_COUNTER(&htim2);
+ 133              		.loc 1 31 13 is_stmt 1 view .LVU16
+ 134              		.loc 1 31 27 is_stmt 0 view .LVU17
+ 135 0018 094B     		ldr	r3, .L13+4
+ 136 001a 1B68     		ldr	r3, [r3]
+ 137 001c 586A     		ldr	r0, [r3, #36]
+ 138              		.loc 1 31 20 view .LVU18
+ 139 001e 00B2     		sxth	r0, r0
+ 140 0020 7047     		bx	lr
+ 141              	.L9:
+  32:Module/encoder/encoder.c ****         case MOTOR_RIGHT:
+  33:Module/encoder/encoder.c ****             return (short)__HAL_TIM_GET_COUNTER(&htim3);
+ARM GAS  /tmp/ccSi8LRU.s 			page 4
+
+
+ 142              		.loc 1 33 13 is_stmt 1 view .LVU19
+ 143              		.loc 1 33 27 is_stmt 0 view .LVU20
+ 144 0022 084B     		ldr	r3, .L13+8
+ 145 0024 1B68     		ldr	r3, [r3]
+ 146 0026 586A     		ldr	r0, [r3, #36]
+ 147              		.loc 1 33 20 view .LVU21
+ 148 0028 00B2     		sxth	r0, r0
+ 149 002a 7047     		bx	lr
+ 150              	.L7:
+  34:Module/encoder/encoder.c ****         case MOTOR_LEFT:
+  35:Module/encoder/encoder.c ****             return (short)__HAL_TIM_GET_COUNTER(&htim4);
+ 151              		.loc 1 35 13 is_stmt 1 view .LVU22
+ 152              		.loc 1 35 27 is_stmt 0 view .LVU23
+ 153 002c 064B     		ldr	r3, .L13+12
+ 154 002e 1B68     		ldr	r3, [r3]
+ 155 0030 586A     		ldr	r0, [r3, #36]
+ 156              		.loc 1 35 20 view .LVU24
+ 157 0032 00B2     		sxth	r0, r0
+ 158 0034 7047     		bx	lr
+ 159              	.L12:
+  26:Module/encoder/encoder.c ****     {
+ 160              		.loc 1 26 5 view .LVU25
+ 161 0036 0020     		movs	r0, #0
+  36:Module/encoder/encoder.c ****         default: return 0;
+  37:Module/encoder/encoder.c ****     }
+  38:Module/encoder/encoder.c **** }...
+ 162              		.loc 1 38 1 view .LVU26
+ 163 0038 7047     		bx	lr
+ 164              	.L14:
+ 165 003a 00BF     		.align	2
+ 166              	.L13:
+ 167 003c 00000000 		.word	htim1
+ 168 0040 00000000 		.word	htim2
+ 169 0044 00000000 		.word	htim3
+ 170 0048 00000000 		.word	htim4
+ 171              		.cfi_endproc
+ 172              	.LFE133:
+ 174              		.text
+ 175              	.Letext0:
+ 176              		.file 2 "/home/yml/mondrian/arm-gnu-toolchain-13.2.Rel1-x86_64-arm-none-eabi/arm-none-eabi/include
+ 177              		.file 3 "/home/yml/mondrian/arm-gnu-toolchain-13.2.Rel1-x86_64-arm-none-eabi/arm-none-eabi/include
+ 178              		.file 4 "Drivers/CMSIS/Device/ST/STM32G4xx/Include/stm32g474xx.h"
+ 179              		.file 5 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_def.h"
+ 180              		.file 6 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_dma.h"
+ 181              		.file 7 "Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_tim.h"
+ 182              		.file 8 "Core/Inc/tim.h"
+ARM GAS  /tmp/ccSi8LRU.s 			page 5
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 encoder.c
+     /tmp/ccSi8LRU.s:21     .text.EncoderInit:00000000 $t
+     /tmp/ccSi8LRU.s:27     .text.EncoderInit:00000000 EncoderInit
+     /tmp/ccSi8LRU.s:87     .text.EncoderInit:0000004c $d
+     /tmp/ccSi8LRU.s:95     .text.EncoderRead:00000000 $t
+     /tmp/ccSi8LRU.s:101    .text.EncoderRead:00000000 EncoderRead
+     /tmp/ccSi8LRU.s:117    .text.EncoderRead:0000000a $d
+     /tmp/ccSi8LRU.s:121    .text.EncoderRead:0000000e $t
+     /tmp/ccSi8LRU.s:167    .text.EncoderRead:0000003c $d
+
+UNDEFINED SYMBOLS
+HAL_TIM_Encoder_Start
+htim1
+htim2
+htim3
+htim4
