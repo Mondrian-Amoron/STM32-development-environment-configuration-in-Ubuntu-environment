@@ -5,6 +5,7 @@
 
 > 在此感谢湖南大学跃鹿战队电控开源框架basic_framework提供的环境搭建思路，附上框架链接：[***basic_framework***](https://github.com/HNUYueLuRM/basic_framework)
 
+![bai.png](picture/bai.png)
 #  一、Ubuntu系统的安装
 ## 1、启动盘的制作和双系统的安装
 这里推荐一个b站的视频，这个UP主讲的非常细，Ubuntu的启动盘制作可以参考这个视频[***Windows 和 Ubuntu 双系统的安装和卸载***](https://www.bilibili.com/video/BV1554y1n7zv/?spm_id_from=333.1007.top_right_bar_window_custom_collection.content.click&vd_source=db1d1f91faddd9a92b98355deb2f94a6)
