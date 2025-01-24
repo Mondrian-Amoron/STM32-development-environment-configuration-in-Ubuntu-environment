@@ -45,9 +45,9 @@ g++ -v
 gdb -v
 ```
 ![0003.png](.picture/0003.png)
-## 5、可以使用vim或gedit来编写一段简单的代码运行一下(可跳过)
-对于代码或一个工程，最好是使用专属的文件夹来进行分类管理，这样会显得很有条理，管理起来也方便。例如在此处，我在主目录下创建了/Project/CxC++/test，test即是我的工程文件名，在这里面我们写一个C++程序来进行简单的验证。(以vim为例)
-### (1)首先安装vim
+## 5、编写代码运行（可跳过）
+可以使用vim或gedit，对于代码或一个工程，最好是使用专属的文件夹来进行分类管理，这样会显得很有条理，管理起来也方便。例如在此处，我在主目录下创建了/Project/CxC++/test，test即是我的工程文件名，在这里面我们写一个C++程序来进行简单的验证。(以vim为例)
+### (1)安装vim
 ```bash
 sudo apt-get install vim
 ```
@@ -73,25 +73,32 @@ g++ -o hello hello.cpp
 6.执行编译好的.o文件，验证运行效果<br/>
 ![0009.png](.picture/0009.png)
 # 三、安装、配置VScode
-## 1、前往VScode的官网进行下载，注意选择下载.deb
-[***Visual Studio Code - Code Editing. Redefined***](https://code.visualstudio.com/)
+## 1、下载VScode
+前往VScode的官网进行下载，注意选择下载.deb
+[***Visual Studio Code - Code Editing. Redefined***](https://code.visualstudio.com/)<br/>
 ![0010.png](.picture/0010.png)
-## 2、下载完成之后，在所属文件夹打开终端(一般默认是在“下载”里的)
+## 2、准备安装
+下载完成之后，在所属文件夹打开终端(一般默认是在“下载”里的)<br/>
 ![0011.png](.picture/0011.png)
-## 3、执行如下命令，安装VScode，注意后面的.deb文件版本要对应自己所下载的版本，我这里以1.89为例(dpkg是Debian 系统中的软件包管理工具，感兴趣的可以自己去了解，这里就不多赘述了)
+## 3、安装VScode
+执行如下命令，安装VScode，注意后面的.deb文件版本要对应自己所下载的版本，我这里以1.89为例(dpkg是Debian 系统中的软件包管理工具，感兴趣的可以自己去了解，这里就不多赘述了)
 ```bash
 sudo dpkg -i code_1.96.4-1736991114_amd64.deb
 ```
 ![0012.png](.picture/0012.png)
-## 4、打开VScode，安装必要的插件
-### (1)简体中文插件，一般首次进入后都会在右下角提示你安装的，如果没有提示就自己去搜索安装(注：安装完后需要重启软件才会生效)
+## 4、安装必要的插件
+### (1)简体中文插件
+一般首次进入后都会在右下角提示你安装的，如果没有提示就自己去搜索安装(注：安装完后需要重启软件才会生效)<br/>
 ![0013.png](.picture/0013.png)
-### (2)在左侧扩展商店中搜索“C/C++”，选择第一个进行安装
+### (2)C/C++插件
+在左侧扩展商店中搜索“C/C++”，选择第一个进行安装<br/>
 ![0014.png](.picture/0014.png)
-## 5、创建一个新工程，并使用VScode打开，创建第一个.cpp文件进行测试
-### (1)我这里以创建一个test2文件夹为例(新建“test2”文件夹，右键选择“使用其它程序打开”，选择使用VScode打开)
+## 5、进行测试
+创建一个新工程，并使用VScode打开，创建第一个.cpp文件进行测试
+### (1)打开工程文件夹
+我这里以创建一个test2文件夹为例(新建“test2”文件夹，右键选择“使用其它程序打开”，选择使用VScode打开)<br/>
 ![0015.png](.picture/0015.png)
-### (2)创建一个main.cpp
+### (2)创建main.cpp
 ![0016.png](.picture/0016.png)
 ### (3)编写测试代码
 ```c
@@ -104,8 +111,9 @@ int main()
 }
 ```
 ![0017.png](.picture/0017.png)
-### (4)配置.vscode里的相关.json文件，可以选择右键新建名为“.vscode”的文件夹，然后手动创建以下三个.json文件
-![0018.png](.picture/0018.png)
+### (4)配置json文件
+配置.vscode里的相关.json文件，可以选择右键新建名为“.vscode”的文件夹，然后手动创建以下三个.json文件<br/>
+![0018.png](.picture/0018.png)<br/>
 **launch.json:**
 ```json
 {
@@ -199,7 +207,8 @@ int main()
     ]
 }
 ```
-### (5)回到main.cpp，按下F5进行编译运行(实际上是调试，如果打了断点的话会停在断点)
+### (5)编译运行
+回到main.cpp，按下F5进行编译运行(实际上是调试，如果打了断点的话会停在断点)<br/>
 ![0019.png](.picture/0019.png)
 # 四、安装、配置arm-none-eabi-gcc交叉编译工具链
 关于交叉编译工具链的下载，有很多种方法，可以前往官网下载
@@ -210,7 +219,7 @@ int main()
 ```bash
 tar -xvf arm-gnu-toolchain-13.2.rel1-x86_64-arm-none-eabi.tar.xz
 ```
-压后得到一个同名文件夹
+压后得到一个同名文件夹<br/>
 ![0020.png](.picture/0020.png)
 复制可执行文件“bin”的路径，操作如下：
 
@@ -247,14 +256,15 @@ source profile
 arm-none-eabi-gcc -v
 ```
 ![0023.png](.picture/0023.png)<br/>
-# 五、安装JLink驱动
+# 五、JLink驱动
 ## 1、安装libreadline库
 我们烧录会用到JLinkExe的命令，而JLinkExe会用到libreadline库，所以要安装libreadline库，执行如下命令安装：
 ```bash
 sudo apt-get install libreadline-dev
 ```
-## 2、进入SEGGER的官网，下载JLink驱动(选择Linux下的64-bit DEB Installer)
-[SEGGER - The Embedded Experts - Downloads - J-Link / J-Trace](https://www.segger.com/downloads/jlink/)
+## 2、下载JLink驱动
+进入SEGGER的官网，下载JLink驱动(选择Linux下的64-bit DEB Installer)
+[SEGGER - The Embedded Experts - Downloads - J-Link / J-Trace](https://www.segger.com/downloads/jlink/)<br/>
 ![0024.png](.picture/0024.png)<br/>
 > 现在出了V8版本的驱动，我没有尝试过，有兴趣的可以自行更新，目前我们使用V7的也够用，Installation_package中V7和V8的驱动都有。
 
@@ -387,7 +397,7 @@ q
 ![0050.png](.picture/0050.png)<br/>
 > 注：修改名称后，记得将STM32.JLinkScript里的.hex文件名也修改了。
 
-## 5、修改Makeflie
+## 5、修改Makefile
 打开Makefile后，滑动至最底下，添加下面这条命令
 ```bash
 Flash:
