@@ -10,12 +10,12 @@
 ![NCHU_HongYing](.picture/image.png)
 #  一、Ubuntu系统的安装
 ## 1、启动盘的制作和双系统的安装
-这里推荐一个b站的视频，这个UP主讲的非常细，Ubuntu的启动盘制作可以参考这个视频[***Windows 和 Ubuntu 双系统的安装和卸载***](https://www.bilibili.com/video/BV1554y1n7zv/?spm_id_from=333.1007.top_right_bar_window_custom_collection.content.click&vd_source=db1d1f91faddd9a92b98355deb2f94a6)
+这里推荐一个b站的视频，这个UP主讲的非常细，Ubuntu的启动盘制作可以参考这个视频[***Windows 和 Ubuntu 双系统的安装和卸载***](https://www.bilibili.com/video/BV1554y1n7zv/?spm_id_from=333.1007.top_right_bar_window_custom_collection.content.click&vd_source=db1d1f91faddd9a92b98355deb2f94a6)<br/>
 > 个人建议：关于内存分布这块，建议至少120G，且直接挂载一个根节点，能提高内存空间利用率。<br/>
 > 个人建议：自备一个大容量高速U盘或机械硬盘，每隔一段时间将自己重要的资料或工程文件都重新备份一份，~~因为永远不知道Ubuntu会在什么时候突然崩溃~~。
 
 ## 2、更改Ubuntu时间
-双系统会导致Ubuntu比Windows的时间快8小时，而Windows的时间比Ubuntu慢8小时，所以需要解决系统时间同步的问题。还是第一次分享的那个视频，后面有一节讲到了时间同步的问题。[***系统时间同步问题***](https://www.bilibili.com/video/BV1554y1n7zv?p=9&vd_source=db1d1f91faddd9a92b98355deb2f94a6)
+双系统会导致Ubuntu比Windows的时间快8小时，而Windows的时间比Ubuntu慢8小时，所以需要解决系统时间同步的问题。还是第一次分享的那个视频，后面有一节讲到了时间同步的问题。[***系统时间同步问题***](https://www.bilibili.com/video/BV1554y1n7zv?p=9&vd_source=db1d1f91faddd9a92b98355deb2f94a6)<br/>
 > 个人建议：打开字幕观看，因为有些莫名出现的问题，会在弹幕里有解答
 
 # 二、配置C/C++环境
@@ -212,15 +212,15 @@ int main()
 ![0019.png](.picture/0019.png)
 # 四、安装、配置arm-none-eabi-gcc交叉编译工具链
 关于交叉编译工具链的下载，有很多种方法，可以前往官网下载
-[Downloads | GNU Arm Embedded Toolchain Downloads – Arm Developer](https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads)
+[Downloads | GNU Arm Embedded Toolchain Downloads – Arm Developer](https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads)<br/>
 或者直接使用我上传在天翼云盘的资源(因为百度网盘没有会员的话下载会非常慢)访问码：pgn6
-[arm-gnu-toolchain-13.2.Rel1-x86_64-arm-none-eabi编译工具链下载](https://cloud.189.cn/web/share?code=nMv6Bn67b2Az%EF%BC%88%E8%AE%BF%E9%97%AE%E7%A0%81%EF%BC%9Apgn6%EF%BC%89)
+[arm-gnu-toolchain-13.2.Rel1-x86_64-arm-none-eabi编译工具链下载](https://cloud.189.cn/web/share?code=nMv6Bn67b2Az%EF%BC%88%E8%AE%BF%E9%97%AE%E7%A0%81%EF%BC%9Apgn6%EF%BC%89)<br/>
 下载结束后，打开所在文件夹终端(建议将该压缩包转移到一个不常更改的文件夹里，可以新建)，输入以下命令进行解压：
 ```bash
 tar -xvf arm-gnu-toolchain-13.2.rel1-x86_64-arm-none-eabi.tar.xz
 ```
-压后得到一个同名文件夹<br/>
-![0020.png](.picture/0020.png)
+解压后得到一个同名文件夹 <br/>
+![0020.png](.picture/0020.png)<br/>
 复制可执行文件“bin”的路径，操作如下：
 
 (1)进入“arm-gnu-toolchain-13.2.Rel1-x86_64-arm-none-eabi”文件夹<br/>
@@ -270,7 +270,7 @@ sudo apt-get install libreadline-dev
 
 官网下载速度应该会特别慢，这里可以选择我上传到云盘的资源(v792o版本)：<br/>
 天翼云盘(访问码b4oi)：
-[JLink驱动](https://cloud.189.cn/web/share?code=FzyMRvYFz2ye%EF%BC%88%E8%AE%BF%E9%97%AE%E7%A0%81%EF%BC%9Ab4oi%EF%BC%89)
+[JLink驱动](https://cloud.189.cn/web/share?code=FzyMRvYFz2ye%EF%BC%88%E8%AE%BF%E9%97%AE%E7%A0%81%EF%BC%9Ab4oi%EF%BC%89)<br/>
 ## 3、安装JLink驱动
 下载好后，打开.deb文件所在的文件夹，打开终端，执行以下命令进行安装：
 ```bash
