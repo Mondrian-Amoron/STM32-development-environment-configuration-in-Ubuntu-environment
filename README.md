@@ -389,6 +389,7 @@ q
 - **r**： 通过DEMCR.VC_CORERESET来在复位后暂停核心的执行。在ARM Cortex-M系列微控制器中，DEMCR是一个调试与监控寄存器，而VC_CORERESET是其中的一个位(bit)。将这个位设置为1会导致在复位后暂停核心的执行。
 - **loadfile ./build/G474test.hex**： 加载指定的hex文件(位于"./build/G474test.hex"路径下)到目标设备的Flash存储器中。(注：这里的G474test.hex是上一步“编译”后得到的，工程名称不一样，所得到的.hex文件名也不一样，需要根据实际情况进行修改)。
 - **q**： 退出J-Link调试工具，一次烧录结束。
+
 ![0048.png](.picture/0048.png)<br/>
 
 **修改**(只是举例，可跳过不看)：
@@ -403,7 +404,7 @@ q
 Flash:
 	JLinkExe -if SWD -CommanderScript STM32.JLinkScript
 ```
-**解释：调用JLinkExe(J-Link调试工具)，选择SWD接口(当然你也可以设置为JTAG)与目标设备进行通信，然后执行名为"STM32.JLinkScript"的J-Link脚本文件。**
+**解释：调用JLinkExe(J-Link调试工具)，选择SWD接口(当然你也可以设置为JTAG)与目标设备进行通信，然后执行名为"STM32.JLinkScript"的J-Link脚本文件。** <br/>
 ![0051.png](.picture/0051.png)<br/>
 到这一步后，你就可以使用“make”指令来进行编译，然后插上开发板，使用“make Flash”指令来进行烧录了。<br/>
 ```bash
@@ -443,7 +444,7 @@ make Flash
 # 九、安装Ozone
 Ozone是一款功能强大的调试和系统分析工具，也是SEGGER开发的，支持多种微处理器架构和调试接口，并与SEGGER的J-Link调试器兼容。
 ## 1、下载Ozone的软件包
-[官网：Ozone – The Performance Analyzer](https://www.segger.com/products/development-tools/ozone-j-link-debugger/)
+[官网：Ozone – The Performance Analyzer](https://www.segger.com/products/development-tools/ozone-j-link-debugger/)<br/>
 进去官网后点击“Downloads”<br/>
 ![0057.png](.picture/0057.png)<br/>
 进去之后等一等，网页加载完成后会下滑到“ Ozone - The J-Link Debugger”这一栏，在“Linux”那一栏选择下载“64-bit DEB Installer”<br/>
