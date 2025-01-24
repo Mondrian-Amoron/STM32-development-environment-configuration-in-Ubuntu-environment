@@ -18,6 +18,7 @@
 **tasks.json：** 通用的make Flash烧录任务文件<br/>
 源仓库：[Github链接](https://github.com/Mondrian-Amoron/STM32-development-environment-configuration-in-Ubuntu-environment.git) <br/>
 网络原因请点击：[Gitee链接](https://gitee.com/nchu-hongying-rm/stm32-development-environment-configuration-in-ubuntu-environment.git) <br/>
+有改进建议请发邮件至：**Mondrian@ZohoMail.cn**
 > 更新于2024.1.24 <br/>
 南昌航空大学 RoboMaster 洪鹰战队<br/>
 电控组-Yml<br/>
