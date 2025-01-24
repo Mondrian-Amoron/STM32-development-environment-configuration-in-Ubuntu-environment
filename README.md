@@ -7,7 +7,21 @@
 
 > 在此感谢湖南大学跃鹿战队电控开源框架basic_framework提供的环境搭建思路，附上框架链接：[***basic_framework***](https://github.com/HNUYueLuRM/basic_framework)
 
-![NCHU_HongYing](.picture/image.png)
+# 仓库内容：
+#### Installation_package：包含环境搭建所用软件包、工具链
+**arm-none-eabi-gcc交叉编译工具链：** 13.2版本<br/>
+**CubeMX：** 6.11.1版本、6.13.0版本<br/>
+**JLink驱动：** V792o版本、V812c版本<br/>
+**Ozone：** V310版本、V326版本、V326f版本、V338c版本<br/>
+**System_View_Description：** STM32的常用芯片SVD文件，包含F1、F4、F7、G4、H7、L4系列<br/>
+**VScode：** 1.96.4版本<br/>
+**STM32.JLinkScript：** 以G474为例的脚本配置文件<br/>
+**tasks.json：** 通用的make Flash烧录任务文件<br/>
+> 更新于2024.1.24 <br/>
+南昌航空大学 RoboMaster 洪鹰战队<br/>
+电控组 ，
+Yml
+![NCHU_HongYing](.picture/image.png)<br/>
 #  一、Ubuntu系统的安装
 ## 1、启动盘的制作和双系统的安装
 这里推荐一个b站的视频，这个UP主讲的非常细，Ubuntu的启动盘制作可以参考这个视频[***Windows 和 Ubuntu 双系统的安装和卸载***](https://www.bilibili.com/video/BV1554y1n7zv/?spm_id_from=333.1007.top_right_bar_window_custom_collection.content.click&vd_source=db1d1f91faddd9a92b98355deb2f94a6)<br/>
@@ -74,7 +88,7 @@ g++ -o hello hello.cpp
 ![0009.png](.picture/0009.png)
 # 三、安装、配置VScode
 ## 1、下载VScode
-前往VScode的官网进行下载，注意选择下载.deb
+使用Installation_package中提供的软件包，或前往VScode的官网进行下载，注意选择下载.deb
 [***Visual Studio Code - Code Editing. Redefined***](https://code.visualstudio.com/)<br/>
 ![0010.png](.picture/0010.png)
 ## 2、准备安装
@@ -211,7 +225,7 @@ int main()
 回到main.cpp，按下F5进行编译运行(实际上是调试，如果打了断点的话会停在断点)<br/>
 ![0019.png](.picture/0019.png)
 # 四、安装、配置arm-none-eabi-gcc交叉编译工具链
-关于交叉编译工具链的下载，有很多种方法，可以前往官网下载
+关于交叉编译工具链的下载，有很多种方法，可以使用Installation_package中提供的软件包，或前往官网下载
 [Downloads | GNU Arm Embedded Toolchain Downloads – Arm Developer](https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads)<br/>
 或者直接使用我上传在天翼云盘的资源(因为百度网盘没有会员的话下载会非常慢)访问码：pgn6
 [arm-gnu-toolchain-13.2.Rel1-x86_64-arm-none-eabi编译工具链下载](https://cloud.189.cn/web/share?code=nMv6Bn67b2Az%EF%BC%88%E8%AE%BF%E9%97%AE%E7%A0%81%EF%BC%9Apgn6%EF%BC%89)<br/>
@@ -263,12 +277,12 @@ arm-none-eabi-gcc -v
 sudo apt-get install libreadline-dev
 ```
 ## 2、下载JLink驱动
-进入SEGGER的官网，下载JLink驱动(选择Linux下的64-bit DEB Installer)
+使用Installation_package中提供的软件包，或进入SEGGER的官网，下载JLink驱动(选择Linux下的64-bit DEB Installer)
 [SEGGER - The Embedded Experts - Downloads - J-Link / J-Trace](https://www.segger.com/downloads/jlink/)<br/>
 ![0024.png](.picture/0024.png)<br/>
 > 现在出了V8版本的驱动，我没有尝试过，有兴趣的可以自行更新，目前我们使用V7的也够用，Installation_package中V7和V8的驱动都有。
 
-官网下载速度应该会特别慢，这里可以选择我上传到云盘的资源(v792o版本)：<br/>
+官网下载速度应该会特别慢，这里也可以选择我上传到云盘的资源(v792o版本)：<br/>
 天翼云盘(访问码b4oi)：
 [JLink驱动](https://cloud.189.cn/web/share?code=FzyMRvYFz2ye%EF%BC%88%E8%AE%BF%E9%97%AE%E7%A0%81%EF%BC%9Ab4oi%EF%BC%89)<br/>
 ## 3、安装JLink驱动
@@ -339,7 +353,7 @@ java --version
 ```
 ![0036.png](.picture/0036.png)<br/>
 ## 2、安装CubeMX
-前往官网下载CubeMX软件包(现已出至6.13版本，由于6.12版本有点问题，所以我们一直使用6.11版本，这个版本较稳定，软件包中提供6.11版本，想使用高版本可自行下载)
+使用Installation_package中提供的软件包，或前往官网下载CubeMX软件包(现已出至6.13版本，由于6.12版本有点问题，所以我们一直使用6.11版本，这个版本较稳定，软件包中提供6.11版本，想使用高版本可自行下载)
 [STM32CubeMX软件下载](https://www.st.com/zh/development-tools/stm32cubemx.html#overview)<br/>
 ![0037.png](.picture/0037.png)<br/>
 之后会弹出一个许可协议，我们选择同意后，会弹出选择下载身份的界面，可以右下角选择访客下载，也可以注册一个ST账号后再登录下载，这里建议注册一个账号后再下载<br/>
@@ -375,7 +389,7 @@ make -j16
 执行后可以看到编译好的.elf、.hex、.bin文件<br/>
 ![0047.png](.picture/0047.png)<br/>
 ## 4、编写JLinkScript脚本
-在工程主目录下创建一个.JLinkScript脚本文件(为了后续移植到其他工程较方便，建议统一命名为STM32.JLinkScript)，并编写以下内容
+在工程主目录下创建一个.JLinkScript脚本文件(为了后续移植到其他工程较方便，建议统一命名为STM32.JLinkScript)，并编写以下内容（Installation_package中提供了.JLinkScript文件，可直接CV过来做修改）
 ```bash
 speed 2000
 device STM32G474RB
@@ -416,7 +430,7 @@ make Flash
 
 ## 6、创建烧录task
 如果不想每次敲命令(~~其实回退上一条命令会更快~~)，可以创建一个task，用来点击执行烧录，就像我们使用IDE一样。<br/>
-配置.vscode里的相关.json文件，可以选择右键新建名为“.vscode”的文件夹，然后手动创建“tasks.json”文件，添加下面的内容：
+配置.vscode里的相关.json文件，可以选择右键新建名为“.vscode”的文件夹，然后手动创建“tasks.json”文件，添加下面的内容：（Installation_package中提供了tasks.json，可直接CV过来使用）
 ```bash
 {
     "version": "2.0.0",
@@ -444,7 +458,7 @@ make Flash
 # 九、安装Ozone
 Ozone是一款功能强大的调试和系统分析工具，也是SEGGER开发的，支持多种微处理器架构和调试接口，并与SEGGER的J-Link调试器兼容。
 ## 1、下载Ozone的软件包
-[官网：Ozone – The Performance Analyzer](https://www.segger.com/products/development-tools/ozone-j-link-debugger/)<br/>
+使用Installation_package中提供的软件包，或进入[官网：Ozone – The Performance Analyzer](https://www.segger.com/products/development-tools/ozone-j-link-debugger/)进行下载<br/>
 进去官网后点击“Downloads”<br/>
 ![0057.png](.picture/0057.png)<br/>
 进去之后等一等，网页加载完成后会下滑到“ Ozone - The J-Link Debugger”这一栏，在“Linux”那一栏选择下载“64-bit DEB Installer”<br/>
