@@ -478,7 +478,7 @@ ozone
 **(插曲).svd文件的寻找**
 这个文件可以在ST的官网下载到，流程如下：
 
-进入官网，在搜索栏里搜索想要寻找的芯片型号[ST意法半导体官网](https://www.st.com/content/st_com/zh.html)
+进入官网，在搜索栏里搜索想要寻找的芯片型号[ST意法半导体官网](https://www.st.com/content/st_com/zh.html)<br/>
 ![0065.png](.picture/0065.png)<br/>
 点击搜索出来的芯片，进去后点击“CAD资源”这一栏<br/>
 ![0066.png](.picture/0066.png)<br/>
